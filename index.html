@@ -53,6 +53,7 @@
     <div class="container" id="mainContent">
         <div id="qr-reader" style="height:250px;"></div>
         <div id="qr-result" style="margin-top: 20px;text-align: center;">QR code result will be displayed here</div>
+        <button id="btn-rescan" style="display:none;">Rescan</button>
     </div>
 </body>
 
@@ -66,20 +67,49 @@
 <script>
 initFirebase();
 
-docReady(function () {
-    var resultContainer = document.getElementById('qr-result');
-    function onScanSuccess(decodedText, decodedResult) {
-        // Handle on success condition with the decoded text or result.
-        resultContainer.innerText = decodedText;
-        // ...
-        // Optionally, stop scanning.
-        html5QrcodeScanner.clear();
+    function docReady(fn) {
+        // see if DOM is already available
+        if (document.readyState === "complete" || document.readyState === "interactive") {
+            // call on next available tick
+            setTimeout(fn, 1);
+        } else {
+            document.addEventListener("DOMContentLoaded", fn);
+        }
     }
 
-    var html5QrcodeScanner = new Html5QrcodeScanner(
-        "qr-reader", { fps: 10, qrbox: 250 }, /* verbose= */ false);
-    html5QrcodeScanner.render(onScanSuccess);
-});
+    docReady(function () {
+        var resultContainer = document.getElementById('qr-result');
+        var btnRescan = document.getElementById('btn-rescan');
+        var html5QrcodeScanner;
+
+        function onScanSuccess(decodedText, decodedResult) {
+            // Display the decoded text
+            resultContainer.innerText = `QR Code detected: ${decodedText}`;
+            // Stop scanning
+            html5QrcodeScanner.clear();
+            // Show the rescan button
+            btnRescan.style.display = 'block';
+        }
+
+        function startScanner() {
+            html5QrcodeScanner = new Html5QrcodeScanner(
+                "qr-reader", { fps: 10, qrbox: 250 }, /* verbose= */ false);
+            html5QrcodeScanner.render(onScanSuccess);
+        }
+
+        // Initially start the scanner
+        startScanner();
+
+        // Add click event listener to the rescan button
+        btnRescan.addEventListener('click', function() {
+            // Clear previous results
+            resultContainer.innerText = '';
+            // Hide the rescan button
+            this.style.display = 'none';
+            // Restart the scanner
+            startScanner();
+        });
+    });
 
 function initFirebase() {
     const firebaseConfig = {
@@ -119,15 +149,6 @@ function logout() {
     });
 }
 
-function docReady(fn) {
-    // see if DOM is already available
-    if (document.readyState === "complete" || document.readyState === "interactive") {
-        // call on next available tick
-        setTimeout(fn, 1);
-    } else {
-        document.addEventListener("DOMContentLoaded", fn);
-    }
-}
 </script>
 
 </html>
