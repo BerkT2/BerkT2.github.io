@@ -64,6 +64,71 @@
 <script src="https://unpkg.com/html5-qrcode"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
-<script src="js/tech_scan.js"></script>
+<script>
+initFirebase();
+
+docReady(function () {
+    var resultContainer = document.getElementById('qr-result');
+    function onScanSuccess(decodedText, decodedResult) {
+        // Handle on success condition with the decoded text or result.
+        resultContainer.innerText = decodedText;
+        // ...
+        // Optionally, stop scanning.
+        html5QrcodeScanner.clear();
+    }
+
+    var html5QrcodeScanner = new Html5QrcodeScanner(
+        "qr-reader", { fps: 10, qrbox: 250 }, /* verbose= */ false);
+    html5QrcodeScanner.render(onScanSuccess);
+});
+
+function initFirebase() {
+    const firebaseConfig = {
+        apiKey: "AIzaSyCXZLCytzg_inRzPJ8Xq-sWDkriAxdIYEo",
+        authDomain: "whirl-omniflow.firebaseapp.com",
+        projectId: "whirl-omniflow",
+        storageBucket: "whirl-omniflow.appspot.com",
+        messagingSenderId: "795250209992",
+        appId: "1:795250209992:web:be3b9e2317e7f858d061fd",
+        databaseURL: "https://whirl-omniflow-default-rtdb.europe-west1.firebasedatabase.app",
+        measurementId: "G-Z17KG64QXR"
+    };
+    firebase.initializeApp(firebaseConfig);
+}
+
+function showLoadingScreen() {
+    var loadingContainer = document.getElementById("loadingContainer");
+    loadingContainer.style.display = "flex";
+}
+
+function hideLoadingScreen() {
+    var loadingContainer = document.getElementById("loadingContainer");
+    loadingContainer.style.display = "none";
+}
+
+function updateUserInfo(user) {
+    var userNameElement = document.getElementById("userName");
+    userNameElement.textContent = user.username;
+}
+
+function logout() {
+    firebase.auth().signOut().then(function () {
+        // Sign-out successful, redirect to login page
+        window.location.href = "../login.html";
+    }).catch(function (error) {
+        console.log("Error logging out:", error);
+    });
+}
+
+function docReady(fn) {
+    // see if DOM is already available
+    if (document.readyState === "complete" || document.readyState === "interactive") {
+        // call on next available tick
+        setTimeout(fn, 1);
+    } else {
+        document.addEventListener("DOMContentLoaded", fn);
+    }
+}
+</script>
 
 </html>
