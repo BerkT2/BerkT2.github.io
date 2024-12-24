@@ -4,151 +4,378 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home</title>
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <title>Diet Calendar</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Roboto', sans-serif;
+            background-color: #f9f7f4;
+            color: #333;
+        }
+
+        h3 {
+            margin-block-start: 0px !important;
+            margin-block-end: 0px !important;
+        }
+
+        .calendar-container {
+            text-align: center;
+            margin: 20px auto;
+            max-width: 1200px;
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #4e6b58;
+        }
+
+        .calendar-header button {
+            background-color: #c8d5b9;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-size: 1em;
+        }
+
+        .calendar-header button:hover {
+            background-color: #a6bf8b;
+        }
+
+        .calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+            padding: 10px;
+            background-color: #d1ccc0;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .sport-icon {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            width: 20px;
+            height: 20px;
+        }
+        
+
+        .meeting-icon {
+            position: absolute;
+            top: 7px;
+            left: 8px;
+            width: 18px;
+            height: 18px;
+        }
+
+        .day {
+            text-align: left;
+            background-color: #fef7e3;
+            min-height: 120px;
+            border-radius: 5px;
+            padding: 10px;
+            box-sizing: border-box;
+            cursor: pointer;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.2s, transform 0.2s;
+            position: relative; /* Add this line */
+        }
+        
+
+        .day:hover {
+            background-color: #f8e3c8;
+            transform: translateY(-2px);
+        }
+
+        .day .date {
+            text-align: center;
+            font-weight: bold;
+            color: #4e6b58;
+            margin-bottom: 8px;
+        }
+
+        .day ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .day ul li {
+            margin: 2px 0;
+        }
+
+        .popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #ffffff;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            border-radius: 10px;
+            z-index: 1000;
+            width: 90%;
+            max-width: 500px;
+        }
+
+        .popup h2 {
+            margin-top: 0;
+            color: #4e6b58;
+        }
+
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .calendar {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 5px;
+            }
+        }
+    </style>
 </head>
 
-<body style="padding-top: 130px;">
 
-    <div id="loadingContainer" class="loading-screen">
-        <div class="loading-spinner"></div>
-    </div>
-    <nav style="background-color: #464646 !important" class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
-        <img style="width: 80px;" src="omni.png" />
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse"
-            aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarCollapse">
-            <ul class="navbar-nav mr-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="tech_home.html">Home</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="tech_scan.html">Scan QR</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="tech_logs.html">History</a>
-                </li>
-                <li class="nav-item active disabled">
-                    <a class="nav-link" href="tech_profile.html">Profile</a>
-                </li>
-            </ul>
-            <ul class="navbar-nav ml-auto">
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
-                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <img style="width: 32px;" src="profile_icon.png" />
-                        <span style="font-weight: bold;" id="userName"></span>
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                        <a style="color: black; font-weight: 500;" class="dropdown-item" href="#" onclick="logout()"
-                            id="logoutBtn">Logout</a>
-                    </div>
-                </li>
-            </ul>
+<body>
+    <div class="calendar-container">
+        <div class="calendar-header">
+            <button id="prev-month">&#8592; Önceki</button>
+            <span id="month-year">January 2024</span>
+            <button id="next-month">Sonraki &#8594;</button>
         </div>
-    </nav>
-
-    <div class="container" id="mainContent">
-        <div id="qr-reader" style="height:250px;"></div>
-        <div id="qr-result" style="margin-top: 20px;text-align: center;">QR code result will be displayed here</div>
-        <button id="btn-rescan" style="display:none;">Rescan</button>
+        <div class="calendar" id="calendar"></div>
     </div>
-</body>
 
-<script src="https://www.gstatic.com/firebasejs/8.3.3/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.3.3/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.3.3/firebase-database.js"></script>
-<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
-<script src="https://unpkg.com/html5-qrcode"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
-<script>
-initFirebase();
+    <!-- Popup for Day Details -->
+    <div class="popup-overlay hidden" id="popup-overlay"></div>
+    <div class="popup hidden" id="popup">
+        <h2 id="popup-date">Gün Detayları</h2>
+        <div id="popup-content"></div>
+        <button id="close-popup">Kapat</button>
+    </div>
 
-    function docReady(fn) {
-        // see if DOM is already available
-        if (document.readyState === "complete" || document.readyState === "interactive") {
-            // call on next available tick
-            setTimeout(fn, 1);
-        } else {
-            document.addEventListener("DOMContentLoaded", fn);
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
+        import { getDatabase, ref, get, child } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDEPdsNkESwmNwEOFo4PORL0wxB8FZguy8",
+            authDomain: "diet-track-80b01.firebaseapp.com",
+            projectId: "diet-track-80b01",
+            storageBucket: "diet-track-80b01.appspot.com",
+            messagingSenderId: "1067112678226",
+            databaseURL: "https://diet-track-80b01-default-rtdb.europe-west1.firebasedatabase.app",
+            appId: "1:1067112678226:web:6be4160fc80b686a11f08b"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        const calendar = document.getElementById('calendar');
+        const popupOverlay = document.getElementById('popup-overlay');
+        const popup = document.getElementById('popup');
+        const popupContent = document.getElementById('popup-content');
+        const popupDate = document.getElementById('popup-date');
+        const monthYear = document.getElementById('month-year');
+        const prevMonthBtn = document.getElementById('prev-month');
+        const nextMonthBtn = document.getElementById('next-month');
+        const closePopupButton = document.getElementById('close-popup');
+
+        let currentDate = new Date();
+
+        function renderCalendar() {
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const firstDay = new Date(year, month, 1).getDay();
+            const monthNames = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"];
+
+            monthYear.textContent = `${monthNames[month]} ${year}`;
+            calendar.innerHTML = '';
+
+            for (let i = 0; i < firstDay; i++) {
+                const emptyDay = document.createElement('div');
+                calendar.appendChild(emptyDay);
+            }
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dayBox = document.createElement('div');
+                dayBox.classList.add('day');
+                dayBox.innerHTML = `
+                    <div class="date">${day}</div>
+                    <div id="weight-${day}" style="font-size: 0.9em; color: #888; margin-bottom: 8px;"></div>
+                    <div id="sleep-${day}" style="font-size: 0.9em; color: #888; margin-bottom: 8px;"></div>
+                    <ul id="day-${day}"></ul>
+                `;
+                dayBox.addEventListener('click', () => openPopup(day));
+                calendar.appendChild(dayBox);
+
+                loadDayMealsAndWeight(year, month + 1, day, dayBox);
+            }
         }
-    }
 
-    docReady(function () {
-        var resultContainer = document.getElementById('qr-result');
-        var btnRescan = document.getElementById('btn-rescan');
-        var html5QrcodeScanner;
+        function loadDayMealsAndWeight(year, month, day, dayBox) {
+            const dayKey = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+            const dbRef = ref(database);
 
-        function onScanSuccess(decodedText, decodedResult) {
-            // Display the decoded text
-            resultContainer.innerText = `QR Code detected: ${decodedText}`;
-            // Stop scanning
-            html5QrcodeScanner.clear();
-            // Show the rescan button
-            btnRescan.style.display = 'block';
+            get(child(dbRef, `days/${dayKey}`)).then((snapshot) => {
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    const ul = dayBox.querySelector('ul');
+                    const weightDiv = document.getElementById(`weight-${day}`);
+                    const sleepDiv = document.getElementById(`sleep-${day}`);
+
+                    if (data.weight) {
+                        weightDiv.textContent = `Kilo: ${data.weight} kg`;
+                    }
+
+                    if (data.wakeTime && data.sleepTime) {
+                        sleepDiv.textContent = `Uyku: ${data.wakeTime} - ${data.sleepTime}`;
+                    }
+
+                    if (data.sport) {
+                        const sportIcon = document.createElement('img');
+                        sportIcon.src = 'sport_icon.svg';
+                        sportIcon.alt = 'Sport Icon';
+                        sportIcon.className = 'sport-icon';
+                        weightDiv.appendChild(sportIcon);
+                    }
+
+                    if (data.meeting) {
+                        const sportIcon = document.createElement('img');
+                        sportIcon.src = 'meeting.svg';
+                        sportIcon.alt = 'Meeting Icon';
+                        sportIcon.className = 'meeting-icon';
+                        weightDiv.appendChild(sportIcon);
+                    }
+
+                    if (data.meals) {
+                        Object.values(data.meals).forEach(meal => {
+                            const li = document.createElement('li');
+                            const timeDiv = document.createElement('div');
+                            timeDiv.textContent = meal.time;
+                            timeDiv.style.fontWeight = 'bold';
+
+                            const itemsList = document.createElement('ul');
+                            itemsList.style.listStyleType = 'circle';
+                            itemsList.style.paddingLeft = '20px';
+
+                            Object.values(meal.items).forEach(item => {
+                                const itemLi = document.createElement('li');
+                                itemLi.textContent = `${item.quantity} ${item.food}`;
+                                itemsList.appendChild(itemLi);
+                            });
+
+                            li.appendChild(timeDiv);
+                            li.appendChild(itemsList);
+                            ul.appendChild(li);
+                        });
+                    }
+                }
+            }).catch((error) => {
+                console.error(`Error loading day data for ${dayKey}:`, error);
+            });
         }
 
-        function startScanner() {
-            html5QrcodeScanner = new Html5QrcodeScanner(
-                "qr-reader", { fps: 10, qrbox: 250 }, /* verbose= */ false);
-            html5QrcodeScanner.render(onScanSuccess);
+        function openPopup(day) {
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth() + 1;
+            const dayKey = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+
+            popupOverlay.classList.remove('hidden');
+            popup.classList.remove('hidden');
+            popupDate.textContent = `${monthYear.textContent}, Gün ${day} Detayları`;
+
+            const dbRef = ref(database);
+            get(child(dbRef, `days/${dayKey}`)).then((snapshot) => {
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    let detailsHTML = '';
+
+                    if (data.weight) {
+                        detailsHTML += `<p><strong>Kilo:</strong> ${data.weight} kg</p>`;
+                    }
+
+                    if (data.wakeTime && data.sleepTime) {
+                        detailsHTML += `<p><strong>Uyku:</strong> ${data.wakeTime} - ${data.sleepTime}`;
+                    }
+
+                    if (data.sport && data.sportTime) {
+                        detailsHTML += `<p><strong>Spor:</strong> Evet (Saat: ${data.sportTime})</p>`;
+                    } else if (data.sport) {
+                        detailsHTML += `<p><strong>Spor:</strong> Evet</p>`;
+                    }
+
+                    if (data.details) {
+                        detailsHTML += '<h3>Detaylar</h3><ul>';
+                        Object.values(data.details).forEach(detail => {
+                            detailsHTML += `<li>${detail}</li>`;
+                        });
+                        detailsHTML += '</ul>';
+                    }
+
+                    if (data.meals) {
+                        detailsHTML += '<h3>Öğünler</h3><ul>';
+                        Object.values(data.meals).forEach(meal => {
+                            detailsHTML += `<li style="margin-top: 8px;"><strong>${meal.time}</strong><ul style="list-style-type:circle;padding-left:20px;margin-top: 8px;">${Object.values(meal.items).map(item => `<li>${item.quantity} ${item.food}</li>`).join('')}</ul></li>`;
+                        });
+                        detailsHTML += '</ul>';
+                    }
+
+                    popupContent.innerHTML = detailsHTML;
+                } else {
+                    popupContent.innerHTML = '<p>No details available for this day.</p>';
+                }
+            }).catch((error) => {
+                console.error(`Error loading day details for ${dayKey}:`, error);
+            });
         }
 
-        // Initially start the scanner
-        startScanner();
-
-        // Add click event listener to the rescan button
-        btnRescan.addEventListener('click', function() {
-            // Clear previous results
-            resultContainer.innerText = '';
-            // Hide the rescan button
-            this.style.display = 'none';
-            // Restart the scanner
-            startScanner();
+        closePopupButton.addEventListener('click', () => {
+            popupOverlay.classList.add('hidden');
+            popup.classList.add('hidden');
         });
-    });
 
-function initFirebase() {
-    const firebaseConfig = {
-        apiKey: "AIzaSyCXZLCytzg_inRzPJ8Xq-sWDkriAxdIYEo",
-        authDomain: "whirl-omniflow.firebaseapp.com",
-        projectId: "whirl-omniflow",
-        storageBucket: "whirl-omniflow.appspot.com",
-        messagingSenderId: "795250209992",
-        appId: "1:795250209992:web:be3b9e2317e7f858d061fd",
-        databaseURL: "https://whirl-omniflow-default-rtdb.europe-west1.firebasedatabase.app",
-        measurementId: "G-Z17KG64QXR"
-    };
-    firebase.initializeApp(firebaseConfig);
-}
+        prevMonthBtn.addEventListener('click', () => {
+            currentDate.setMonth(currentDate.getMonth() - 1);
+            renderCalendar();
+        });
 
-function showLoadingScreen() {
-    var loadingContainer = document.getElementById("loadingContainer");
-    loadingContainer.style.display = "flex";
-}
+        nextMonthBtn.addEventListener('click', () => {
+            currentDate.setMonth(currentDate.getMonth() + 1);
+            renderCalendar();
+        });
 
-function hideLoadingScreen() {
-    var loadingContainer = document.getElementById("loadingContainer");
-    loadingContainer.style.display = "none";
-}
+        popupOverlay.addEventListener('click', () => {
+            popupOverlay.classList.add('hidden');
+            popup.classList.add('hidden');
+        });
 
-function updateUserInfo(user) {
-    var userNameElement = document.getElementById("userName");
-    userNameElement.textContent = user.username;
-}
-
-function logout() {
-    firebase.auth().signOut().then(function () {
-        // Sign-out successful, redirect to login page
-        window.location.href = "../login.html";
-    }).catch(function (error) {
-        console.log("Error logging out:", error);
-    });
-}
-
-</script>
+        renderCalendar();
+    </script>
+</body>
 
 </html>
