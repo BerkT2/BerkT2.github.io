@@ -1,326 +1,214 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Diyet Günlüğüm</title>
-    
+    <title>3D STL File Viewer</title>
     <!-- Tailwind CSS for styling -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- React Libraries -->
-    <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
-    <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
-    
-    <!-- Babel to transpile JSX -->
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-
-    <!-- Firebase Libraries (v8 Compat for single-file usage) -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* Simple animation for modal */
-        @keyframes fade-in {
-            from { opacity: 0; transform: scale(0.95); }
-            to { opacity: 1; transform: scale(1); }
-        }
-        .animate-fade-in {
-            animation: fade-in 0.2s ease-out forwards;
-        }
+        /* Custom styles for the 3D viewer and page layout */
         body {
             font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5; /* A light grey background */
+        }
+        #viewer-container {
+            width: 100%;
+            height: 60vh; /* Viewport height for the viewer */
+            max-height: 700px;
+            background-color: #e2e8f0; /* A slightly darker grey for the viewer background */
+            border-radius: 0.75rem; /* Rounded corners */
+            cursor: grab;
+        }
+        #viewer-container:active {
+            cursor: grabbing;
+        }
+        canvas {
+            display: block; /* Remove default bottom margin */
         }
     </style>
-     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 </head>
-<body class="bg-gray-100">
+<body class="bg-gray-100 text-gray-800">
 
-    <div id="root"></div>
+    <div class="container mx-auto p-4 sm:p-6 lg:p-8 max-w-4xl">
+        <!-- Header Section -->
+        <header class="text-center mb-6">
+            <h1 class="text-3xl sm:text-4xl font-bold text-gray-900">3D STL File Viewer</h1>
+            <p class="mt-2 text-md text-gray-600">Upload an .stl file to view it in 3D. Drag to rotate, scroll to zoom, right-click and drag to pan.</p>
+        </header>
 
-    <script type="text/babel">
-        // --- Deconstruct React hooks for easier use ---
-        const { useState, useEffect, useMemo, useCallback } = React;
+        <!-- Main Content -->
+        <main class="bg-white p-6 rounded-xl shadow-lg">
+            <!-- File Upload Section -->
+            <div class="flex flex-col items-center justify-center mb-6">
+                <label for="file-upload" class="relative cursor-pointer bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 inline-block mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                    </svg>
+                    Upload STL File
+                </label>
+                <input id="file-upload" type="file" class="hidden" accept=".stl">
+                <p id="file-name" class="mt-3 text-sm text-gray-500">No file selected.</p>
+            </div>
 
-        // --- Icon Components (replaces lucide-react library) ---
-        const Icon = ({ children, size = 20, className = "" }) => (
-            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-                {children}
-            </svg>
-        );
-        const ChevronLeft = (props) => <Icon {...props}><polyline points="15 18 9 12 15 6"></polyline></Icon>;
-        const ChevronRight = (props) => <Icon {...props}><polyline points="9 18 15 12 9 6"></polyline></Icon>;
-        const Droplet = (props) => <Icon {...props}><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path></Icon>;
-        const Weight = (props) => <Icon {...props}><circle cx="12" cy="5" r="3"></circle><path d="M6.5 8a2 2 0 0 0-1.9 1.5L2 18h20l-2.6-8.5A2 2 0 0 0 17.5 8h-11Z"></path></Icon>;
-        const Dumbbell = (props) => <Icon {...props}><path d="M14.4 14.4 9.6 9.6M18 5 6 17M6 5l12 12M21 12h-2M5 12H3M12 21v-2M12 5V3"></path></Icon>;
-        const Utensils = (props) => <Icon {...props}><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2M7 2v10M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm-5 5v-6"></path></Icon>;
-        const BookHeart = (props) => <Icon {...props}><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20v2H6.5a.5.5 0 0 0 0 1H20v2H6.5A2.5 2.5 0 0 1 4 19.5z"></path><path d="M16 13.14a2.5 2.5 0 1 0-3.5-3.5L12 9l-.5-.5a2.5 2.5 0 1 0-3.5 3.5l4 4 4-4z"></path><path d="M2 6s.5-1 2-1h14c1.5 0 2 1 2 1v11s-.5 1-2 1h-3"></path></Icon>;
-        const Plus = (props) => <Icon {...props}><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></Icon>;
-        const Trash2 = (props) => <Icon {...props}><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></Icon>;
-        const X = (props) => <Icon {...props}><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></Icon>;
-        const Edit = (props) => <Icon {...props}><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></Icon>;
-        const AlertTriangle = (props) => <Icon {...props}><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></Icon>;
-
-        // --- Firebase Configuration ---
-        const firebaseConfig = {
-            apiKey: "AIzaSyDEPdsNkESwmNwEOFo4PORL0wxB8FZguy8",
-            authDomain: "diet-track-80b01.firebaseapp.com",
-            projectId: "diet-track-80b01",
-            storageBucket: "diet-track-80b01.appspot.com",
-            messagingSenderId: "1067112678226",
-            databaseURL: "https://diet-track-80b01-default-rtdb.europe-west1.firebasedatabase.app",
-            appId: "1:1067112678226:web:6be4160fc80b686a11f08b"
-        };
-        
-        // --- Initialize Firebase using Compat libraries ---
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.database();
-        
-        // --- Helper Functions & Constants ---
-        const formatDate = (date) => {
-            const year = date.getFullYear();
-            const month = (date.getMonth() + 1).toString().padStart(2, '0');
-            const day = date.getDate().toString().padStart(2, '0');
-            return `${year}-${month}-${day}`;
-        };
-        const MONTH_NAMES = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"];
-        const WEEK_DAYS = ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'];
-        const MEAL_TYPES = { Breakfast: 'Kahvaltı', Lunch: 'Öğle Yemeği', Dinner: 'Akşam Yemeği', Snack: 'Ara Öğün' };
-
-        // --- React Components (copied and adapted from original) ---
-        const Modal = ({ isOpen, onClose, children }) => {
-            if (!isOpen) return null;
-            return (
-                <div className="fixed inset-0 bg-black bg-opacity-60 z-50 flex justify-center items-center p-4 animate-fade-in" onClick={onClose}>
-                    <div className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto p-8 relative" onClick={(e) => e.stopPropagation()}>
-                        <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-gray-800 transition"><X size={24} /></button>
-                        {children}
-                    </div>
+            <!-- 3D Viewer Container -->
+            <div id="viewer-container" class="relative shadow-inner">
+                 <!-- Placeholder text -->
+                <div id="placeholder" class="absolute inset-0 flex items-center justify-center text-gray-500">
+                    <p>3D Preview will appear here</p>
                 </div>
-            );
-        };
+            </div>
+        </main>
 
-        const DailyLogForm = ({ selectedDate, entry, userId, onSave, isEditMode }) => {
-            const [weight, setWeight] = useState('');
-            const [water, setWater] = useState('');
-            const [meals, setMeals] = useState([]);
-            const [activity, setActivity] = useState('');
-            const [notes, setNotes] = useState('');
-            const [isSaving, setIsSaving] = useState(false);
-            const [mealName, setMealName] = useState('');
-            const [mealAmount, setMealAmount] = useState('');
-            const [mealTime, setMealTime] = useState('08:00');
-            const [mealType, setMealType] = useState('Breakfast');
+        <!-- Footer -->
+        <footer class="text-center mt-8 text-sm text-gray-500">
+            <p>Powered by <a href="https://threejs.org/" target="_blank" class="text-blue-500 hover:underline">Three.js</a></p>
+        </footer>
+    </div>
 
-            useEffect(() => {
-                if (entry) {
-                    setWeight(entry.weight || '');
-                    setWater(entry.water || '');
-                    setMeals(entry.meals?.map(m => ({...m, id: Math.random()})) || []);
-                    setActivity(entry.activity || '');
-                    setNotes(entry.notes || '');
-                } else {
-                    setWeight(''); setWater(''); setMeals([]); setActivity(''); setNotes('');
-                }
-            }, [entry]);
+    <!-- Three.js Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- OrbitControls for camera manipulation -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <!-- STLLoader for loading STL files -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/STLLoader.js"></script>
 
-            const handleAddMeal = (e) => { e.preventDefault(); if (!mealName || !mealAmount) return; setMeals([...meals, { id: Math.random(), name: mealName, amount: mealAmount, time: mealTime, type: mealType }]); setMealName(''); setMealAmount(''); };
-            const handleRemoveMeal = (mealId) => setMeals(meals.filter(m => m.id !== mealId));
-            
-            const handleSave = async () => { 
-                if (!userId) { alert("Veri kaydetmek için kimliğinizin doğrulanması bekleniyor. Lütfen tekrar deneyin."); return; }
-                setIsSaving(true); 
-                const dateStr = formatDate(selectedDate);
-                const logData = { authorId: userId, date: dateStr, weight: parseFloat(weight) || null, water: parseFloat(water) || null, meals: meals.map(({id, ...rest}) => rest), activity, notes, lastUpdated: new Date().toISOString() };
-                const logRef = db.ref(`dietEntries/public/${dateStr}`);
-                try { 
-                    await logRef.set(logData);
-                    onSave(); 
-                } catch (error) { 
-                    console.error("Kaydetme hatası:", error); 
-                } finally { 
-                    setIsSaving(false); 
-                } 
-            };
-            
-            const mealsByType = (type) => meals.filter(m => m.type === type);
+    <script>
+        // Main script for the 3D viewer
+        document.addEventListener('DOMContentLoaded', () => {
+            const container = document.getElementById('viewer-container');
+            const fileInput = document.getElementById('file-upload');
+            const fileNameDisplay = document.getElementById('file-name');
+            const placeholder = document.getElementById('placeholder');
 
-            if (!isEditMode) {
-                 return (
-                    <div>
-                        <h2 className="text-3xl font-bold text-gray-800 mb-1">Günlük Detayları</h2>
-                        <p className="text-xl font-medium text-indigo-600 mb-8">{selectedDate.toLocaleDateString('tr-TR', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' })}</p>
-                        {!entry ? <div className="text-center py-12 text-gray-500">Bu tarih için kayıt bulunmuyor.</div> : (
-                            <div className="space-y-6">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6"><div className="bg-gray-50 p-4 rounded-xl"><div className="flex items-center text-gray-700 font-medium mb-1"><Weight size={20} className="text-indigo-500 mr-2"/>Kilo</div><span className="text-2xl font-bold text-gray-900">{entry.weight || 'N/A'}</span> <span className="text-gray-600">kg</span></div><div className="bg-gray-50 p-4 rounded-xl"><div className="flex items-center text-gray-700 font-medium mb-1"><Droplet size={20} className="text-indigo-500 mr-2"/>Su Tüketimi</div><span className="text-2xl font-bold text-gray-900">{entry.water || 'N/A'}</span> <span className="text-gray-600">litre</span></div></div>
-                                <div><h3 className="flex items-center text-xl font-semibold text-gray-700 mb-3"><Utensils size={20} className="text-indigo-500 mr-2"/>Öğünler</h3><div className="space-y-4">{Object.keys(MEAL_TYPES).map(typeKey => ((entry.meals?.filter(m => m.type === typeKey).length > 0) && (<div key={typeKey}><h4 className="font-bold text-gray-600 mb-2">{MEAL_TYPES[typeKey]}</h4><ul className="space-y-2 pl-2 border-l-2 border-indigo-100">{entry.meals.filter(m => m.type === typeKey).map((meal, i) => (<li key={i} className="flex items-center justify-between"><p><span className="font-semibold">{meal.name}</span> <span className="text-gray-500 text-sm">({meal.amount})</span></p><span className="text-sm font-mono text-gray-500">{meal.time}</span></li>))}</ul></div>)))}{(entry.meals || []).length === 0 && <p className="text-gray-500">Öğün kaydı yok.</p>}</div></div>
-                                <div><h3 className="flex items-center text-xl font-semibold text-gray-700 mb-2"><Dumbbell size={20} className="text-indigo-500 mr-2"/>Spor / Aktivite</h3><p className="p-3 bg-gray-50 rounded-lg">{entry.activity || 'Aktivite kaydı yok.'}</p></div>
-                                <div><h3 className="flex items-center text-xl font-semibold text-gray-700 mb-2"><BookHeart size={20} className="text-indigo-500 mr-2"/>Notlar</h3><p className="p-3 bg-gray-50 rounded-lg">{entry.notes || 'Not bulunmuyor.'}</p></div>
-                            </div>
-                        )}
-                    </div>
-                );
-            }
-            
-            return (
-                <div>
-                    <h2 className="text-3xl font-bold text-gray-800 mb-1">Günlük Kaydı</h2>
-                    <p className="text-xl font-medium text-indigo-600 mb-8">{selectedDate.toLocaleDateString('tr-TR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 mb-8"><div><label className="flex items-center text-gray-700 font-medium mb-2"><Weight size={20} className="text-indigo-500"/><span className="ml-2">Kilo</span></label><div className="relative"><input type="number" placeholder="Örn: 75.5" value={weight} onChange={(e) => setWeight(e.target.value)} className="w-full p-3 pl-4 bg-gray-50 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-400" /><span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">kg</span></div></div><div><label className="flex items-center text-gray-700 font-medium mb-2"><Droplet size={20} className="text-indigo-500"/><span className="ml-2">Su Tüketimi</span></label><div className="relative"><input type="number" placeholder="Örn: 2.5" value={water} onChange={(e) => setWater(e.target.value)} className="w-full p-3 pl-4 bg-gray-50 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-400" /><span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">litre</span></div></div></div>
-                    <div className="mb-8">
-                        <h3 className="flex items-center text-xl font-semibold text-gray-700 mb-4"><Utensils size={20} className="text-indigo-500 mr-2"/>Öğünler</h3>
-                        <form onSubmit={handleAddMeal} className="bg-gray-100 p-4 rounded-xl mb-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 items-end"><div className="md:col-span-2"><label className="text-sm font-medium text-gray-600">Yiyecek / İçecek</label><input type="text" placeholder="Örn: Izgara Tavuk" value={mealName} onChange={(e) => setMealName(e.target.value)} className="w-full mt-1 p-2 rounded-lg border-gray-300"/></div><div><label className="text-sm font-medium text-gray-600">Miktar</label><input type="text" placeholder="Örn: 150g" value={mealAmount} onChange={(e) => setMealAmount(e.target.value)} className="w-full mt-1 p-2 rounded-lg border-gray-300"/></div><div><label className="text-sm font-medium text-gray-600">Saat</label><input type="time" value={mealTime} onChange={(e) => setMealTime(e.target.value)} className="w-full mt-1 p-2 rounded-lg border-gray-300"/></div><div><label className="text-sm font-medium text-gray-600">Öğün Tipi</label><select value={mealType} onChange={(e) => setMealType(e.target.value)} className="w-full mt-1 p-2 rounded-lg border-gray-300 bg-white"><option value="Breakfast">{MEAL_TYPES.Breakfast}</option><option value="Lunch">{MEAL_TYPES.Lunch}</option><option value="Dinner">{MEAL_TYPES.Dinner}</option><option value="Snack">{MEAL_TYPES.Snack}</option></select></div><div className="sm:col-span-2 md:col-span-4"><button type="submit" className="w-full flex justify-center items-center gap-2 bg-indigo-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-indigo-600 transition"><Plus size={18}/> Öğün Ekle</button></div></form>
-                         <div className="space-y-4">{Object.keys(MEAL_TYPES).map(typeKey => (mealsByType(typeKey).length > 0 && (<div key={typeKey}><h4 className="font-bold text-gray-600 mb-2">{MEAL_TYPES[typeKey]}</h4><ul className="space-y-2">{mealsByType(typeKey).map(meal => (<li key={meal.id} className="flex items-center justify-between bg-white p-2 rounded-lg border"><div><span className="font-semibold">{meal.name}</span><span className="text-gray-500 text-sm"> ({meal.amount})</span></div><div className="flex items-center gap-4"><span className="text-sm font-mono text-gray-500">{meal.time}</span><button onClick={() => handleRemoveMeal(meal.id)} className="text-red-400 hover:text-red-600"><Trash2 size={16}/></button></div></li>))}</ul></div>)))}</div>
-                    </div>
-                    <div className="mb-8"><label className="flex items-center text-xl font-semibold text-gray-700 mb-2"><Dumbbell size={20} className="text-indigo-500 mr-2"/>Spor / Aktivite</label><textarea placeholder="Örn: 30 dk yürüyüş" value={activity} onChange={(e) => setActivity(e.target.value)} rows="3" className="w-full p-3 bg-gray-50 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-400" /></div>
-                    <div><label className="flex items-center text-xl font-semibold text-gray-700 mb-2"><BookHeart size={20} className="text-indigo-500 mr-2"/>Duygular / Notlar</label><textarea placeholder="Bugün nasıl hissettin?" value={notes} onChange={(e) => setNotes(e.target.value)} rows="3" className="w-full p-3 bg-gray-50 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-400" /></div>
-                    <div className="mt-8"><button onClick={handleSave} disabled={isSaving} className="w-full bg-indigo-600 text-white font-bold py-4 px-4 rounded-xl hover:bg-indigo-700 transition-all duration-300 disabled:bg-indigo-300 flex items-center justify-center shadow-lg text-lg">{isSaving ? "Kaydediliyor..." : "Kaydet ve Kapat"}</button></div>
-                </div>
-            );
-        };
+            let scene, camera, renderer, controls, model;
 
-        const DayBox = ({ day, date, isToday, entry, onClick, isEditMode }) => {
-            const baseClasses = "relative bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer aspect-square flex flex-col p-3 overflow-hidden border";
-            const todayClasses = isToday ? "border-2 border-indigo-500" : "border-gray-200";
-            return (
-                <div className={`${baseClasses} ${todayClasses}`} onClick={onClick}><div className={`font-bold ${isToday ? 'text-indigo-600' : 'text-gray-700'}`}>{day}</div>
-                    {entry && (<div className="mt-2 text-xs space-y-1 text-gray-600 flex-grow overflow-y-auto pr-1">
-                            {entry.weight && <div className="flex items-center gap-1.5"><Weight size={14} className="text-gray-400"/><span>{entry.weight} kg</span></div>}
-                            {entry.water && <div className="flex items-center gap-1.5"><Droplet size={14} className="text-blue-400"/><span>{entry.water} L</span></div>}
-                            {entry.meals?.length > 0 && <div className="pt-1"><Utensils size={14} className="text-gray-400 inline-block mr-1.5"/><span className="font-semibold">{entry.meals.length} öğün</span></div>}
-                    </div>)}
-                    {!entry && isEditMode && <div className="flex-grow flex items-center justify-center text-gray-300 hover:text-indigo-400"><Plus size={24}/></div>}
-                </div>
-            );
-        }
+            // --- Initialization ---
+            function init() {
+                // Scene
+                scene = new THREE.Scene();
+                scene.background = new THREE.Color(0xe2e8f0); // Match container background
 
-        const CalendarGrid = ({ currentDate, entries, onDayClick, isEditMode }) => {
-            const [year, month] = [currentDate.getFullYear(), currentDate.getMonth()];
-            const calendarDays = useMemo(() => {
-                const firstDayOfMonth = (new Date(year, month, 1).getDay() + 6) % 7;
-                const daysInMonth = new Date(year, month + 1, 0).getDate();
-                const todayStr = formatDate(new Date());
-                const days = [];
-                for (let i = 0; i < firstDayOfMonth; i++) { days.push(<div key={`blank-${i}`} className="bg-gray-50 rounded-lg"></div>); }
-                for (let i = 1; i <= daysInMonth; i++) {
-                    const dayDate = new Date(year, month, i);
-                    const dateStr = formatDate(dayDate);
-                    days.push(<DayBox key={i} day={i} date={dayDate} isToday={dateStr === todayStr} entry={entries[dateStr]} onClick={() => onDayClick(dayDate)} isEditMode={isEditMode} />);
-                }
-                return days;
-            }, [year, month, entries, onDayClick, isEditMode]);
-            return (<div className="bg-white p-6 rounded-3xl shadow-lg"><div className="grid grid-cols-7 gap-2 text-center font-semibold text-gray-600 mb-4">{WEEK_DAYS.map(day => <div key={day}>{day}</div>)}</div><div className="grid grid-cols-7 gap-3">{calendarDays}</div></div>);
-        };
+                // Camera
+                camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
+                camera.position.z = 50;
 
-        function App() {
-            const [userId, setUserId] = useState(null);
-            const [isAuthReady, setIsAuthReady] = useState(false);
-            const [isEditMode, setIsEditMode] = useState(false);
-            const [currentDate, setCurrentDate] = useState(new Date());
-            const [entries, setEntries] = useState({});
-            const [isLoading, setIsLoading] = useState(true);
-            const [isModalOpen, setIsModalOpen] = useState(false);
-            const [selectedDateForModal, setSelectedDateForModal] = useState(null);
-            const [authError, setAuthError] = useState(null);
-            
-            useEffect(() => {
-                const unsubscribe = auth.onAuthStateChanged(async (user) => {
-                    if (user) {
-                        setUserId(user.uid);
-                        setAuthError(null);
-                        setIsAuthReady(true);
-                    } else {
-                        try {
-                            await auth.signInAnonymously();
-                        } catch (error) {
-                            console.error("Anonymous sign-in failed:", error);
-                            if (error.code === 'auth/operation-not-allowed') {
-                                setAuthError("Firebase projenizde 'Anonim' (Anonymous) giriş yöntemi etkinleştirilmemiş. Lütfen Firebase Authentication ayarlarından bu yöntemi etkinleştirip sayfayı yenileyin.");
-                            } else {
-                                setAuthError(`Bir kimlik doğrulama hatası oluştu: ${error.message}`);
-                            }
-                            setIsAuthReady(true);
-                        }
-                    }
-                });
-                return () => unsubscribe();
-            }, []);
+                // Renderer
+                renderer = new THREE.WebGLRenderer({ antialias: true });
+                renderer.setSize(container.clientWidth, container.clientHeight);
+                renderer.setPixelRatio(window.devicePixelRatio);
+                container.appendChild(renderer.domElement);
 
-            useEffect(() => {
-                if (!isAuthReady || authError) {
-                    if (isAuthReady) setIsLoading(false);
-                    return;
-                }
-                setIsLoading(true);
-                const publicEntriesRef = db.ref(`dietEntries/public`);
-                const listener = publicEntriesRef.on('value', (snapshot) => {
-                    setEntries(snapshot.val() || {});
-                    setIsLoading(false);
-                }, (error) => {
-                    console.error("Veri alınırken hata:", error);
-                    setIsLoading(false);
-                });
-                return () => publicEntriesRef.off('value', listener);
-            }, [isAuthReady, authError]);
+                // Lighting
+                const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+                scene.add(ambientLight);
 
-            const handleMonthChange = (offset) => setCurrentDate(prevDate => { const newDate = new Date(prevDate); newDate.setMonth(newDate.getMonth() + offset); return newDate; });
-            const handleDayClick = useCallback((date) => { setSelectedDateForModal(date); setIsModalOpen(true); }, []);
-            const closeModal = () => { setIsModalOpen(false); setSelectedDateForModal(null); }
-            const selectedEntry = selectedDateForModal ? entries[formatDate(selectedDateForModal)] : null;
-            
-            if (authError) {
-                return (
-                    <div className="min-h-screen bg-red-50 flex items-center justify-center p-4">
-                        <div className="bg-white p-8 rounded-2xl shadow-xl text-center max-w-2xl">
-                            <AlertTriangle className="mx-auto text-red-500 mb-4" size={48} />
-                            <h1 className="text-2xl font-bold text-red-600 mb-3">Kimlik Doğrulama Hatası</h1>
-                            <p className="text-gray-700 mb-6">{authError}</p>
-                            <div className="bg-gray-100 p-4 rounded-lg text-left">
-                                <p className="font-semibold">Çözüm Adımları:</p>
-                                <ol className="list-decimal list-inside mt-2 text-sm text-gray-800 space-y-1">
-                                    <li>Firebase Console'a gidin.</li>
-                                    <li>Projenizi seçin: <strong>diet-track-80b01</strong></li>
-                                    <li>Sol menüden <strong>Authentication</strong>'a tıklayın.</li>
-                                    <li><strong>Sign-in method</strong> (Giriş yöntemi) sekmesine geçin.</li>
-                                    <li>Listeden <strong>Anonim</strong> (Anonymous) seçeneğini bulun ve etkinleştirin.</li>
-                                    <li>Ayarı kaydettikten sonra bu sayfayı yenileyin.</li>
-                                </ol>
-                            </div>
-                        </div>
-                    </div>
-                );
+                const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+                directionalLight.position.set(50, 50, 50);
+                scene.add(directionalLight);
+                
+                const directionalLight2 = new THREE.DirectionalLight(0xffffff, 0.5);
+                directionalLight2.position.set(-50, -50, -50);
+                scene.add(directionalLight2);
+
+                // Controls
+                controls = new THREE.OrbitControls(camera, renderer.domElement);
+                controls.enableDamping = true;
+                controls.dampingFactor = 0.05;
+                controls.screenSpacePanning = false;
+                controls.minDistance = 10;
+                controls.maxDistance = 500;
+
+                // Animation loop
+                animate();
             }
 
-            return (
-                <div className="min-h-screen bg-gray-100 text-gray-800 font-sans p-4 sm:p-6 lg:p-8">
-                    <div className="max-w-7xl mx-auto">
-                        <header className="mb-8 flex justify-between items-center flex-wrap gap-4">
-                            <button onClick={() => setIsEditMode(!isEditMode)} className={`flex items-center gap-2 font-bold py-2 px-5 rounded-full transition-all duration-300 shadow-md ${isEditMode ? 'bg-indigo-600 text-white' : 'bg-white text-indigo-600 hover:bg-indigo-50'}`}>
-                                <Edit size={18}/> {isEditMode ? 'Düzenleme Modu Aktif' : 'Günlüğü Düzenle'}
-                            </button>
-                        </header>
-                        <div className="bg-white/80 backdrop-blur-sm p-4 rounded-3xl shadow-lg border border-gray-200">
-                            <div className="flex items-center justify-between mb-4 px-2">
-                                <button onClick={() => handleMonthChange(-1)} className="p-2 rounded-full hover:bg-gray-100 transition"><ChevronLeft className="text-gray-600" /></button>
-                                <h2 className="text-2xl font-bold text-gray-800">{`${MONTH_NAMES[currentDate.getMonth()]} ${currentDate.getFullYear()}`}</h2>
-                                <button onClick={() => handleMonthChange(1)} className="p-2 rounded-full hover:bg-gray-100 transition"><ChevronRight className="text-gray-600" /></button>
-                            </div>
-                            {isLoading ? <div className="text-center p-20 font-semibold text-indigo-600">Ortak günlük yükleniyor...</div> : <CalendarGrid currentDate={currentDate} entries={entries} onDayClick={handleDayClick} isEditMode={isEditMode}/>}
-                        </div>
-                        <Modal isOpen={isModalOpen} onClose={closeModal}>
-                            {selectedDateForModal && <DailyLogForm selectedDate={selectedDateForModal} entry={selectedEntry} userId={userId} onSave={closeModal} isEditMode={isEditMode}/>}
-                        </Modal>
-                    </div>
-                </div>
-            );
-        }
+            // --- Animation Loop ---
+            function animate() {
+                requestAnimationFrame(animate);
+                controls.update();
+                renderer.render(scene, camera);
+            }
 
-        ReactDOM.render(<App />, document.getElementById('root'));
+            // --- File Handling ---
+            fileInput.addEventListener('change', (event) => {
+                const file = event.target.files[0];
+                if (!file) return;
 
+                // Update UI
+                fileNameDisplay.textContent = file.name;
+                if (placeholder) {
+                    placeholder.style.display = 'none';
+                }
+
+                // Remove previous model if it exists
+                if (model) {
+                    scene.remove(model);
+                }
+
+                // Read and load the file
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const contents = e.target.result;
+                    const loader = new THREE.STLLoader();
+                    const geometry = loader.parse(contents);
+                    
+                    // Create material
+                    const material = new THREE.MeshStandardMaterial({
+                        color: 0x007bff, // A nice blue color
+                        metalness: 0.1,
+                        roughness: 0.5,
+                    });
+
+                    // Create mesh
+                    model = new THREE.Mesh(geometry, material);
+
+                    // Center the model and scale it appropriately
+                    centerAndFitModel(model);
+
+                    scene.add(model);
+                };
+                reader.readAsArrayBuffer(file);
+            });
+
+            // --- Utility Functions ---
+            function centerAndFitModel(object) {
+                const boundingBox = new THREE.Box3().setFromObject(object);
+                const center = boundingBox.getCenter(new THREE.Vector3());
+                const size = boundingBox.getSize(new THREE.Vector3());
+
+                // Center the object
+                object.position.sub(center);
+
+                // Scale the object to fit the view
+                const maxDim = Math.max(size.x, size.y, size.z);
+                const fitHeightDistance = maxDim / (2 * Math.tan(camera.fov * Math.PI / 360));
+                const fitWidthDistance = fitHeightDistance / camera.aspect;
+                const distance = 1.2 * Math.max(fitHeightDistance, fitWidthDistance);
+
+                camera.position.z = distance;
+                camera.far = distance * 2;
+                camera.updateProjectionMatrix();
+
+                controls.target.copy(new THREE.Vector3(0,0,0));
+                controls.update();
+            }
+
+            // --- Window Resize Handling ---
+            window.addEventListener('resize', () => {
+                if (!renderer) return;
+                camera.aspect = container.clientWidth / container.clientHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(container.clientWidth, container.clientHeight);
+            });
+
+            // --- Start the application ---
+            init();
+        });
     </script>
 </body>
 </html>
