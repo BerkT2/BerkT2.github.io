@@ -1,373 +1,336 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="tr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D Printing Quote Calculator</title>
-    <!-- Tailwind CSS for styling -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts: Inter -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <title>Merve & Lily: İstanbul Operasyonu</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&family=Pacifico&display=swap" rel="stylesheet">
     <style>
-        /* Custom styles for the 3D viewer and page layout */
+        :root {
+            --primary: #ff6b6b;
+            --secondary: #4ecdc4;
+            --dark: #2d3436;
+            --light: #f7fff7;
+        }
+
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f0f2f5;
+            margin: 0;
+            padding: 0;
+            font-family: 'Fredoka', sans-serif;
+            background-color: var(--light);
+            color: var(--dark);
+            overflow-x: hidden;
         }
-        #viewer-container {
+
+        h1, h2, h3 {
+            font-family: 'Pacifico', cursive;
+            color: var(--primary);
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Hero Section */
+        .hero {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%);
+            position: relative;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 10px;
+            animation: bounce 2s infinite;
+        }
+
+        .hero p {
+            font-size: 1.5rem;
+            color: #fff;
+            text-shadow: 2px 2px 0px rgba(0,0,0,0.1);
+        }
+
+        /* Sections */
+        .section {
+            padding: 60px 20px;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 1s ease;
+        }
+
+        .section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .photo-frame {
+            width: 300px;
+            height: 300px;
+            background-color: #eee;
+            margin: 20px auto;
+            border: 10px solid #fff;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            transform: rotate(-3deg);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .photo-frame img {
             width: 100%;
-            height: 55vh; /* Adjusted height */
-            max-height: 600px;
-            background-color: #e2e8f0;
-            border-radius: 0.75rem;
-            cursor: grab;
+            height: 100%;
+            object-fit: cover;
         }
-        #viewer-container:active {
-            cursor: grabbing;
+        
+        /* Placeholder text inside images */
+        .img-placeholder {
+            color: #888;
+            font-size: 0.9rem;
+            padding: 10px;
         }
-        canvas {
-            display: block;
+
+        .photo-frame:hover {
+            transform: rotate(0deg) scale(1.05);
+            transition: 0.3s;
         }
-        /* Style for input fields */
-        .form-select, .form-input, .form-color {
-            background-color: #f8fafc;
-            border-color: #cbd5e1;
+
+        /* Lily Special */
+        .lily-badge {
+            background-color: var(--secondary);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            display: inline-block;
+            margin-top: 10px;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(78, 205, 196, 0.4);
         }
+
+        /* Map Animation */
+        .map-line {
+            width: 80%;
+            height: 5px;
+            background: #ddd;
+            margin: 40px auto;
+            position: relative;
+            border-radius: 5px;
+        }
+
+        .plane {
+            position: absolute;
+            top: -20px;
+            left: 0;
+            font-size: 2rem;
+            animation: fly 4s linear infinite;
+        }
+
+        /* Action Buttons */
+        .action-area {
+            height: 80vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .btn-group {
+            position: relative;
+            margin-top: 30px;
+            display: flex;
+            gap: 20px;
+        }
+
+        .btn {
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-family: 'Fredoka', sans-serif;
+            transition: 0.3s;
+        }
+
+        .btn-yes {
+            background-color: var(--primary);
+            color: white;
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+        }
+
+        .btn-no {
+            background-color: #b2bec3;
+            color: white;
+            position: relative; /* Changed to relative for initial flow */
+        }
+
+        /* Animations */
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        @keyframes fly {
+            0% { left: 0; transform: scaleX(1); }
+            50% { left: 100%; transform: scaleX(1); }
+            51% { transform: scaleX(-1); } /* Turn around */
+            100% { left: 0; transform: scaleX(-1); }
+        }
+
+        /* Confetti Canvas */
+        #confetti {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 999;
+        }
+
     </style>
 </head>
-<body class="bg-gray-100 text-gray-800">
+<body>
 
-    <div class="container mx-auto p-4 sm:p-6 lg:p-8 max-w-5xl">
-        <!-- Header Section -->
-        <header class="text-center mb-6">
-            <h1 class="text-3xl sm:text-4xl font-bold text-gray-900">3D Printing Quote Calculator</h1>
-            <p class="mt-2 text-md text-gray-600">Upload an .stl file, choose your options, and get an estimated price.</p>
-        </header>
+    <canvas id="confetti"></canvas>
 
-        <!-- Main Content -->
-        <main class="bg-white p-6 rounded-xl shadow-lg">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <!-- Left Column: Viewer and Upload -->
-                <div>
-                    <!-- File Upload Section -->
-                    <div class="flex flex-col items-center justify-center mb-4">
-                        <label for="file-upload" class="relative cursor-pointer bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition-transform transform hover:scale-105">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 inline-block mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-                            </svg>
-                            Upload STL File
-                        </label>
-                        <input id="file-upload" type="file" class="hidden" accept=".stl">
-                        <p id="file-name" class="mt-3 text-sm text-gray-500">No file selected.</p>
-                    </div>
-                    
-                    <!-- Error Message Container -->
-                    <div id="error-message" class="hidden mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg text-center"></div>
-
-                    <!-- 3D Viewer Container -->
-                    <div id="viewer-container" class="relative shadow-inner">
-                        <div id="placeholder" class="absolute inset-0 flex items-center justify-center text-gray-500">
-                            <p>3D Preview will appear here</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Right Column: Options and Pricing -->
-                <div class="flex flex-col justify-between">
-                    <div>
-                        <h2 class="text-2xl font-bold mb-4 border-b pb-2">Printing Options</h2>
-                        <div class="space-y-4">
-                            <!-- Material -->
-                            <div>
-                                <label for="material" class="block text-sm font-medium text-gray-700">Material</label>
-                                <select id="material" name="material" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md form-select">
-                                    <option>PLA</option>
-                                    <option>ABS</option>
-                                    <option>PETG</option>
-                                    <option>TPU</option>
-                                </select>
-                            </div>
-                            <!-- Color -->
-                            <div>
-                                <label for="color" class="block text-sm font-medium text-gray-700">Color</label>
-                                <input type="color" id="color" name="color" value="#007bff" class="mt-1 h-10 w-full p-1 border border-gray-300 rounded-md form-color">
-                            </div>
-                            <!-- Print Quality -->
-                            <div>
-                                <label for="quality" class="block text-sm font-medium text-gray-700">Print Quality (Layer Height)</label>
-                                <select id="quality" name="quality" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md form-select">
-                                    <option value="0.2">0.2mm (Standard)</option>
-                                    <option value="0.1">0.1mm (High Detail)</option>
-                                    <option value="0.08">0.08mm (Ultra Detail)</option>
-                                </select>
-                            </div>
-                            <!-- Infill Density -->
-                            <div>
-                                <label for="infill" class="block text-sm font-medium text-gray-700">Infill Density (Doluluk Oranı)</label>
-                                <select id="infill" name="infill" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md form-select">
-                                    <option value="20">20%</option>
-                                    <option value="50">50%</option>
-                                    <option value="100">100% (Solid)</option>
-                                </select>
-                            </div>
-                             <!-- Quantity -->
-                            <div>
-                                <label for="quantity" class="block text-sm font-medium text-gray-700">Quantity</label>
-                                <input type="number" id="quantity" name="quantity" value="1" min="1" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm form-input">
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Pricing Section -->
-                    <div class="mt-8 pt-4 border-t">
-                         <button id="price-button" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg shadow-md transition-transform transform hover:scale-105 disabled:bg-gray-400 disabled:cursor-not-allowed" disabled>
-                            Calculate Price
-                        </button>
-                        <div id="price-display" class="hidden mt-4 p-4 bg-gray-100 rounded-lg text-center">
-                            <p class="text-lg text-gray-700">Estimated Price:</p>
-                            <p id="price-value" class="text-3xl font-bold text-gray-900"></p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </main>
+    <div class="hero">
+        <h1>Merve & Lily İçin</h1>
+        <h2>Acil Durum Eylem Planı</h2>
+        <p>Kod Adı: İstanbul</p>
+        <div style="font-size: 3rem; margin-top: 20px;">🌉 ✈️ 🐶</div>
     </div>
 
-    <!-- Three.js Libraries -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/STLLoader.js"></script>
+    <div class="container">
+
+        <div class="section">
+            <h2>1. Mesafe Sadece Bir Sayıdır</h2>
+            <p>"Çok da uzak değil" demiştim, kanıtlayabilirim. İzmir - İstanbul arası, güzel bir playlist bitene kadar geçiyor.</p>
+            
+            <div class="map-line">
+                <div class="plane">✈️</div>
+            </div>
+            
+            <div class="photo-frame">
+                <div class="img-placeholder">Buraya o attığın harita screenshot'ı gelecek</div>
+                </div>
+            <p><small>(Tamam belki biraz trafik olabilir ama onu hallederiz.)</small></p>
+        </div>
+
+        <div class="section">
+            <h2>2. Esas Mesele: Lily 🐶</h2>
+            <p>Açık konuşalım, bu davet aslında Lily için. Sen sadece onun +1'i olarak geleceksin.</p>
+            
+            <div class="photo-frame" style="transform: rotate(3deg);">
+                <div class="img-placeholder">Buraya Lily'nin tatlı bir fotosu gelecek</div>
+                </div>
+
+            <div class="lily-badge">Lily Onaylı Rota ⭐⭐⭐⭐⭐</div>
+            <p style="margin-top: 15px;">İstanbul'daki parklar onun koklaması için hazır bekliyor.</p>
+        </div>
+
+        <div class="section">
+            <h2>3. Nite Ortaköy Sözü</h2>
+            <p>Seni (ve manevi olarak Lily'i) Nite Ortaköy'e götüreceğime söz vermiştim.</p>
+            
+            <div class="photo-frame" style="transform: rotate(-2deg); width: 100%;">
+                <div class="img-placeholder">Buraya Nite Ortaköy manzarası fotosu</div>
+                </div>
+            
+            <p>Manzara güzel ama... (Buraya çok iddialı bir iltifat yazacaktım ama şımarmayalım şimdi, gelince görürsün.) 😉</p>
+        </div>
+
+        <div class="section action-area">
+            <h2>Sonuç Olarak?</h2>
+            <p>İstanbul sizi bekliyor. Bileti ne zamana alıyoruz?</p>
+            
+            <div class="btn-group">
+                <button class="btn btn-yes" onclick="celebrate()">Evet, Geliyoruz! 🥂</button>
+                <button class="btn btn-no" id="noBtn" onmouseover="kac(this)">Hayır (Mümkün değil)</button>
+            </div>
+        </div>
+
+    </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // UI Elements
-            const container = document.getElementById('viewer-container');
-            const fileInput = document.getElementById('file-upload');
-            const fileNameDisplay = document.getElementById('file-name');
-            const placeholder = document.getElementById('placeholder');
-            const errorMessage = document.getElementById('error-message');
-            const colorPicker = document.getElementById('color');
-            const priceButton = document.getElementById('price-button');
-            const priceDisplay = document.getElementById('price-display');
-            const priceValue = document.getElementById('price-value');
+        // Scroll Animation
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        });
+
+        document.querySelectorAll('.section').forEach((section) => {
+            observer.observe(section);
+        });
+
+        // "Hayır" butonu kaçma fonksiyonu
+        function kac(btn) {
+            const i = Math.floor(Math.random() * 300) + 1;
+            const j = Math.floor(Math.random() * 300) + 1;
             
-            // Options
-            const materialSelect = document.getElementById('material');
-            const qualitySelect = document.getElementById('quality');
-            const infillSelect = document.getElementById('infill');
-            const quantityInput = document.getElementById('quantity');
+            btn.style.position = 'absolute';
+            btn.style.top = j + 'px';
+            btn.style.left = i + 'px'; 
+        }
 
-            // 3D Scene variables
-            let scene, camera, renderer, controls, model, modelVolume = 0;
+        // Konfeti Efekti
+        const canvas = document.getElementById('confetti');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
 
-            // --- UI Helper Functions ---
-            function showError(message) {
-                errorMessage.textContent = message;
-                errorMessage.classList.remove('hidden');
-            }
-            function hideError() {
-                errorMessage.classList.add('hidden');
-            }
-            function resetUI() {
-                fileNameDisplay.textContent = 'No file selected.';
-                placeholder.style.display = 'flex';
-                priceButton.disabled = true;
-                priceDisplay.classList.add('hidden');
-                if (model) {
-                    scene.remove(model);
-                }
-            }
+        let pieces = [];
+        const numberOfPieces = 100;
+        const colors = ['#ff6b6b', '#4ecdc4', '#ffeaa7', '#fab1a0'];
 
-            // --- 3D Scene Initialization ---
-            function init() {
-                scene = new THREE.Scene();
-                scene.background = new THREE.Color(0xe2e8f0);
+        function update() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            pieces.forEach(p => {
+                p.y += p.gravity;
+                p.rotation += p.rotationSpeed;
+                ctx.save();
+                ctx.translate(p.x, p.y);
+                ctx.rotate(p.rotation);
+                ctx.fillStyle = p.color;
+                ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+                ctx.restore();
 
-                camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
-                camera.position.z = 50;
-
-                renderer = new THREE.WebGLRenderer({ antialias: true });
-                renderer.setSize(container.clientWidth, container.clientHeight);
-                renderer.setPixelRatio(window.devicePixelRatio);
-                container.appendChild(renderer.domElement);
-
-                const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
-                scene.add(ambientLight);
-                const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-                directionalLight.position.set(50, 50, 50);
-                scene.add(directionalLight);
-                const directionalLight2 = new THREE.DirectionalLight(0xffffff, 0.5);
-                directionalLight2.position.set(-50, -50, -50);
-                scene.add(directionalLight2);
-
-                controls = new THREE.OrbitControls(camera, renderer.domElement);
-                controls.enableDamping = true;
-
-                animate();
-            }
-
-            // --- Animation Loop ---
-            function animate() {
-                requestAnimationFrame(animate);
-                controls.update();
-                renderer.render(scene, camera);
-            }
-
-            // --- File Handling ---
-            fileInput.addEventListener('change', (event) => {
-                hideError();
-                const file = event.target.files[0];
-                if (!file) return;
-
-                if (model) scene.remove(model);
-                
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    try {
-                        const contents = e.target.result;
-                        const loader = new THREE.STLLoader();
-                        const geometry = loader.parse(contents);
-
-                        if (geometry.attributes.position.count === 0) {
-                           throw new Error('Invalid or empty STL file.');
-                        }
-                        
-                        fileNameDisplay.textContent = file.name;
-                        placeholder.style.display = 'none';
-
-                        const material = new THREE.MeshStandardMaterial({
-                            color: new THREE.Color(colorPicker.value),
-                            metalness: 0.1,
-                            roughness: 0.5,
-                        });
-                        model = new THREE.Mesh(geometry, material);
-                        
-                        calculateVolume(geometry);
-                        centerAndFitModel(model);
-
-                        scene.add(model);
-                        priceButton.disabled = false; // Enable price calculation
-                        console.log("Model successfully added to the scene.");
-
-                    } catch (error) {
-                        console.error('Error processing STL file:', error);
-                        showError(`Failed to load file: ${error.message}`);
-                        resetUI();
-                    }
-                };
-                reader.onerror = () => { showError('Error reading the file.'); resetUI(); };
-                reader.readAsArrayBuffer(file);
+                if (p.y > canvas.height) p.y = -20;
             });
+            requestAnimationFrame(update);
+        }
 
-            // --- Utility & Calculation Functions ---
-            function centerAndFitModel(object) {
-                const boundingBox = new THREE.Box3().setFromObject(object);
-                const center = boundingBox.getCenter(new THREE.Vector3());
-                const size = boundingBox.getSize(new THREE.Vector3());
-
-                if (!isFinite(size.x) || Math.max(size.x, size.y, size.z) === 0) {
-                    throw new Error("Model has invalid dimensions.");
-                }
-
-                object.position.sub(center);
-
-                const maxDim = Math.max(size.x, size.y, size.z);
-                const fitHeightDistance = maxDim / (2 * Math.tan(camera.fov * Math.PI / 360));
-                const fitWidthDistance = fitHeightDistance / camera.aspect;
-                const distance = 1.2 * Math.max(fitHeightDistance, fitWidthDistance);
-
-                camera.position.z = distance;
-                camera.far = distance * 3;
-                camera.near = distance / 100;
-                camera.updateProjectionMatrix();
-
-                controls.target.copy(new THREE.Vector3(0,0,0));
-                controls.update();
-            }
+        function celebrate() {
+            alert("Harika karar! Bavulları hazırlamaya başla! 🎉");
             
-            function calculateVolume(geometry) {
-                let position = geometry.attributes.position;
-                let faces = position.count / 3;
-                let sum = 0;
-                let p1 = new THREE.Vector3(), p2 = new THREE.Vector3(), p3 = new THREE.Vector3();
-                for (let i = 0; i < faces; i++) {
-                    p1.fromBufferAttribute(position, i * 3 + 0);
-                    p2.fromBufferAttribute(position, i * 3 + 1);
-                    p3.fromBufferAttribute(position, i * 3 + 2);
-                    sum += signedVolumeOfTriangle(p1, p2, p3);
-                }
-                modelVolume = Math.abs(sum); // Volume in mm^3
-                console.log(`Calculated model volume: ${modelVolume} mm³`);
+            for (let i = 0; i < numberOfPieces; i++) {
+                pieces.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height - canvas.height,
+                    size: Math.random() * 10 + 5,
+                    gravity: Math.random() * 2 + 1,
+                    rotation: Math.random() * 360,
+                    rotationSpeed: Math.random() * 0.1 - 0.05,
+                    color: colors[Math.floor(Math.random() * colors.length)]
+                });
             }
+            update();
+        }
 
-            function signedVolumeOfTriangle(p1, p2, p3) {
-                return p1.dot(p2.cross(p3)) / 6.0;
-            }
-
-            // --- Event Listeners ---
-            colorPicker.addEventListener('input', (event) => {
-                if (model) {
-                    model.material.color.set(event.target.value);
-                }
-            });
-
-            priceButton.addEventListener('click', () => {
-                if (!model || modelVolume === 0) {
-                    showError("Please upload a valid model first.");
-                    return;
-                }
-
-                // --- Placeholder Pricing Logic ---
-                // This is a simplified model. Real pricing is much more complex.
-                const materialDensity = { // g/cm^3
-                    'PLA': 1.24,
-                    'ABS': 1.04,
-                    'PETG': 1.27,
-                    'TPU': 1.21
-                };
-                const materialCostPerKg = { // Cost per 1000g
-                    'PLA': 25, 
-                    'ABS': 30,
-                    'PETG': 35,
-                    'TPU': 50
-                };
-                const qualityMultiplier = {
-                    '0.2': 1.0,  // Standard time
-                    '0.1': 1.8,  // Almost double the time
-                    '0.08': 2.2 // More than double
-                };
-
-                const selectedMaterial = materialSelect.value;
-                const selectedQuality = qualitySelect.value;
-                const infillPercent = parseInt(infillSelect.value, 10) / 100;
-                const quantity = parseInt(quantityInput.value, 10);
-
-                // Calculations
-                const volumeCm3 = modelVolume / 1000; // Convert mm^3 to cm^3
-                const materialGrams = volumeCm3 * materialDensity[selectedMaterial] * infillPercent;
-                const materialCost = (materialGrams / 1000) * materialCostPerKg[selectedMaterial];
-                
-                // Simplified print time cost (e.g., $2 per hour)
-                const basePrintTimeHours = volumeCm3 / 5; // Very rough estimate
-                const printTimeCost = basePrintTimeHours * qualityMultiplier[selectedQuality] * 2;
-
-                const finalPrice = (materialCost + printTimeCost + 5) * quantity; // Add a base fee
-
-                priceValue.textContent = `₺${finalPrice.toFixed(2)}`; // Using Lira symbol
-                priceDisplay.classList.remove('hidden');
-            });
-
-            window.addEventListener('resize', () => {
-                if (!renderer) return;
-                camera.aspect = container.clientWidth / container.clientHeight;
-                camera.updateProjectionMatrix();
-                renderer.setSize(container.clientWidth, container.clientHeight);
-            });
-
-            // --- Start the application ---
-            init();
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
         });
     </script>
 </body>
