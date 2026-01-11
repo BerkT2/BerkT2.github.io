@@ -3,361 +3,163 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Merve & Lily: İstanbul Operasyonu</title>
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&family=Pacifico&display=swap" rel="stylesheet">
+    <title>Berk'e Sor</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,900&family=Space+Grotesk:wght@300;600&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #ff6b6b;
-            --secondary: #4ecdc4;
-            --dark: #2d3436;
-            --light: #f7fff7;
+            --bg-color: #0a0a0a;
+            --text-main: #e0e0e0;
+            --accent: #d4ff00; /* O havalı Neon Lime rengi */
         }
 
         body {
             margin: 0;
             padding: 0;
-            font-family: 'Fredoka', sans-serif;
-            background-color: var(--light);
-            color: var(--dark);
-            overflow-x: hidden;
-            /* Mobilde yanlışlıkla sağa sola kaymayı engellemek için */
-            width: 100vw; 
-        }
-
-        h1, h2, h3 {
-            font-family: 'Pacifico', cursive;
-            color: var(--primary);
-        }
-
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            padding-bottom: 100px; /* Altta butonlar için boşluk */
-        }
-
-        /* Hero Section */
-        .hero {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Space Grotesk', sans-serif;
             height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%);
-            padding: 20px;
-        }
-
-        .hero h1 {
-            font-size: 2.5rem; /* Mobilde taşmasın diye biraz küçülttüm */
-            margin-bottom: 10px;
-            animation: bounce 2s infinite;
-        }
-
-        .hero p {
-            font-size: 1.2rem;
-            color: #fff;
-            text-shadow: 2px 2px 0px rgba(0,0,0,0.1);
-        }
-
-        /* Sections */
-        .section {
-            padding: 40px 10px;
-            text-align: center;
-            opacity: 0;
-            transform: translateY(50px);
-            transition: all 1s ease;
-        }
-
-        .section.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .photo-frame {
-            width: 100%; /* Mobilde tam genişlik */
-            max-width: 300px;
-            height: 300px;
-            background-color: #eee;
-            margin: 20px auto;
-            border: 10px solid #fff;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-            transform: rotate(-3deg);
-            display: flex;
-            justify-content: center;
-            align-items: center;
             overflow: hidden;
-        }
-
-        .photo-frame img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        
-        .img-placeholder {
-            color: #888;
-            font-size: 0.9rem;
-            padding: 10px;
-        }
-
-        /* Lily Special */
-        .lily-badge {
-            background-color: var(--secondary);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 50px;
-            display: inline-block;
-            margin-top: 10px;
-            font-weight: bold;
-            box-shadow: 0 5px 15px rgba(78, 205, 196, 0.4);
-        }
-
-        /* Map Animation */
-        .map-line {
-            width: 90%;
-            height: 5px;
-            background: #ddd;
-            margin: 40px auto;
-            position: relative;
-            border-radius: 5px;
-        }
-
-        .plane {
-            position: absolute;
-            top: -20px;
-            left: 0;
-            font-size: 2rem;
-            animation: fly 4s linear infinite;
-        }
-
-        /* Action Buttons */
-        .action-area {
-            min-height: 60vh;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            position: relative; /* Butonların bu alan içinde hareket etmesi için */
-        }
-
-        .btn-group {
             position: relative;
-            margin-top: 30px;
-            display: flex;
-            flex-direction: column; /* Mobilde alt alta daha iyi durur */
-            gap: 15px;
-            align-items: center;
-            width: 100%;
         }
 
-        .btn {
-            padding: 15px 40px;
-            font-size: 1.2rem;
-            border: none;
-            border-radius: 50px;
-            cursor: pointer;
-            font-family: 'Fredoka', sans-serif;
-            transition: 0.2s;
-            width: 80%; /* Butonlar mobilde geniş olsun */
-            max-width: 300px;
-            z-index: 10;
-        }
-
-        .btn-yes {
-            background-color: var(--primary);
-            color: white;
-            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
-        }
-
-        .btn-no {
-            background-color: #b2bec3;
-            color: white;
-            transition: 0.1s; /* Daha hızlı hareket etsin */
-        }
-
-        /* Animations */
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-
-        @keyframes fly {
-            0% { left: 0; transform: scaleX(1); }
-            50% { left: 100%; transform: scaleX(1); }
-            51% { transform: scaleX(-1); }
-            100% { left: 0; transform: scaleX(-1); }
-        }
-
-        #confetti {
-            position: fixed;
+        /* Doku Efekti (Noise) */
+        .noise {
+            position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             pointer-events: none;
-            z-index: 999;
+            z-index: 99;
+            opacity: 0.06;
+            background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MDAiIGhlaWdodD0iNTAwIj48ZmlsdGVyIGlkPSJub2lzZSI+PGZlVHVyYnVsZW5jZSB0eXBlPSJmcmFjdGFsTm9pc2UiIGJhc2VGcmVxdWVuY3k9IjAuNjUiIG51bT1vY3RhdmVzPSIzIiBzdGl0Y2hUaWxlcz0ic3RpdGNoIi8+PC9maWx0ZXI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsdGVyPSJ1cmwoI25vaXNlKSIgb3BhY2l0eT0iMSIvPjwvc3ZnPg==');
         }
 
+        .container {
+            text-align: center;
+            z-index: 2;
+            padding: 0 20px;
+            max-width: 800px;
+            position: relative;
+        }
+
+        /* Intro: "Neye Baktın?" */
+        .intro {
+            font-size: 1rem;
+            color: #666;
+            margin-bottom: 1.5rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        /* Ana Mesaj Alanı */
+        .message {
+            font-size: 2rem;
+            line-height: 1.3;
+            font-weight: 300;
+            color: #fff;
+        }
+
+        /* BERK Vurgusu */
+        .berk-highlight {
+            font-family: 'Playfair Display', serif; /* Farklı, şık font */
+            font-size: 5rem; /* Metinden çok daha büyük */
+            font-style: italic;
+            font-weight: 900;
+            color: var(--accent); /* Neon renk */
+            display: block; /* Alt satıra indirip patlatmak için */
+            margin: 10px 0;
+            line-height: 0.9;
+            text-shadow: 0 0 20px rgba(212, 255, 0, 0.2);
+        }
+
+        /* Buton Tasarımı */
+        .btn-call {
+            margin-top: 3rem;
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px 40px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--bg-color);
+            background-color: #fff;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 6px 6px 0px var(--accent);
+            letter-spacing: 1px;
+        }
+
+        .btn-call:hover {
+            transform: translate(-3px, -3px);
+            box-shadow: 10px 10px 0px var(--accent);
+            background-color: var(--accent);
+        }
+
+        .btn-call:active {
+            transform: translate(2px, 2px);
+            box-shadow: 2px 2px 0px var(--accent);
+        }
+
+        /* Dönen Rozet */
+        .badge-container {
+            position: absolute;
+            top: -80px;
+            right: 0;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .badge {
+            width: 90px;
+            height: 90px;
+            fill: #fff;
+            opacity: 0.8;
+            animation: spin 12s linear infinite;
+        }
+
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        @keyframes float { 
+            0%, 100% { transform: translateY(0); } 
+            50% { transform: translateY(-10px); } 
+        }
+
+        /* Mobil Ayarları */
+        @media (max-width: 768px) {
+            .message { font-size: 1.5rem; }
+            .berk-highlight { font-size: 4rem; }
+            .badge-container { width: 60px; height: 60px; top: -50px; right: 20px; }
+        }
     </style>
 </head>
 <body>
 
-    <canvas id="confetti"></canvas>
-
-    <div class="hero">
-        <h1>Merve & Lily İçin</h1>
-        <h2>Berk'e İşinde Yardım Etme Planı</h2>
-        <p>Kod Adı: İstanbul</p>
-        <div style="font-size: 3rem; margin-top: 20px;">🌉 ✈️ 🐶</div>
-    </div>
+    <div class="noise"></div>
 
     <div class="container">
 
-        <div class="section">
-            <h2>1. Mesafe Sadece Bir Sayıdır</h2>
-            <p>"Çok da uzak değil" demiştim, kanıtlayabilirim. Güzel bir playlist bitene kadar geçiyor. Müzik zevkin kötüyse ben sana şarkı önerebilirim sorun değil.</p>
-            
-            <div class="map-line">
-                <div class="plane">✈️</div>
-            </div>
-            
-            <div class="photo-frame">
-                <div class="img-placeholder">
-                   <img src='map.png'/>
-                </div>
-                </div>
+        <div class="intro">Neye Baktın?</div>
+        
+        <div class="message">
+            Aradığın her neyse <br>
+            <span class="berk-highlight">Berk'e</span>
+            sor, o bilir.
         </div>
 
-        <div class="section">
-            <h2>2. Esas Mesele: Lily 🐶</h2>
-            <p>Açık konuşalım, bu davet aslında Lily için. Sen sadece onun +1'i olarak geleceksin.</p>
-            
-            <div class="photo-frame" style="transform: rotate(3deg);">
-                <div class="img-placeholder">
-                   <img src='lily.png'/></div>
-                </div>
-
-            <div class="lily-badge">Lily Onaylı Rota ⭐⭐⭐⭐⭐</div>
-            <p style="margin-top: 15px;">İstanbul'daki parklar onun koklaması için hazır bekliyor.</p>
-        </div>
-
-        <div class="section">
-            <h2>3. Yemek Sözü</h2>
-            <p>Mütüş eğlenceli karakterim ve sohbetimle sabaha kadar kahkahalar attırmanın yanı sıra yemeği de ben ısmarlıyorum.</p>
-            
-            <div class="photo-frame" style="transform: rotate(-2deg); width: 100%;">
-                <div class="img-placeholder">
-                   <img src='nite.png'/></div>
-                </div>
-            
-            <p style="margin-top: 15px;">Feci teklif i kno.</p>
-        </div>
-
-        <div class="section action-area">
-            <h2>Sonuç Olarak?</h2>
-            <p>İstanbul sizi bekliyor. Kararın?</p>
-            
-            <div class="btn-group">
-                <button class="btn btn-yes" onclick="celebrate()">Tamam bir ara geliriz! 🥂</button>
-                
-                <button class="btn btn-no" id="noBtn" 
-                    ontouchstart="kac(this)" 
-                    onmouseover="kac(this)"
-                    onclick="kac(this)">Hayır (Mümkün değil)</button>
-            </div>
-        </div>
+        <a href="tel:+905343073323" class="btn-call">
+            +90 534 307 33 23
+        </a>
 
     </div>
 
-    <script>
-        // Scroll Animation
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('visible');
-                }
-            });
-        });
-
-        document.querySelectorAll('.section').forEach((section) => {
-            observer.observe(section);
-        });
-
-        // MOBİL UYUMLU KAÇMA FONKSİYONU
-        function kac(btn) {
-            // Butonun yeni pozisyonunu ekran genişliğine göre hesapla
-            // Böylece buton ekran dışına uçmaz
-            
-            // Ekranın genişliği ve yüksekliği
-            const screenWidth = window.innerWidth;
-            const screenHeight = window.innerHeight;
-
-            // Butonun boyutları
-            const btnWidth = btn.offsetWidth;
-            const btnHeight = btn.offsetHeight;
-
-            // Rastgele yeni pozisyon (ekran sınırları içinde kalsın)
-            // Kenarlardan 20px boşluk bırakıyoruz
-            const newLeft = Math.random() * (screenWidth - btnWidth - 40) + 20;
-            const newTop = Math.random() * (screenHeight - btnHeight - 40) + 20;
-            
-            // Butonu fixed yaparak ekrana göre konumlandırıyoruz
-            // Bu sayede scroll yapsa bile buton görünür alanda kaçar
-            btn.style.position = 'fixed'; 
-            btn.style.left = newLeft + 'px';
-            btn.style.top = newTop + 'px';
-            btn.style.zIndex = "1000"; // Diğer yazıların üstünde kalsın
-        }
-
-        // Konfeti Efekti
-        const canvas = document.getElementById('confetti');
-        const ctx = canvas.getContext('2d');
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-
-        let pieces = [];
-        const numberOfPieces = 100;
-        const colors = ['#ff6b6b', '#4ecdc4', '#ffeaa7', '#fab1a0'];
-
-        function update() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            pieces.forEach(p => {
-                p.y += p.gravity;
-                p.rotation += p.rotationSpeed;
-                ctx.save();
-                ctx.translate(p.x, p.y);
-                ctx.rotate(p.rotation);
-                ctx.fillStyle = p.color;
-                ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
-                ctx.restore();
-
-                if (p.y > canvas.height) p.y = -20;
-            });
-            requestAnimationFrame(update);
-        }
-
-        function celebrate() {
-            alert("Harika karar! Bavulları hazırlamaya başla! 🎉");
-            // Konfeti başlat
-            for (let i = 0; i < numberOfPieces; i++) {
-                pieces.push({
-                    x: Math.random() * canvas.width,
-                    y: Math.random() * canvas.height - canvas.height,
-                    size: Math.random() * 10 + 5,
-                    gravity: Math.random() * 2 + 1,
-                    rotation: Math.random() * 360,
-                    rotationSpeed: Math.random() * 0.1 - 0.05,
-                    color: colors[Math.floor(Math.random() * colors.length)]
-                });
-            }
-            update();
-        }
-
-        window.addEventListener('resize', () => {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        });
-    </script>
 </body>
 </html>
