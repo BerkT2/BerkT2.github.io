@@ -20,6 +20,8 @@
             background-color: var(--light);
             color: var(--dark);
             overflow-x: hidden;
+            /* Mobilde yanlışlıkla sağa sola kaymayı engellemek için */
+            width: 100vw; 
         }
 
         h1, h2, h3 {
@@ -31,6 +33,7 @@
             max-width: 800px;
             margin: 0 auto;
             padding: 20px;
+            padding-bottom: 100px; /* Altta butonlar için boşluk */
         }
 
         /* Hero Section */
@@ -42,24 +45,24 @@
             align-items: center;
             text-align: center;
             background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%);
-            position: relative;
+            padding: 20px;
         }
 
         .hero h1 {
-            font-size: 3.5rem;
+            font-size: 2.5rem; /* Mobilde taşmasın diye biraz küçülttüm */
             margin-bottom: 10px;
             animation: bounce 2s infinite;
         }
 
         .hero p {
-            font-size: 1.5rem;
+            font-size: 1.2rem;
             color: #fff;
             text-shadow: 2px 2px 0px rgba(0,0,0,0.1);
         }
 
         /* Sections */
         .section {
-            padding: 60px 20px;
+            padding: 40px 10px;
             text-align: center;
             opacity: 0;
             transform: translateY(50px);
@@ -72,7 +75,8 @@
         }
 
         .photo-frame {
-            width: 300px;
+            width: 100%; /* Mobilde tam genişlik */
+            max-width: 300px;
             height: 300px;
             background-color: #eee;
             margin: 20px auto;
@@ -83,7 +87,6 @@
             justify-content: center;
             align-items: center;
             overflow: hidden;
-            position: relative;
         }
 
         .photo-frame img {
@@ -92,16 +95,10 @@
             object-fit: cover;
         }
         
-        /* Placeholder text inside images */
         .img-placeholder {
             color: #888;
             font-size: 0.9rem;
             padding: 10px;
-        }
-
-        .photo-frame:hover {
-            transform: rotate(0deg) scale(1.05);
-            transition: 0.3s;
         }
 
         /* Lily Special */
@@ -118,7 +115,7 @@
 
         /* Map Animation */
         .map-line {
-            width: 80%;
+            width: 90%;
             height: 5px;
             background: #ddd;
             margin: 40px auto;
@@ -136,18 +133,22 @@
 
         /* Action Buttons */
         .action-area {
-            height: 80vh;
+            min-height: 60vh;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
+            position: relative; /* Butonların bu alan içinde hareket etmesi için */
         }
 
         .btn-group {
             position: relative;
             margin-top: 30px;
             display: flex;
-            gap: 20px;
+            flex-direction: column; /* Mobilde alt alta daha iyi durur */
+            gap: 15px;
+            align-items: center;
+            width: 100%;
         }
 
         .btn {
@@ -157,7 +158,10 @@
             border-radius: 50px;
             cursor: pointer;
             font-family: 'Fredoka', sans-serif;
-            transition: 0.3s;
+            transition: 0.2s;
+            width: 80%; /* Butonlar mobilde geniş olsun */
+            max-width: 300px;
+            z-index: 10;
         }
 
         .btn-yes {
@@ -169,23 +173,22 @@
         .btn-no {
             background-color: #b2bec3;
             color: white;
-            position: relative; /* Changed to relative for initial flow */
+            transition: 0.1s; /* Daha hızlı hareket etsin */
         }
 
         /* Animations */
         @keyframes bounce {
             0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-20px); }
+            50% { transform: translateY(-10px); }
         }
 
         @keyframes fly {
             0% { left: 0; transform: scaleX(1); }
             50% { left: 100%; transform: scaleX(1); }
-            51% { transform: scaleX(-1); } /* Turn around */
+            51% { transform: scaleX(-1); }
             100% { left: 0; transform: scaleX(-1); }
         }
 
-        /* Confetti Canvas */
         #confetti {
             position: fixed;
             top: 0;
@@ -220,9 +223,8 @@
             </div>
             
             <div class="photo-frame">
-                <div class="img-placeholder">Buraya o attığın harita screenshot'ı gelecek</div>
+                <div class="img-placeholder">Buraya Harita Fotosu Gelecek</div>
                 </div>
-            <p><small>(Tamam belki biraz trafik olabilir ama onu hallederiz.)</small></p>
         </div>
 
         <div class="section">
@@ -230,7 +232,7 @@
             <p>Açık konuşalım, bu davet aslında Lily için. Sen sadece onun +1'i olarak geleceksin.</p>
             
             <div class="photo-frame" style="transform: rotate(3deg);">
-                <div class="img-placeholder">Buraya Lily'nin tatlı bir fotosu gelecek</div>
+                <div class="img-placeholder">Buraya Lily Fotosu Gelecek</div>
                 </div>
 
             <div class="lily-badge">Lily Onaylı Rota ⭐⭐⭐⭐⭐</div>
@@ -242,19 +244,23 @@
             <p>Seni (ve manevi olarak Lily'i) Nite Ortaköy'e götüreceğime söz vermiştim.</p>
             
             <div class="photo-frame" style="transform: rotate(-2deg); width: 100%;">
-                <div class="img-placeholder">Buraya Nite Ortaköy manzarası fotosu</div>
+                <div class="img-placeholder">Buraya Nite Ortaköy Fotosu</div>
                 </div>
             
-            <p>Manzara güzel ama... (Buraya çok iddialı bir iltifat yazacaktım ama şımarmayalım şimdi, gelince görürsün.) 😉</p>
+            <p>Manzara güzel ama asıl olay yemekler. (Şaka şaka, sensin.)</p>
         </div>
 
         <div class="section action-area">
             <h2>Sonuç Olarak?</h2>
-            <p>İstanbul sizi bekliyor. Bileti ne zamana alıyoruz?</p>
+            <p>İstanbul sizi bekliyor. Kararın?</p>
             
             <div class="btn-group">
                 <button class="btn btn-yes" onclick="celebrate()">Evet, Geliyoruz! 🥂</button>
-                <button class="btn btn-no" id="noBtn" onmouseover="kac(this)">Hayır (Mümkün değil)</button>
+                
+                <button class="btn btn-no" id="noBtn" 
+                    ontouchstart="kac(this)" 
+                    onmouseover="kac(this)"
+                    onclick="kac(this)">Hayır (Mümkün değil)</button>
             </div>
         </div>
 
@@ -274,14 +280,30 @@
             observer.observe(section);
         });
 
-        // "Hayır" butonu kaçma fonksiyonu
+        // MOBİL UYUMLU KAÇMA FONKSİYONU
         function kac(btn) {
-            const i = Math.floor(Math.random() * 300) + 1;
-            const j = Math.floor(Math.random() * 300) + 1;
+            // Butonun yeni pozisyonunu ekran genişliğine göre hesapla
+            // Böylece buton ekran dışına uçmaz
             
-            btn.style.position = 'absolute';
-            btn.style.top = j + 'px';
-            btn.style.left = i + 'px'; 
+            // Ekranın genişliği ve yüksekliği
+            const screenWidth = window.innerWidth;
+            const screenHeight = window.innerHeight;
+
+            // Butonun boyutları
+            const btnWidth = btn.offsetWidth;
+            const btnHeight = btn.offsetHeight;
+
+            // Rastgele yeni pozisyon (ekran sınırları içinde kalsın)
+            // Kenarlardan 20px boşluk bırakıyoruz
+            const newLeft = Math.random() * (screenWidth - btnWidth - 40) + 20;
+            const newTop = Math.random() * (screenHeight - btnHeight - 40) + 20;
+            
+            // Butonu fixed yaparak ekrana göre konumlandırıyoruz
+            // Bu sayede scroll yapsa bile buton görünür alanda kaçar
+            btn.style.position = 'fixed'; 
+            btn.style.left = newLeft + 'px';
+            btn.style.top = newTop + 'px';
+            btn.style.zIndex = "1000"; // Diğer yazıların üstünde kalsın
         }
 
         // Konfeti Efekti
@@ -313,7 +335,7 @@
 
         function celebrate() {
             alert("Harika karar! Bavulları hazırlamaya başla! 🎉");
-            
+            // Konfeti başlat
             for (let i = 0; i < numberOfPieces; i++) {
                 pieces.push({
                     x: Math.random() * canvas.width,
