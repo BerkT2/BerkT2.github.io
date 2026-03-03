@@ -2,400 +2,525 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Berk & Merve</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Berk & Merve: Timeline</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Montserrat:wght@300;500;800&family=Great+Vibes&display=swap');
 
         :root {
-            --bg-color: #111;
-            --accent-color: #ff3366; /* Aşk Kırmızısı */
-            --tick-color: rgba(255, 255, 255, 0.3);
+            --bg: #050505;
+            --merve: #ff5e7e; 
+            --berk: #00f2ff;
+            --love: #ff0040;
+            --gold: #ffd700;
+            --glitch: #0f0;
+            --ruler-dim: rgba(255,255,255,0.1);
         }
 
-        * {
-            box-sizing: border-box;
-            user-select: none; /* Metin seçimini engelle */
-            -webkit-tap-highlight-color: transparent;
-        }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
         body {
-            margin: 0;
-            padding: 0;
-            background-color: var(--bg-color);
+            margin: 0; padding: 0;
+            background-color: var(--bg);
             color: white;
             font-family: 'Montserrat', sans-serif;
-            overflow: hidden; /* Scrollbarları tamamen kapat */
-            overscroll-behavior: none; /* Sayfa esnemesini engelle (iOS) */
-            touch-action: none; /* Tarayıcı zoom/scroll hareketlerini iptal et */
-            height: 100vh;
-            width: 100vw;
-            cursor: grab; /* Sürükleme imleci */
-        }
-        
-        body:active {
-            cursor: grabbing;
+            overflow: hidden; /* Dış scroll'u engelle */
+            overscroll-behavior-y: none;
         }
 
-        /* Başlangıç Ekranı (Ses İzni İçin Şart) */
-        #start-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
+        /* --- 0. GİRİŞ EKRANI (INTRO) --- */
+        #intro-layer {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: #000;
-            z-index: 9999;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            transition: opacity 0.8s ease-out;
+            z-index: 20000;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            transition: opacity 1s ease-out;
+        }
+        
+        #intro-layer.hidden { opacity: 0; pointer-events: none; }
+
+        .intro-title {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 2.5rem; letter-spacing: 5px;
+            background: linear-gradient(90deg, var(--berk), #fff, var(--merve));
+            -webkit-background-clip: text; color: transparent;
+            margin-bottom: 10px; text-align: center;
+        }
+
+        .intro-subtitle {
+            font-size: 0.9rem; color: #888; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 40px;
         }
 
         .start-btn {
-            padding: 20px 40px;
-            font-size: 1.2rem;
-            background: var(--accent-color);
-            border: none;
-            color: white;
-            border-radius: 50px;
-            box-shadow: 0 0 20px rgba(255, 51, 102, 0.5);
-            cursor: pointer;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
-
-        /* Zaman Göstergesi (Üstte Sabit) */
-        .time-display {
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 1rem;
-            letter-spacing: 2px;
-            color: var(--accent-color);
-            z-index: 100;
-            opacity: 0; /* Başlangıçta gizli */
-            transition: opacity 1s;
-        }
-
-        /* Ana Taşıyıcı */
-        .timeline-wrapper {
-            position: absolute;
-            top: 0; left: 0;
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            padding-left: 50vw; /* Ortadan başlat */
-            will-change: transform; /* Performans artırıcı */
-        }
-
-        .track {
-            display: flex;
-            align-items: center;
-            height: 60vh;
-        }
-
-        /* Küçük Çizgiler */
-        .tick-s {
-            width: 2px;
-            height: 30px;
-            background: var(--tick-color);
-            margin: 0 20px; /* Tikler arası mesafe */
-            flex-shrink: 0;
-        }
-
-        /* Büyük Çizgiler (Anı Noktaları) */
-        .tick-l {
-            width: 4px;
-            height: 100px;
-            background: white;
-            margin: 0 40px;
-            flex-shrink: 0;
-            position: relative;
-            transition: all 0.3s;
-        }
-
-        /* Anı Kartı */
-        .memory-card {
-            position: absolute;
-            bottom: 120px;
-            left: 50%;
-            transform: translateX(-50%) scale(0.8);
-            width: 80vw; /* Telece ekranının %80'i */
-            max-width: 350px;
-            background: #222;
-            padding: 15px;
-            border-radius: 15px;
-            opacity: 0.3;
-            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            pointer-events: none;
-            border: 1px solid #444;
-        }
-
-        .memory-card img {
-            width: 100%;
-            border-radius: 10px;
-            margin-bottom: 10px;
-            object-fit: cover;
-            height: 200px;
-            background-color: #333; /* Resim yüklenmezse gri dursun */
-        }
-
-        .memory-card h3 { color: var(--accent-color); margin: 5px 0; }
-        .memory-card p { font-size: 0.9rem; color: #ccc; line-height: 1.4; }
-
-        /* Aktif Kart Durumu */
-        .tick-l.active {
-            background: var(--accent-color);
-            box-shadow: 0 0 15px var(--accent-color);
-            height: 120px;
+            background: transparent; color: white; border: 1px solid rgba(255,255,255,0.5);
+            padding: 15px 50px; border-radius: 50px; font-size: 1.2rem; letter-spacing: 2px;
+            cursor: pointer; position: relative; overflow: hidden; transition: 0.3s;
+            box-shadow: 0 0 20px rgba(255,255,255,0.1);
         }
         
-        .tick-l.active .memory-card {
-            opacity: 1;
-            transform: translateX(-50%) scale(1);
-            bottom: 140px;
-            z-index: 10;
+        .start-btn:active { transform: scale(0.95); background: white; color: black; }
+
+
+        /* --- FİNAL SAHNESİ (Gizli Katman) --- */
+        #final-layer {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: black;
+            z-index: 10000;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            opacity: 0; pointer-events: none; transition: opacity 2s;
+        }
+        
+        #final-layer.visible { opacity: 1; pointer-events: auto; }
+
+        .heart-svg { width: 300px; height: 300px; overflow: visible; }
+
+        .final-text {
+            font-family: 'Montserrat', sans-serif;
+            text-align: center; opacity: 0; transform: translateY(20px);
+            transition: all 1s ease 2s; position: absolute; bottom: 15%; width: 90%;
+        }
+        
+        .final-text h1 { font-family: 'Great Vibes', cursive; font-size: 3rem; margin: 0; color: var(--love); text-shadow: 0 0 20px var(--love); }
+        .final-text p { font-size: 1rem; color: #ccc; margin-top: 10px; }
+
+        .whatsapp-final-btn {
+            background: white; color: black; border: none; padding: 15px 40px;
+            border-radius: 50px; font-weight: bold; margin-top: 20px; cursor: pointer;
+            box-shadow: 0 0 30px rgba(255, 255, 255, 0.5); animation: pulse 2s infinite;
         }
 
-        /* Teklif Bölümü */
-        .final-card {
-            min-width: 100vw;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            padding: 20px;
+        /* --- ANA SCROLL YAPISI --- */
+        .main-container {
+            position: relative; width: 100%; height: 1600vh;
+            transition: transform 1s, opacity 1s; opacity: 0; /* Başlangıçta gizli */
+        }
+        .main-container.started { opacity: 1; }
+
+        /* --- SVG RAYLAR --- */
+        .svg-layer {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 0; pointer-events: none;
         }
 
-        .swipe-hint {
-            position: fixed;
-            bottom: 30px;
-            width: 100%;
-            text-align: center;
-            color: gray;
-            font-size: 0.8rem;
-            animation: bounce 2s infinite;
-            pointer-events: none;
+        path {
+            fill: none; stroke-width: 3; stroke-linecap: round; vector-effect: non-scaling-stroke;
         }
-        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        
+        .path-ruler { stroke: var(--ruler-dim); stroke-width: 6; stroke-dasharray: 2 15; }
+        .path-active {
+            stroke-width: 4; stroke-dasharray: 20000; stroke-dashoffset: 20000;
+            transition: stroke-dashoffset 0.1s linear; filter: drop-shadow(0 0 5px rgba(255,255,255,0.5));
+        }
+
+        /* --- SECTION & CONTENT --- */
+        html { scroll-snap-type: y mandatory; }
+        section {
+            height: 100dvh; width: 100%; scroll-snap-align: start; scroll-snap-stop: always;
+            position: relative; z-index: 2; display: flex; align-items: center; justify-content: center;
+        }
+
+        .content {
+            position: relative; width: 85%; max-width: 350px; text-align: center;
+            opacity: 0; transform: scale(0.9) translateY(20px);
+            transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            background: rgba(10, 10, 15, 0.8); backdrop-filter: blur(10px);
+            padding: 20px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.1);
+        }
+        section.active .content { opacity: 1; transform: scale(1) translateY(0); }
+
+        .tech-header {
+            display: flex; align-items: center; justify-content: space-between;
+            border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 8px; margin-bottom: 12px;
+        }
+        .date-badge { font-family: 'Share Tech Mono', monospace; font-size: 1rem; letter-spacing: 1px; }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #555; }
+
+        .photo-box {
+            width: 100%; height: 200px; overflow: hidden; border-radius: 8px; margin-bottom: 12px;
+            border: 1px solid rgba(255,255,255,0.1); position: relative;
+        }
+        .photo-box img {
+            width: 100%; height: 100%; object-fit: cover; transform: scale(1.4); transition: transform 1.5s ease-out;
+        }
+        section.active .photo-box img { transform: scale(1); }
+
+        h2 { font-size: 1.4rem; margin: 0 0 5px 0; font-weight: 800; text-transform: uppercase; }
+        p { font-size: 0.9rem; color: #aaa; margin: 0; line-height: 1.4; }
+
+        /* --- GLITCH & ROMANCE --- */
+        .glitch-card { border: 1px solid var(--glitch); animation: shake 2s infinite; }
+        .glitch-text { color: var(--glitch); font-family: 'Share Tech Mono', monospace; }
+        @keyframes shake { 0%, 100% {transform:translate(0,0)} 5% {transform:translate(-2px,-2px)} 10% {transform:translate(2px,2px)} }
+
+        .btn-tech {
+            background: transparent; color: white; border: 1px solid white; padding: 12px 30px;
+            font-family: 'Share Tech Mono', monospace; margin-top: 15px; cursor: pointer; transition: 0.3s;
+        }
+        
+        .pos-left { margin-right: auto; margin-left: 5%; text-align: left; }
+        .pos-right { margin-left: auto; margin-right: 5%; text-align: right; }
+        .pos-center { margin: 0 auto; text-align: center; }
+
+        @keyframes pulse { 0% {transform:scale(1)} 50% {transform:scale(1.05)} 100% {transform:scale(1)} }
+        
+        .scroll-hint {
+            position: fixed; bottom: 30px; width: 100%; text-align: center;
+            opacity: 0; animation: bounce 2s infinite; pointer-events: none; z-index: 10; transition: opacity 1s;
+        }
+        .scroll-hint.visible { opacity: 0.5; }
+        @keyframes bounce { 0%, 100% {transform:translateY(0)} 50% {transform:translateY(-10px)} }
 
     </style>
 </head>
 <body>
 
-    <div id="start-overlay">
-        <h2 style="margin-bottom: 20px; color: white;">Merve & Berk</h2>
-        <button class="start-btn" id="startBtn">Zaman Yolculuğunu Başlat</button>
-        <p style="color: gray; margin-top: 10px; font-size: 0.8rem;">(Sesli ve Tam Ekran Deneyim)</p>
+    <div id="intro-layer">
+        <h1 class="intro-title">BERK & MERVE</h1>
+        <div class="intro-subtitle">ZAMAN ÇİZELGESİ</div>
+        <button class="start-btn" onclick="startJourney()">BAŞLAT</button>
     </div>
 
-    <div class="time-display" id="yearDisplay">2024</div>
-    <div class="swipe-hint">← KAYDIR →</div>
-
-    <div class="timeline-wrapper" id="timeline">
-        <div class="track" id="track"></div>
-        
-        <div class="final-card">
-            <h1>Yolculuk Bitti mi?</h1>
-            <p>Hayır, asıl şimdi başlıyor...</p>
-            <br>
-            <button class="start-btn" onclick="sendWhatsapp()">Yemeğe Gidelim mi? 🌹</button>
+    <div id="final-layer">
+        <svg class="heart-svg" viewBox="0 0 600 600">
+            <defs>
+                <linearGradient id="grad-final" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" style="stop-color:var(--berk);stop-opacity:1" />
+                    <stop offset="50%" style="stop-color:var(--love);stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:var(--merve);stop-opacity:1" />
+                </linearGradient>
+            </defs>
+            <path id="final-heart-path" 
+                  d="M 300,550 C 100,400 0,250 0,150 C 0,50 150,-50 300,100 C 450,-50 600,50 600,150 C 600,250 500,400 300,550" 
+                  stroke="url(#grad-final)" stroke-width="15" fill="none" stroke-linecap="round"
+                  style="stroke-dasharray: 2000; stroke-dashoffset: 2000; filter: drop-shadow(0 0 20px var(--love));" />
+        </svg>
+        <div class="final-text">
+            <h1>Sonsuza Dek</h1>
+            <p>Kaderimiz artık tek bir rayda akacak...</p>
+            <p style="font-size: 0.8rem; margin-top:30px; letter-spacing:2px;">SÜRPRİZLERİ BEKLE</p>
+            <button class="whatsapp-final-btn" onclick="sendWhatsapp()">MESAJI GÖNDER ❤️</button>
         </div>
     </div>
 
-<script>
-    // --- 1. VERİLER (Resim kaynakları güncellendi) ---
-    // Gerçek fotolarını koyduğunda buradaki linkleri değiştireceksin.
-    const memories = [
-        { date: "Ocak 2024", title: "Tanıştığımız Gün", desc: "Hayatımın değiştiği an.", img: "https://placehold.co/400x300/222/fff?text=Tanisma" },
-        { date: "14 Şubat 2024", title: "İlk Sevgililer Günü", desc: "O kadar gergindim ki!", img: "https://placehold.co/400x300/222/fff?text=14+Subat" },
-        { date: "Yaz 2024", title: "Ege Turu", desc: "Mavi sular ve sen.", img: "https://placehold.co/400x300/222/fff?text=Tatil" },
-        { date: "Kasım 2024", title: "Konser", desc: "Sesimiz kısılana kadar bağırdık.", img: "https://placehold.co/400x300/222/fff?text=Konser" },
-        { date: "Bugün", title: "Seni Seviyorum", desc: "Nice aylarımıza, yıllarımıza...", img: "https://placehold.co/400x300/222/fff?text=Love" }
-    ];
+    <div class="main-container" id="main-content">
 
-    // --- 2. SES MOTORU (Hata Korumalı) ---
-    let audioCtx;
-    
-    function initAudio() {
-        try {
-            const AudioContext = window.AudioContext || window.webkitAudioContext;
-            if (AudioContext) {
-                audioCtx = new AudioContext();
-            }
-        } catch (e) {
-            console.log("Ses motoru başlatılamadı:", e);
-        }
-    }
+        <div class="scroll-hint" id="scroll-hint">▼</div>
 
-    function playTickSound() {
-        if (!audioCtx) return;
-        if (audioCtx.state === 'suspended') audioCtx.resume(); // Tarayıcı durdurduysa devam ettir
+        <div class="svg-layer">
+            <svg width="100%" height="100%" viewBox="0 0 100 1600" preserveAspectRatio="none">
+                <defs>
+                    <linearGradient id="grad-merve" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#ff5e7e" /><stop offset="100%" stop-color="#ff0040" /></linearGradient>
+                    <linearGradient id="grad-berk" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#00f2ff" /><stop offset="100%" stop-color="#ff0040" /></linearGradient>
+                </defs>
+                <path class="path-ruler" d="M 15,0 L 15,250 C 15,280 50,280 50,300 C 50,320 15,320 15,350 L 15,550 C 15,580 50,580 50,600 L 50,1600" />
+                <path class="path-ruler" d="M 85,0 L 85,250 C 85,280 50,280 50,300 C 50,320 85,320 85,350 L 85,550 C 85,580 50,580 50,600 L 50,1600" />
+                <path id="active-merve" class="path-active" stroke="url(#grad-merve)" d="M 15,0 L 15,250 C 15,280 50,280 50,300 C 50,320 15,320 15,350 L 15,550 C 15,580 50,580 50,600 L 50,1600" />
+                <path id="active-berk" class="path-active" stroke="url(#grad-berk)" d="M 85,0 L 85,250 C 85,280 50,280 50,300 C 50,320 85,320 85,350 L 85,550 C 85,580 50,580 50,600 L 50,1600" />
+            </svg>
+        </div>
 
-        const oscillator = audioCtx.createOscillator();
-        const gainNode = audioCtx.createGain();
-
-        oscillator.type = 'triangle'; 
-        oscillator.frequency.setValueAtTime(800, audioCtx.currentTime); 
-        oscillator.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.1); 
-        
-        gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime); 
-        gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
-
-        oscillator.connect(gainNode);
-        gainNode.connect(audioCtx.destination);
-
-        oscillator.start();
-        oscillator.stop(audioCtx.currentTime + 0.1);
-    }
-
-    // --- 3. DOM OLUŞTURMA ---
-    const track = document.getElementById('track');
-    const TICK_GAP = 42; 
-
-    memories.forEach((mem, index) => {
-        const gap = index === 0 ? 5 : 8;
-        for(let i=0; i<gap; i++) {
-            let s = document.createElement('div');
-            s.className = 'tick-s';
-            track.appendChild(s);
-        }
-
-        let l = document.createElement('div');
-        l.className = 'tick-l';
-        l.dataset.date = mem.date;
-        l.innerHTML = `
-            <div class="memory-card">
-                <img src="${mem.img}" alt="${mem.title}">
-                <h3>${mem.title}</h3>
-                <p>${mem.desc}</p>
-                <small>${mem.date}</small>
+        <section data-theme="split">
+            <div class="content pos-left" style="width: 45%; border-left: 3px solid var(--merve);">
+                <div class="tech-header"><span class="date-badge">1998</span><div class="status-dot" style="background:var(--merve)"></div></div>
+                <div class="photo-box"><img src="https://placehold.co/200x200/222/fff?text=M"></div>
+                <h2>MERVE</h2>
             </div>
-        `;
-        track.appendChild(l);
-    });
-    
-    for(let i=0; i<5; i++) { track.appendChild(document.createElement('div').className='tick-s'); }
+            <div class="content pos-right" style="width: 45%; border-right: 3px solid var(--berk);">
+                <div class="tech-header"><div class="status-dot" style="background:var(--berk)"></div><span class="date-badge">1998</span></div>
+                <div class="photo-box"><img src="https://placehold.co/200x200/222/fff?text=B"></div>
+                <h2>BERK</h2>
+            </div>
+        </section>
 
+        <section>
+            <div class="content pos-left" style="width: 45%;"><span class="date-badge">2010</span><p>Okul Yılları</p></div>
+            <div class="content pos-right" style="width: 45%;"><span class="date-badge">2010</span><p>Kendi Yolumuz</p></div>
+        </section>
 
-    // --- 4. TOUCH & MOUSE MANTIĞI (Bilgisayar Desteği Eklendi) ---
-    let currentX = 0;
-    let targetX = 0;
-    let isDragging = false;
-    let startX = 0;
-    
-    const timeline = document.getElementById('timeline');
-    const yearDisplay = document.getElementById('yearDisplay');
-    const bigTicks = document.querySelectorAll('.tick-l');
+        <section>
+            <div class="content pos-center" style="border-color: var(--gold);">
+                <div class="tech-header"><span class="date-badge" style="color:var(--gold)">TEMMUZ 2020</span><div class="status-dot" style="background:var(--gold);"></div></div>
+                <div class="photo-box"><img src="https://placehold.co/400x250/222/fff?text=Tunay+Post"></div>
+                <h2 style="color:var(--gold)">TEĞET GEÇİŞ</h2>
+                <p>Raylar birleşti, seni gördüm. Ama zamanı değildi.</p>
+            </div>
+        </section>
 
-    // Başlat Butonu
-    const startBtn = document.getElementById('startBtn');
-    const overlay = document.getElementById('start-overlay');
-    
-    startBtn.addEventListener('click', () => {
-        console.log("Butona tıklandı!"); // Debug için
-        initAudio();
+        <section>
+            <div class="content pos-center" style="opacity:0.5; border:none; background:transparent;">
+                <h2 style="font-family:'Share Tech Mono';">SİNYAL YOK...</h2>
+                <p>2021 - 2025</p>
+            </div>
+        </section>
+
+        <section>
+            <div class="content pos-center" style="border-color: var(--love);">
+                <div class="tech-header"><span class="date-badge" style="color:var(--love)">02.01.2026</span><div class="status-dot" style="background:var(--love)"></div></div>
+                <div class="photo-box"><img src="https://placehold.co/300x200/222/fff?text=Like"></div>
+                <h2>KENETLENME</h2>
+                <p>Merve hikayeni beğendi.</p>
+            </div>
+        </section>
+
+        <section>
+            <div class="content pos-center">
+                <span class="date-badge">09.01.2026</span>
+                <h2>İLK MESAJ</h2>
+            </div>
+        </section>
+
+        <section>
+            <div class="content pos-center">
+                <div class="tech-header"><span class="date-badge">16.01.2026</span></div>
+                <div class="photo-box"><img src="https://placehold.co/300x200/222/fff?text=Calls"></div>
+                <h2>ENDİŞE</h2>
+                <p>Zehirlenme olayı. Bağlar güçlendi.</p>
+            </div>
+        </section>
+
+        <section>
+            <div class="content pos-center">
+                <div class="tech-header"><span class="date-badge">31.01.2026</span></div>
+                <div class="photo-box"><img src="https://placehold.co/300x200/222/fff?text=Izmir"></div>
+                <h2>HEDEF: İZMİR</h2>
+            </div>
+        </section>
+
+        <section id="glitch-target">
+            <div class="content pos-center glitch-card" id="glitch-card">
+                <h2 class="glitch-text">⚠ SYSTEM FAILURE</h2>
+                <p class="glitch-text">DATE: 01.02.2026<br>EVENT: UNKNOWN</p>
+            </div>
+        </section>
+
+        <section>
+            <div class="content pos-center">
+                <div class="tech-header"><span class="date-badge">03.02.2026</span></div>
+                <div class="photo-box"><img src="https://placehold.co/300x200/222/fff?text=Best+Date"></div>
+                <h2>EN GÜZEL GÜN</h2>
+            </div>
+        </section>
+
+        <section>
+            <div class="content pos-center">
+                <div class="tech-header"><span class="date-badge">04.02.2026</span></div>
+                <h2>AYRILIK :(</h2>
+            </div>
+        </section>
+
+        <section>
+            <div class="content pos-center">
+                <div class="tech-header"><span class="date-badge">14.02.2026</span></div>
+                <div class="photo-box"><img src="https://placehold.co/300x200/222/fff?text=Valentines"></div>
+                <h2>GERİ DÖNÜŞ</h2>
+            </div>
+        </section>
+
+        <section>
+            <div class="content pos-center">
+                <div class="tech-header"><span class="date-badge">17.02.2026</span></div>
+                <div class="photo-box"><img src="https://placehold.co/300x200/222/fff?text=Urla"></div>
+                <h2>ISLAK URLA</h2>
+            </div>
+        </section>
+
+        <section>
+            <div class="content pos-center">
+                <div class="tech-header"><span class="date-badge">20.02.2026</span></div>
+                <div class="photo-box"><img src="https://placehold.co/300x200/222/fff?text=Roadtrip"></div>
+                <h2>KAÇIRIŞ</h2>
+            </div>
+        </section>
+
+        <section>
+            <div class="content pos-center">
+                <div class="tech-header"><span class="date-badge">ŞUBAT SONU</span></div>
+                <div class="photo-box"><img src="https://placehold.co/300x200/222/fff?text=Lily+Nacho"></div>
+                <h2>AİLE TABLOSU</h2>
+            </div>
+        </section>
+
+        <section>
+            <div class="content pos-center" style="background:none; border:none;">
+                <h2>BİR HATA VAR...</h2>
+                <button class="btn-tech" onclick="timeTravel()">REWIND TIME ⏪</button>
+            </div>
+        </section>
         
-        overlay.style.opacity = '0';
-        overlay.style.pointerEvents = 'none'; // Tıklamayı engelle
-        document.getElementById('yearDisplay').style.opacity = '1';
-        
-        setTimeout(() => { 
-            overlay.style.display = 'none'; 
-        }, 800);
-    });
+    </div>
 
-    // --- ORTAK FONKSİYONLAR (Touch ve Mouse için) ---
-    function handleStart(clientX) {
-        isDragging = true;
-        startX = clientX;
-    }
-
-    function handleMove(clientX) {
-        if(!isDragging) return;
-        const x = clientX;
-        const diff = (x - startX) * 1.5; 
-        targetX += diff;
-        startX = x;
-
-        // Sınır Kontrolü
-        if(targetX > 0) targetX = 0; 
-        const minX = -track.offsetWidth - window.innerWidth; // Biraz daha pay bırak
-        if(targetX < minX) targetX = minX;
-    }
-
-    function handleEnd() {
-        isDragging = false;
-    }
-
-    // --- EVENT LISTENERS ---
-    
-    // 1. Touch Events (Mobil)
-    document.addEventListener('touchstart', (e) => handleStart(e.touches[0].clientX), { passive: false });
-    document.addEventListener('touchmove', (e) => handleMove(e.touches[0].clientX), { passive: false });
-    document.addEventListener('touchend', handleEnd);
-
-    // 2. Mouse Events (Bilgisayar)
-    document.addEventListener('mousedown', (e) => handleStart(e.clientX));
-    document.addEventListener('mousemove', (e) => handleMove(e.clientX));
-    document.addEventListener('mouseup', handleEnd);
-    document.addEventListener('mouseleave', handleEnd); // Mouse ekrandan çıkarsa bırak
-
-    // 3. Mouse Wheel (Opsiyonel)
-    document.addEventListener('wheel', (e) => {
-        targetX -= e.deltaY;
-        if(targetX > 0) targetX = 0;
-    });
-
-    // --- 5. ANIMASYON LOOP ---
-    let lastPlayedTickIndex = -1;
-
-    function animate() {
-        // Yumuşak geçiş (Lerp)
-        currentX += (targetX - currentX) * 0.1;
-        timeline.style.transform = `translateX(${currentX}px)`;
-
-        // Ses Efekti (TİK)
-        let tickIndex = Math.floor(Math.abs(currentX) / TICK_GAP);
-        if (tickIndex > lastPlayedTickIndex) {
-            playTickSound();
-            lastPlayedTickIndex = tickIndex;
-            if (navigator.vibrate) navigator.vibrate(5); 
+    <script>
+        // --- SES MOTORU (Digital Harp & Sci-Fi) ---
+        let audioCtx;
+        function initAudio() {
+            if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if(audioCtx.state === 'suspended') audioCtx.resume();
         }
 
-        // Aktif Kartı Bulma
-        let centerPoint = Math.abs(currentX) + (window.innerWidth / 2);
+        function playSound(type) {
+            if(!audioCtx) initAudio();
+            const now = audioCtx.currentTime;
 
-        bigTicks.forEach(tick => {
-            let tickLeft = tick.offsetLeft;
-            // Ekrana ortalandı mı? (Hassasiyet ayarı)
-            if (tickLeft > centerPoint - 100 && tickLeft < centerPoint + 100) {
-                if (!tick.classList.contains('active')) {
-                    tick.classList.add('active');
-                    yearDisplay.innerText = tick.dataset.date;
-                    yearDisplay.style.transform = "translateX(-50%) scale(1.2)";
-                }
-            } else {
-                if (tick.classList.contains('active')) {
-                    tick.classList.remove('active');
-                    yearDisplay.style.transform = "translateX(-50%) scale(1)";
-                }
+            if(type === 'tick') {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.frequency.setValueAtTime(800, now);
+                osc.frequency.exponentialRampToValueAtTime(100, now + 0.05);
+                gain.gain.setValueAtTime(0.05, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.03);
+                osc.connect(gain); gain.connect(audioCtx.destination);
+                osc.start(); osc.stop(now + 0.05);
+            } else if (type === 'warp') {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.frequency.setValueAtTime(100, now);
+                osc.frequency.linearRampToValueAtTime(1500, now + 2);
+                gain.gain.setValueAtTime(0.3, now);
+                gain.gain.linearRampToValueAtTime(0, now + 2);
+                osc.connect(gain); gain.connect(audioCtx.destination);
+                osc.start(); osc.stop(now + 2);
+            } else if (type === 'romance') {
+                // ROMANTİK ARPEJ (Harp Style) - C Major
+                const notes = [261.63, 329.63, 392.00, 523.25, 659.25, 783.99]; // C4, E4, G4, C5, E5, G5
+                notes.forEach((freq, i) => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.value = freq;
+                    
+                    const start = now + (i * 0.15); // Sırayla çal
+                    gain.gain.setValueAtTime(0, start);
+                    gain.gain.linearRampToValueAtTime(0.2, start + 0.1);
+                    gain.gain.exponentialRampToValueAtTime(0.001, start + 3);
+                    
+                    osc.connect(gain); gain.connect(audioCtx.destination);
+                    osc.start(start); osc.stop(start + 3);
+                });
             }
+        }
+
+        // --- GİRİŞ FONKSİYONU ---
+        function startJourney() {
+            initAudio(); // Ses motorunu başlat
+            
+            // Intro'yu gizle
+            const intro = document.getElementById('intro-layer');
+            intro.classList.add('hidden');
+            
+            // Ana içeriği göster
+            document.getElementById('main-content').classList.add('started');
+            
+            // Scroll ipucunu biraz geç göster
+            setTimeout(() => {
+                document.getElementById('scroll-hint').classList.add('visible');
+            }, 1000);
+            
+            // Dom'dan tamamen kaldır (performans için)
+            setTimeout(() => {
+                intro.style.display = 'none';
+            }, 1000);
+        }
+
+        // --- SCROLL DRAWING ---
+        const pathMerve = document.getElementById('active-merve');
+        const pathBerk = document.getElementById('active-berk');
+        const length = pathMerve.getTotalLength();
+        
+        pathMerve.style.strokeDasharray = length; pathMerve.style.strokeDashoffset = length;
+        pathBerk.style.strokeDasharray = length; pathBerk.style.strokeDashoffset = length;
+
+        window.addEventListener('scroll', () => {
+            const scrollPercent = (window.scrollY + window.innerHeight * 0.6) / document.body.scrollHeight;
+            const draw = length * Math.min(scrollPercent * 1.3, 1);
+            pathMerve.style.strokeDashoffset = length - draw;
+            pathBerk.style.strokeDashoffset = length - draw;
         });
 
-        requestAnimationFrame(animate);
-    }
-    
-    animate();
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if(entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                    playSound('tick');
+                    if(navigator.vibrate) navigator.vibrate(5);
+                } else {
+                    entry.target.classList.remove('active');
+                }
+            });
+        }, { threshold: 0.5 });
+        document.querySelectorAll('section').forEach(sec => observer.observe(sec));
 
-    function sendWhatsapp() {
-        // Telefon numaranı buraya yazmayı unutma!
-        window.location.href = "https://wa.me/905xxxxxxxxx?text=Hazırlanıyorum,%20gelip%20beni%20alabilirsin!%20❤️"; 
-    }
+        // --- TIME TRAVEL ---
+        function timeTravel() {
+            playSound('warp');
+            document.body.style.transition = "transform 0.1s";
+            const shake = setInterval(() => {
+                const x = Math.random() * 10 - 5; document.body.style.transform = `translateX(${x}px)`;
+            }, 50);
 
-</script>
+            const target = document.getElementById('glitch-target');
+            target.scrollIntoView({ behavior: 'smooth' });
+
+            setTimeout(() => {
+                clearInterval(shake);
+                document.body.style.transform = "none";
+                fixGlitch();
+            }, 1200);
+        }
+
+        function fixGlitch() {
+            const card = document.getElementById('glitch-card');
+            card.classList.remove('glitch-card');
+            card.style.borderColor = "var(--love)";
+            
+            if(navigator.vibrate) navigator.vibrate([50, 50, 100]);
+            
+            card.style.opacity = '0';
+            setTimeout(() => {
+                card.innerHTML = `
+                    <div class="tech-header" style="border-color:#ff0040;">
+                        <span class="date-badge" style="color:#ff0040;">01.02.2026</span>
+                    </div>
+                    <img src="https://placehold.co/400x300/fff/ff0040?text=Benimle+Cikar+Misin" style="width:100%; border-radius:8px; margin-bottom:10px;">
+                    <h2 style="color:#ff0040; margin-bottom:10px;">SEVGİLİM OLUR MUSUN?</h2>
+                    <p style="color:white;">Resmi Başlangıç: 1 Şubat 2026</p>
+                    <button onclick="startForever()" style="background:#ff0040; color:white; border:none; padding:15px 40px; border-radius:50px; font-weight:bold; cursor:pointer; margin-top:10px; box-shadow:0 0 20px #ff0040;">EVET! ❤️</button>
+                `;
+                card.style.opacity = '1';
+            }, 300);
+        }
+
+        // --- FİNAL: QUANTUM HEART & ROMANCE SOUND ---
+        function startForever() {
+            // 1. Romantik Arpej Sesi Çal
+            playSound('romance');
+            
+            // 2. Ana içeriği küçültüp yok et
+            const mainContent = document.getElementById('main-content');
+            mainContent.style.transform = "scale(0) rotate(360deg)";
+            mainContent.style.opacity = "0";
+            
+            // 3. Final Katmanını Aç
+            const finalLayer = document.getElementById('final-layer');
+            finalLayer.classList.add('visible');
+            
+            // 4. Kalbi Çiz
+            const heartPath = document.getElementById('final-heart-path');
+            setTimeout(() => {
+                heartPath.style.transition = "stroke-dashoffset 4s ease-in-out";
+                heartPath.style.strokeDashoffset = "0";
+            }, 500);
+
+            // 5. Yazıları getir
+            setTimeout(() => {
+                document.querySelector('.final-text').style.opacity = '1';
+                document.querySelector('.final-text').style.transform = 'translateY(0)';
+            }, 4500);
+        }
+
+        function sendWhatsapp() {
+            // NUMARANI BURAYA YAZ (Örn: 905xxxxxxxxx)
+            window.location.href = "https://wa.me/905xxxxxxxxx?text=Evet!%20Sonsuza%20kadar%20beraber...%20❤️";
+        }
+    </script>
 </body>
 </html>
