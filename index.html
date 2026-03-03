@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Berk & Merve: Timeline</title>
+    <title>Berk & Merve</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Montserrat:wght@300;500;800&family=Great+Vibes&display=swap');
 
@@ -19,101 +19,80 @@
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
+        html { scroll-snap-type: y mandatory; }
+
         body {
             margin: 0; padding: 0;
             background-color: var(--bg);
             color: white;
             font-family: 'Montserrat', sans-serif;
-            overflow: hidden; /* Dış scroll'u engelle */
+            overflow-x: hidden;
+            overflow-y: auto; 
             overscroll-behavior-y: none;
         }
 
-        /* --- 0. GİRİŞ EKRANI (INTRO) --- */
+        /* --- 0. GİRİŞ EKRANI --- */
         #intro-layer {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #000;
-            z-index: 20000;
+            background: #000; z-index: 20000;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             transition: opacity 1s ease-out;
         }
-        
         #intro-layer.hidden { opacity: 0; pointer-events: none; }
-
         .intro-title {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 2.5rem; letter-spacing: 5px;
+            font-family: 'Share Tech Mono', monospace; font-size: 2.5rem; letter-spacing: 5px;
             background: linear-gradient(90deg, var(--berk), #fff, var(--merve));
-            -webkit-background-clip: text; color: transparent;
-            margin-bottom: 10px; text-align: center;
+            -webkit-background-clip: text; color: transparent; margin-bottom: 10px; text-align: center;
         }
-
-        .intro-subtitle {
-            font-size: 0.9rem; color: #888; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 40px;
-        }
-
         .start-btn {
             background: transparent; color: white; border: 1px solid rgba(255,255,255,0.5);
-            padding: 15px 50px; border-radius: 50px; font-size: 1.2rem; letter-spacing: 2px;
-            cursor: pointer; position: relative; overflow: hidden; transition: 0.3s;
-            box-shadow: 0 0 20px rgba(255,255,255,0.1);
+            padding: 15px 50px; border-radius: 50px; font-size: 1.2rem; cursor: pointer;
+            transition: 0.3s; box-shadow: 0 0 20px rgba(255,255,255,0.1);
         }
-        
-        .start-btn:active { transform: scale(0.95); background: white; color: black; }
 
-
-        /* --- FİNAL SAHNESİ (Gizli Katman) --- */
+        /* --- FİNAL SAHNESİ --- */
         #final-layer {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: black;
+            background: radial-gradient(circle, #1a0005 0%, #000 100%);
             z-index: 10000;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             opacity: 0; pointer-events: none; transition: opacity 2s;
+            overflow: hidden;
         }
-        
         #final-layer.visible { opacity: 1; pointer-events: auto; }
 
+        .memory-vortex {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 0;
+        }
+        .vortex-img {
+            position: absolute; width: 150px; height: 150px; object-fit: cover;
+            border-radius: 10px; opacity: 0; border: 2px solid var(--love);
+            box-shadow: 0 0 20px var(--love);
+        }
+
+        .final-content { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; }
         .heart-svg { width: 300px; height: 300px; overflow: visible; }
-
-        .final-text {
-            font-family: 'Montserrat', sans-serif;
-            text-align: center; opacity: 0; transform: translateY(20px);
-            transition: all 1s ease 2s; position: absolute; bottom: 15%; width: 90%;
-        }
         
-        .final-text h1 { font-family: 'Great Vibes', cursive; font-size: 3rem; margin: 0; color: var(--love); text-shadow: 0 0 20px var(--love); }
-        .final-text p { font-size: 1rem; color: #ccc; margin-top: 10px; }
-
-        .whatsapp-final-btn {
-            background: white; color: black; border: none; padding: 15px 40px;
-            border-radius: 50px; font-weight: bold; margin-top: 20px; cursor: pointer;
-            box-shadow: 0 0 30px rgba(255, 255, 255, 0.5); animation: pulse 2s infinite;
+        .final-text {
+            font-family: 'Montserrat', sans-serif; text-align: center; opacity: 0; transform: translateY(20px);
+            transition: all 1s ease 2s; position: absolute; bottom: -50px; width: 100%;
         }
+        .final-text h1 { font-family: 'Great Vibes', cursive; font-size: 3rem; margin: 0; color: var(--love); text-shadow: 0 0 20px var(--love); }
+        .final-text p { font-size: 1rem; color: #ccc; margin-top: 10px; letter-spacing: 1px; }
 
-        /* --- ANA SCROLL YAPISI --- */
+        /* --- ANA SCROLL --- */
         .main-container {
-            position: relative; width: 100%; height: 1600vh;
-            transition: transform 1s, opacity 1s; opacity: 0; /* Başlangıçta gizli */
+            position: relative; width: 100%; height: 1700vh;
+            transition: transform 1s, opacity 1s; opacity: 0;
         }
         .main-container.started { opacity: 1; }
 
-        /* --- SVG RAYLAR --- */
-        .svg-layer {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 0; pointer-events: none;
-        }
-
-        path {
-            fill: none; stroke-width: 3; stroke-linecap: round; vector-effect: non-scaling-stroke;
-        }
-        
+        .svg-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+        path { fill: none; stroke-width: 3; stroke-linecap: round; vector-effect: non-scaling-stroke; }
         .path-ruler { stroke: var(--ruler-dim); stroke-width: 6; stroke-dasharray: 2 15; }
-        .path-active {
-            stroke-width: 4; stroke-dasharray: 20000; stroke-dashoffset: 20000;
-            transition: stroke-dashoffset 0.1s linear; filter: drop-shadow(0 0 5px rgba(255,255,255,0.5));
-        }
+        .path-active { stroke-width: 4; stroke-dasharray: 20000; stroke-dashoffset: 20000; transition: stroke-dashoffset 0.1s linear; filter: drop-shadow(0 0 5px rgba(255,255,255,0.5)); }
 
-        /* --- SECTION & CONTENT --- */
-        html { scroll-snap-type: y mandatory; }
         section {
             height: 100dvh; width: 100%; scroll-snap-align: start; scroll-snap-stop: always;
             position: relative; z-index: 2; display: flex; align-items: center; justify-content: center;
@@ -123,31 +102,38 @@
             position: relative; width: 85%; max-width: 350px; text-align: center;
             opacity: 0; transform: scale(0.9) translateY(20px);
             transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            background: rgba(10, 10, 15, 0.8); backdrop-filter: blur(10px);
+            background: rgba(10, 10, 15, 0.85); backdrop-filter: blur(10px);
             padding: 20px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.1);
         }
         section.active .content { opacity: 1; transform: scale(1) translateY(0); }
 
-        .tech-header {
-            display: flex; align-items: center; justify-content: space-between;
-            border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 8px; margin-bottom: 12px;
-        }
+        .tech-header { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 8px; margin-bottom: 12px; }
         .date-badge { font-family: 'Share Tech Mono', monospace; font-size: 1rem; letter-spacing: 1px; }
         .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #555; }
 
-        .photo-box {
-            width: 100%; height: 200px; overflow: hidden; border-radius: 8px; margin-bottom: 12px;
-            border: 1px solid rgba(255,255,255,0.1); position: relative;
+        /* FOTOĞRAF KUTUSU (STANDART) */
+        .photo-box { 
+            width: 100%; height: 200px; 
+            overflow: hidden; border-radius: 8px; margin-bottom: 12px; border: 1px solid rgba(255,255,255,0.1); position: relative; 
         }
-        .photo-box img {
-            width: 100%; height: 100%; object-fit: cover; transform: scale(1.4); transition: transform 1.5s ease-out;
+        
+        /* FOTOĞRAF KUTUSU (PORTRAIT / DİKEY) */
+        .photo-box.portrait {
+            height: 420px; /* Dikey fotolar için yükseklik */
         }
+
+        .photo-box img { width: 100%; height: 100%; object-fit: cover; transform: scale(1.4); transition: transform 1.5s ease-out; }
         section.active .photo-box img { transform: scale(1); }
 
         h2 { font-size: 1.4rem; margin: 0 0 5px 0; font-weight: 800; text-transform: uppercase; }
         p { font-size: 0.9rem; color: #aaa; margin: 0; line-height: 1.4; }
 
-        /* --- GLITCH & ROMANCE --- */
+        /* Konumlandırma */
+        .pos-left { margin-right: auto; margin-left: 5%; text-align: left; }
+        .pos-right { margin-left: auto; margin-right: 5%; text-align: right; }
+        .pos-center { margin: 0 auto; text-align: center; }
+
+        /* Glitch */
         .glitch-card { border: 1px solid var(--glitch); animation: shake 2s infinite; }
         .glitch-text { color: var(--glitch); font-family: 'Share Tech Mono', monospace; }
         @keyframes shake { 0%, 100% {transform:translate(0,0)} 5% {transform:translate(-2px,-2px)} 10% {transform:translate(2px,2px)} }
@@ -156,19 +142,13 @@
             background: transparent; color: white; border: 1px solid white; padding: 12px 30px;
             font-family: 'Share Tech Mono', monospace; margin-top: 15px; cursor: pointer; transition: 0.3s;
         }
-        
-        .pos-left { margin-right: auto; margin-left: 5%; text-align: left; }
-        .pos-right { margin-left: auto; margin-right: 5%; text-align: right; }
-        .pos-center { margin: 0 auto; text-align: center; }
 
-        @keyframes pulse { 0% {transform:scale(1)} 50% {transform:scale(1.05)} 100% {transform:scale(1)} }
-        
         .scroll-hint {
-            position: fixed; bottom: 30px; width: 100%; text-align: center;
-            opacity: 0; animation: bounce 2s infinite; pointer-events: none; z-index: 10; transition: opacity 1s;
+            position: fixed; bottom: 30px; width: 100%; text-align: center; opacity: 0; pointer-events: none; z-index: 10; transition: opacity 1s; animation: bounce 2s infinite;
         }
         .scroll-hint.visible { opacity: 0.5; }
         @keyframes bounce { 0%, 100% {transform:translateY(0)} 50% {transform:translateY(-10px)} }
+        @keyframes pulse { 0% {transform:scale(1)} 50% {transform:scale(1.05)} 100% {transform:scale(1)} }
 
     </style>
 </head>
@@ -176,71 +156,82 @@
 
     <div id="intro-layer">
         <h1 class="intro-title">BERK & MERVE</h1>
-        <div class="intro-subtitle">ZAMAN ÇİZELGESİ</div>
+        <div style="font-size:0.9rem; color:#888; letter-spacing:2px; margin-bottom:40px;">ZAMAN YOLCULUĞU</div>
         <button class="start-btn" onclick="startJourney()">BAŞLAT</button>
     </div>
 
     <div id="final-layer">
-        <svg class="heart-svg" viewBox="0 0 600 600">
-            <defs>
-                <linearGradient id="grad-final" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" style="stop-color:var(--berk);stop-opacity:1" />
-                    <stop offset="50%" style="stop-color:var(--love);stop-opacity:1" />
-                    <stop offset="100%" style="stop-color:var(--merve);stop-opacity:1" />
-                </linearGradient>
-            </defs>
-            <path id="final-heart-path" 
-                  d="M 300,550 C 100,400 0,250 0,150 C 0,50 150,-50 300,100 C 450,-50 600,50 600,150 C 600,250 500,400 300,550" 
-                  stroke="url(#grad-final)" stroke-width="15" fill="none" stroke-linecap="round"
-                  style="stroke-dasharray: 2000; stroke-dashoffset: 2000; filter: drop-shadow(0 0 20px var(--love));" />
-        </svg>
-        <div class="final-text">
-            <h1>Sonsuza Dek</h1>
-            <p>Kaderimiz artık tek bir rayda akacak...</p>
-            <p style="font-size: 0.8rem; margin-top:30px; letter-spacing:2px;">SÜRPRİZLERİ BEKLE</p>
-            <button class="whatsapp-final-btn" onclick="sendWhatsapp()">MESAJI GÖNDER ❤️</button>
+        <div class="memory-vortex" id="memory-vortex"></div>
+        
+        <div class="final-content">
+            <svg class="heart-svg" viewBox="0 0 600 600">
+                <defs>
+                    <linearGradient id="grad-final" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" style="stop-color:var(--berk);stop-opacity:1" />
+                        <stop offset="50%" style="stop-color:var(--love);stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:var(--merve);stop-opacity:1" />
+                    </linearGradient>
+                </defs>
+                <path id="final-heart-path" 
+                      d="M 300,550 C 100,400 0,250 0,150 C 0,50 150,-50 300,100 C 450,-50 600,50 600,150 C 600,250 500,400 300,550" 
+                      stroke="url(#grad-final)" stroke-width="15" fill="none" stroke-linecap="round"
+                      style="stroke-dasharray: 2000; stroke-dashoffset: 2000; filter: drop-shadow(0 0 20px var(--love));" />
+            </svg>
+            <div class="final-text">
+                <h1>Sonsuza Dek</h1>
+                <p>Kaderimiz artık tek bir rayda...</p>
+            </div>
         </div>
     </div>
 
     <div class="main-container" id="main-content">
-
         <div class="scroll-hint" id="scroll-hint">▼</div>
 
         <div class="svg-layer">
-            <svg width="100%" height="100%" viewBox="0 0 100 1600" preserveAspectRatio="none">
+            <svg width="100%" height="100%" viewBox="0 0 100 1700" preserveAspectRatio="none">
                 <defs>
                     <linearGradient id="grad-merve" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#ff5e7e" /><stop offset="100%" stop-color="#ff0040" /></linearGradient>
                     <linearGradient id="grad-berk" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#00f2ff" /><stop offset="100%" stop-color="#ff0040" /></linearGradient>
                 </defs>
-                <path class="path-ruler" d="M 15,0 L 15,250 C 15,280 50,280 50,300 C 50,320 15,320 15,350 L 15,550 C 15,580 50,580 50,600 L 50,1600" />
-                <path class="path-ruler" d="M 85,0 L 85,250 C 85,280 50,280 50,300 C 50,320 85,320 85,350 L 85,550 C 85,580 50,580 50,600 L 50,1600" />
-                <path id="active-merve" class="path-active" stroke="url(#grad-merve)" d="M 15,0 L 15,250 C 15,280 50,280 50,300 C 50,320 15,320 15,350 L 15,550 C 15,580 50,580 50,600 L 50,1600" />
-                <path id="active-berk" class="path-active" stroke="url(#grad-berk)" d="M 85,0 L 85,250 C 85,280 50,280 50,300 C 50,320 85,320 85,350 L 85,550 C 85,580 50,580 50,600 L 50,1600" />
+                <path class="path-ruler" d="M 15,0 L 15,250 C 15,280 50,280 50,300 C 50,320 15,320 15,350 L 15,550 C 15,580 50,580 50,600 L 50,1700" />
+                <path class="path-ruler" d="M 85,0 L 85,250 C 85,280 50,280 50,300 C 50,320 85,320 85,350 L 85,550 C 85,580 50,580 50,600 L 50,1700" />
+                <path id="active-merve" class="path-active" stroke="url(#grad-merve)" d="M 15,0 L 15,250 C 15,280 50,280 50,300 C 50,320 15,320 15,350 L 15,550 C 15,580 50,580 50,600 L 50,1700" />
+                <path id="active-berk" class="path-active" stroke="url(#grad-berk)" d="M 85,0 L 85,250 C 85,280 50,280 50,300 C 50,320 85,320 85,350 L 85,550 C 85,580 50,580 50,600 L 50,1700" />
             </svg>
         </div>
 
         <section data-theme="split">
             <div class="content pos-left" style="width: 45%; border-left: 3px solid var(--merve);">
                 <div class="tech-header"><span class="date-badge">1998</span><div class="status-dot" style="background:var(--merve)"></div></div>
-                <div class="photo-box"><img src="https://placehold.co/200x200/222/fff?text=M"></div>
+                <div class="photo-box"><img src="merve1998.jpeg" alt="Merve"></div>
                 <h2>MERVE</h2>
+                <p>Hikaye burada başlıyor.</p>
             </div>
             <div class="content pos-right" style="width: 45%; border-right: 3px solid var(--berk);">
                 <div class="tech-header"><div class="status-dot" style="background:var(--berk)"></div><span class="date-badge">1998</span></div>
-                <div class="photo-box"><img src="https://placehold.co/200x200/222/fff?text=B"></div>
+                <div class="photo-box"><img src="berk1998.jpeg" alt="Berk"></div>
                 <h2>BERK</h2>
+                <p>İyi ki doğduk.</p>
             </div>
         </section>
 
         <section>
-            <div class="content pos-left" style="width: 45%;"><span class="date-badge">2010</span><p>Okul Yılları</p></div>
-            <div class="content pos-right" style="width: 45%;"><span class="date-badge">2010</span><p>Kendi Yolumuz</p></div>
+            <div class="content pos-left" style="width: 45%; border-left: 3px solid var(--merve);">
+                <div class="tech-header"><span class="date-badge">2010</span></div>
+                <div class="photo-box"><img src="merve2010.jpeg" alt="Merve 2010"></div>
+                <p>Birbirlerinden habersiz büyüyorlar.</p>
+            </div>
+            <div class="content pos-right" style="width: 45%; border-right: 3px solid var(--berk);">
+                <div class="tech-header"><span class="date-badge">2010</span></div>
+                <div class="photo-box"><img src="berk2010.jpeg" alt="Berk 2010"></div>
+                <p>Neler neler bekliyor onları...</p>
+            </div>
         </section>
 
         <section>
             <div class="content pos-center" style="border-color: var(--gold);">
                 <div class="tech-header"><span class="date-badge" style="color:var(--gold)">TEMMUZ 2020</span><div class="status-dot" style="background:var(--gold);"></div></div>
-                <div class="photo-box"><img src="https://placehold.co/400x250/222/fff?text=Tunay+Post"></div>
+                <div class="photo-box portrait"><img src="tunaypost.jpeg" alt="Tunay Post"></div>
                 <h2 style="color:var(--gold)">TEĞET GEÇİŞ</h2>
                 <p>Raylar birleşti, seni gördüm. Ama zamanı değildi.</p>
             </div>
@@ -256,7 +247,7 @@
         <section>
             <div class="content pos-center" style="border-color: var(--love);">
                 <div class="tech-header"><span class="date-badge" style="color:var(--love)">02.01.2026</span><div class="status-dot" style="background:var(--love)"></div></div>
-                <div class="photo-box"><img src="https://placehold.co/300x200/222/fff?text=Like"></div>
+                <div class="photo-box portrait"><img src="likephoto.jpeg" alt="Like"></div>
                 <h2>KENETLENME</h2>
                 <p>Merve hikayeni beğendi.</p>
             </div>
@@ -265,6 +256,7 @@
         <section>
             <div class="content pos-center">
                 <span class="date-badge">09.01.2026</span>
+                <div class="photo-box portrait"><img src="firstmsg.jpeg" alt="First Msg"></div>
                 <h2>İLK MESAJ</h2>
             </div>
         </section>
@@ -272,7 +264,7 @@
         <section>
             <div class="content pos-center">
                 <div class="tech-header"><span class="date-badge">16.01.2026</span></div>
-                <div class="photo-box"><img src="https://placehold.co/300x200/222/fff?text=Calls"></div>
+                <div class="photo-box portrait"><img src="missedcalls.jpeg" alt="Calls"></div>
                 <h2>ENDİŞE</h2>
                 <p>Zehirlenme olayı. Bağlar güçlendi.</p>
             </div>
@@ -281,7 +273,7 @@
         <section>
             <div class="content pos-center">
                 <div class="tech-header"><span class="date-badge">31.01.2026</span></div>
-                <div class="photo-box"><img src="https://placehold.co/300x200/222/fff?text=Izmir"></div>
+                <div class="photo-box portrait"><img src="road1.jpeg" alt="Izmir"></div>
                 <h2>HEDEF: İZMİR</h2>
             </div>
         </section>
@@ -296,7 +288,7 @@
         <section>
             <div class="content pos-center">
                 <div class="tech-header"><span class="date-badge">03.02.2026</span></div>
-                <div class="photo-box"><img src="https://placehold.co/300x200/222/fff?text=Best+Date"></div>
+                <div class="photo-box portrait"><img src="bestdate.jpeg" alt="Best Date"></div>
                 <h2>EN GÜZEL GÜN</h2>
             </div>
         </section>
@@ -304,6 +296,7 @@
         <section>
             <div class="content pos-center">
                 <div class="tech-header"><span class="date-badge">04.02.2026</span></div>
+                <div class="photo-box portrait"><img src="ayrilik.jpeg" alt="Ayrilik"></div>
                 <h2>AYRILIK :(</h2>
             </div>
         </section>
@@ -311,15 +304,16 @@
         <section>
             <div class="content pos-center">
                 <div class="tech-header"><span class="date-badge">14.02.2026</span></div>
-                <div class="photo-box"><img src="https://placehold.co/300x200/222/fff?text=Valentines"></div>
+                <div class="photo-box"><img src="comeback.jpeg" alt="Comeback"></div>
                 <h2>GERİ DÖNÜŞ</h2>
+                <p>Sevgililer Günü Sensiz Olmaz.</p>
             </div>
         </section>
 
         <section>
             <div class="content pos-center">
                 <div class="tech-header"><span class="date-badge">17.02.2026</span></div>
-                <div class="photo-box"><img src="https://placehold.co/300x200/222/fff?text=Urla"></div>
+                <div class="photo-box"><img src="weturla.jpeg" alt="Urla"></div>
                 <h2>ISLAK URLA</h2>
             </div>
         </section>
@@ -327,16 +321,27 @@
         <section>
             <div class="content pos-center">
                 <div class="tech-header"><span class="date-badge">20.02.2026</span></div>
-                <div class="photo-box"><img src="https://placehold.co/300x200/222/fff?text=Roadtrip"></div>
+                <div class="photo-box"><img src="roadtrip.jpeg" alt="Roadtrip"></div>
                 <h2>KAÇIRIŞ</h2>
+                <p>İstanbul'a Gidiyoruz</p>
             </div>
         </section>
 
         <section>
             <div class="content pos-center">
-                <div class="tech-header"><span class="date-badge">ŞUBAT SONU</span></div>
-                <div class="photo-box"><img src="https://placehold.co/300x200/222/fff?text=Lily+Nacho"></div>
-                <h2>AİLE TABLOSU</h2>
+                <div class="tech-header"><span class="date-badge">23.02.2026</span></div>
+                <div class="photo-box"><img src="nacho.png" alt="Nacho"></div>
+                <h2>NACHO NIGHT</h2>
+                <p>The Big Bang Theory eşliğinde</p>
+            </div>
+        </section>
+
+        <section>
+            <div class="content pos-center">
+                <div class="tech-header"><span class="date-badge">24.02.2026</span></div>
+                <div class="photo-box"><img src="lily.png" alt="Lily"></div>
+                <h2>LILY DOĞUM GÜNÜ</h2>
+                <p>İyi ki doğdun Lily!</p>
             </div>
         </section>
 
@@ -350,7 +355,7 @@
     </div>
 
     <script>
-        // --- SES MOTORU (Digital Harp & Sci-Fi) ---
+        // --- SES MOTORU ---
         let audioCtx;
         function initAudio() {
             if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -380,52 +385,35 @@
                 osc.connect(gain); gain.connect(audioCtx.destination);
                 osc.start(); osc.stop(now + 2);
             } else if (type === 'romance') {
-                // ROMANTİK ARPEJ (Harp Style) - C Major
-                const notes = [261.63, 329.63, 392.00, 523.25, 659.25, 783.99]; // C4, E4, G4, C5, E5, G5
+                const notes = [261.63, 329.63, 392.00, 523.25, 659.25, 783.99]; 
                 notes.forEach((freq, i) => {
                     const osc = audioCtx.createOscillator();
                     const gain = audioCtx.createGain();
-                    osc.type = 'sine';
-                    osc.frequency.value = freq;
-                    
-                    const start = now + (i * 0.15); // Sırayla çal
+                    osc.type = 'sine'; osc.frequency.value = freq;
+                    const start = now + (i * 0.15);
                     gain.gain.setValueAtTime(0, start);
                     gain.gain.linearRampToValueAtTime(0.2, start + 0.1);
                     gain.gain.exponentialRampToValueAtTime(0.001, start + 3);
-                    
                     osc.connect(gain); gain.connect(audioCtx.destination);
                     osc.start(start); osc.stop(start + 3);
                 });
             }
         }
 
-        // --- GİRİŞ FONKSİYONU ---
+        // --- GİRİŞ ---
         function startJourney() {
-            initAudio(); // Ses motorunu başlat
-            
-            // Intro'yu gizle
+            initAudio();
             const intro = document.getElementById('intro-layer');
             intro.classList.add('hidden');
-            
-            // Ana içeriği göster
             document.getElementById('main-content').classList.add('started');
-            
-            // Scroll ipucunu biraz geç göster
-            setTimeout(() => {
-                document.getElementById('scroll-hint').classList.add('visible');
-            }, 1000);
-            
-            // Dom'dan tamamen kaldır (performans için)
-            setTimeout(() => {
-                intro.style.display = 'none';
-            }, 1000);
+            setTimeout(() => { document.getElementById('scroll-hint').classList.add('visible'); }, 1000);
+            setTimeout(() => { intro.style.display = 'none'; }, 1000);
         }
 
         // --- SCROLL DRAWING ---
         const pathMerve = document.getElementById('active-merve');
         const pathBerk = document.getElementById('active-berk');
         const length = pathMerve.getTotalLength();
-        
         pathMerve.style.strokeDasharray = length; pathMerve.style.strokeDashoffset = length;
         pathBerk.style.strokeDasharray = length; pathBerk.style.strokeDashoffset = length;
 
@@ -456,10 +444,8 @@
             const shake = setInterval(() => {
                 const x = Math.random() * 10 - 5; document.body.style.transform = `translateX(${x}px)`;
             }, 50);
-
             const target = document.getElementById('glitch-target');
             target.scrollIntoView({ behavior: 'smooth' });
-
             setTimeout(() => {
                 clearInterval(shake);
                 document.body.style.transform = "none";
@@ -471,16 +457,14 @@
             const card = document.getElementById('glitch-card');
             card.classList.remove('glitch-card');
             card.style.borderColor = "var(--love)";
-            
             if(navigator.vibrate) navigator.vibrate([50, 50, 100]);
-            
             card.style.opacity = '0';
             setTimeout(() => {
                 card.innerHTML = `
                     <div class="tech-header" style="border-color:#ff0040;">
                         <span class="date-badge" style="color:#ff0040;">01.02.2026</span>
                     </div>
-                    <img src="https://placehold.co/400x300/fff/ff0040?text=Benimle+Cikar+Misin" style="width:100%; border-radius:8px; margin-bottom:10px;">
+                    <img src="yuzuk.png" style="width:100%; border-radius:8px; margin-bottom:10px;">
                     <h2 style="color:#ff0040; margin-bottom:10px;">SEVGİLİM OLUR MUSUN?</h2>
                     <p style="color:white;">Resmi Başlangıç: 1 Şubat 2026</p>
                     <button onclick="startForever()" style="background:#ff0040; color:white; border:none; padding:15px 40px; border-radius:50px; font-weight:bold; cursor:pointer; margin-top:10px; box-shadow:0 0 20px #ff0040;">EVET! ❤️</button>
@@ -489,36 +473,59 @@
             }, 300);
         }
 
-        // --- FİNAL: QUANTUM HEART & ROMANCE SOUND ---
+        // --- FİNAL: MEMORY VORTEX & HEART ---
         function startForever() {
-            // 1. Romantik Arpej Sesi Çal
             playSound('romance');
             
-            // 2. Ana içeriği küçültüp yok et
+            // 1. Ana içeriği küçült
             const mainContent = document.getElementById('main-content');
             mainContent.style.transform = "scale(0) rotate(360deg)";
             mainContent.style.opacity = "0";
             
-            // 3. Final Katmanını Aç
+            // 2. Final Katmanı ve Vortex
             const finalLayer = document.getElementById('final-layer');
+            const vortex = document.getElementById('memory-vortex');
             finalLayer.classList.add('visible');
-            
+
+            // 3. Fotoğrafları (1.jpeg - 10.jpeg) oluştur ve animasyonla fırlat
+            for (let i = 1; i <= 10; i++) {
+                const img = document.createElement('img');
+                img.src = `${i}.jpeg`; 
+                img.className = 'vortex-img';
+                
+                const startX = (Math.random() - 0.5) * 200; 
+                const startY = (Math.random() - 0.5) * 200;
+                const delay = Math.random() * 2;
+                
+                img.style.left = `calc(50% + ${startX}vw)`;
+                img.style.top = `calc(50% + ${startY}vh)`;
+                img.style.transition = `all 3s ease ${delay}s`;
+                
+                vortex.appendChild(img);
+
+                setTimeout(() => {
+                    img.style.opacity = '0.8';
+                    img.style.left = '50%';
+                    img.style.top = '50%';
+                    img.style.transform = `translate(-50%, -50%) rotate(${Math.random()*360}deg) scale(0)`;
+                }, 100);
+            }
+
             // 4. Kalbi Çiz
             const heartPath = document.getElementById('final-heart-path');
             setTimeout(() => {
                 heartPath.style.transition = "stroke-dashoffset 4s ease-in-out";
                 heartPath.style.strokeDashoffset = "0";
-            }, 500);
+            }, 2000);
 
             // 5. Yazıları getir
             setTimeout(() => {
                 document.querySelector('.final-text').style.opacity = '1';
                 document.querySelector('.final-text').style.transform = 'translateY(0)';
-            }, 4500);
+            }, 5500);
         }
 
         function sendWhatsapp() {
-            // NUMARANI BURAYA YAZ (Örn: 905xxxxxxxxx)
             window.location.href = "https://wa.me/905xxxxxxxxx?text=Evet!%20Sonsuza%20kadar%20beraber...%20❤️";
         }
     </script>
