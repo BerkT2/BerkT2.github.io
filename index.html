@@ -2,164 +2,400 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Berk'e Sor</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,900&family=Space+Grotesk:wght@300;600&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Berk & Merve</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;600&display=swap');
+
         :root {
-            --bg-color: #0a0a0a;
-            --text-main: #e0e0e0;
-            --accent: #d4ff00; /* O havalı Neon Lime rengi */
+            --bg-color: #111;
+            --accent-color: #ff3366; /* Aşk Kırmızısı */
+            --tick-color: rgba(255, 255, 255, 0.3);
+        }
+
+        * {
+            box-sizing: border-box;
+            user-select: none; /* Metin seçimini engelle */
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
             margin: 0;
             padding: 0;
             background-color: var(--bg-color);
-            color: var(--text-main);
-            font-family: 'Space Grotesk', sans-serif;
+            color: white;
+            font-family: 'Montserrat', sans-serif;
+            overflow: hidden; /* Scrollbarları tamamen kapat */
+            overscroll-behavior: none; /* Sayfa esnemesini engelle (iOS) */
+            touch-action: none; /* Tarayıcı zoom/scroll hareketlerini iptal et */
             height: 100vh;
-            overflow: hidden;
+            width: 100vw;
+            cursor: grab; /* Sürükleme imleci */
+        }
+        
+        body:active {
+            cursor: grabbing;
+        }
+
+        /* Başlangıç Ekranı (Ses İzni İçin Şart) */
+        #start-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #000;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.8s ease-out;
+        }
+
+        .start-btn {
+            padding: 20px 40px;
+            font-size: 1.2rem;
+            background: var(--accent-color);
+            border: none;
+            color: white;
+            border-radius: 50px;
+            box-shadow: 0 0 20px rgba(255, 51, 102, 0.5);
+            cursor: pointer;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+
+        /* Zaman Göstergesi (Üstte Sabit) */
+        .time-display {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1rem;
+            letter-spacing: 2px;
+            color: var(--accent-color);
+            z-index: 100;
+            opacity: 0; /* Başlangıçta gizli */
+            transition: opacity 1s;
+        }
+
+        /* Ana Taşıyıcı */
+        .timeline-wrapper {
+            position: absolute;
+            top: 0; left: 0;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            padding-left: 50vw; /* Ortadan başlat */
+            will-change: transform; /* Performans artırıcı */
+        }
+
+        .track {
+            display: flex;
+            align-items: center;
+            height: 60vh;
+        }
+
+        /* Küçük Çizgiler */
+        .tick-s {
+            width: 2px;
+            height: 30px;
+            background: var(--tick-color);
+            margin: 0 20px; /* Tikler arası mesafe */
+            flex-shrink: 0;
+        }
+
+        /* Büyük Çizgiler (Anı Noktaları) */
+        .tick-l {
+            width: 4px;
+            height: 100px;
+            background: white;
+            margin: 0 40px;
+            flex-shrink: 0;
+            position: relative;
+            transition: all 0.3s;
+        }
+
+        /* Anı Kartı */
+        .memory-card {
+            position: absolute;
+            bottom: 120px;
+            left: 50%;
+            transform: translateX(-50%) scale(0.8);
+            width: 80vw; /* Telece ekranının %80'i */
+            max-width: 350px;
+            background: #222;
+            padding: 15px;
+            border-radius: 15px;
+            opacity: 0.3;
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            pointer-events: none;
+            border: 1px solid #444;
+        }
+
+        .memory-card img {
+            width: 100%;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            object-fit: cover;
+            height: 200px;
+            background-color: #333; /* Resim yüklenmezse gri dursun */
+        }
+
+        .memory-card h3 { color: var(--accent-color); margin: 5px 0; }
+        .memory-card p { font-size: 0.9rem; color: #ccc; line-height: 1.4; }
+
+        /* Aktif Kart Durumu */
+        .tick-l.active {
+            background: var(--accent-color);
+            box-shadow: 0 0 15px var(--accent-color);
+            height: 120px;
+        }
+        
+        .tick-l.active .memory-card {
+            opacity: 1;
+            transform: translateX(-50%) scale(1);
+            bottom: 140px;
+            z-index: 10;
+        }
+
+        /* Teklif Bölümü */
+        .final-card {
+            min-width: 100vw;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            position: relative;
-        }
-
-        /* Doku Efekti (Noise) */
-        .noise {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 99;
-            opacity: 0.06;
-            background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MDAiIGhlaWdodD0iNTAwIj48ZmlsdGVyIGlkPSJub2lzZSI+PGZlVHVyYnVsZW5jZSB0eXBlPSJmcmFjdGFsTm9pc2UiIGJhc2VGcmVxdWVuY3k9IjAuNjUiIG51bT1vY3RhdmVzPSIzIiBzdGl0Y2hUaWxlcz0ic3RpdGNoIi8+PC9maWx0ZXI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsdGVyPSJ1cmwoI25vaXNlKSIgb3BhY2l0eT0iMSIvPjwvc3ZnPg==');
-        }
-
-        .container {
             text-align: center;
-            z-index: 2;
-            padding: 0 20px;
-            max-width: 800px;
-            position: relative;
+            padding: 20px;
         }
 
-        /* Intro: "Neye Baktın?" */
-        .intro {
-            font-size: 1rem;
-            color: #666;
-            margin-bottom: 1.5rem;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            font-weight: 600;
+        .swipe-hint {
+            position: fixed;
+            bottom: 30px;
+            width: 100%;
+            text-align: center;
+            color: gray;
+            font-size: 0.8rem;
+            animation: bounce 2s infinite;
+            pointer-events: none;
         }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
 
-        /* Ana Mesaj Alanı */
-        .message {
-            font-size: 2rem;
-            line-height: 1.3;
-            font-weight: 300;
-            color: #fff;
-        }
-
-        /* BERK Vurgusu */
-        .berk-highlight {
-            font-family: 'Playfair Display', serif; /* Farklı, şık font */
-            font-size: 5rem; /* Metinden çok daha büyük */
-            font-style: italic;
-            font-weight: 900;
-            color: var(--accent); /* Neon renk */
-            display: block; /* Alt satıra indirip patlatmak için */
-            margin: 10px 0;
-            line-height: 0.9;
-            text-shadow: 0 0 20px rgba(212, 255, 0, 0.2);
-        }
-
-        /* Buton Tasarımı */
-        .btn-call {
-            margin-top: 3rem;
-            position: relative;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 16px 40px;
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: var(--bg-color);
-            background-color: #fff;
-            text-decoration: none;
-            border-radius: 4px;
-            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: 6px 6px 0px var(--accent);
-            letter-spacing: 1px;
-        }
-
-        .btn-call:hover {
-            transform: translate(-3px, -3px);
-            box-shadow: 10px 10px 0px var(--accent);
-            background-color: var(--accent);
-        }
-
-        .btn-call:active {
-            transform: translate(2px, 2px);
-            box-shadow: 2px 2px 0px var(--accent);
-        }
-
-        /* Dönen Rozet */
-        .badge-container {
-            position: absolute;
-            top: -80px;
-            right: 0;
-            animation: float 6s ease-in-out infinite;
-        }
-
-        .badge {
-            width: 90px;
-            height: 90px;
-            fill: #fff;
-            opacity: 0.8;
-            animation: spin 12s linear infinite;
-        }
-
-        @keyframes spin { 100% { transform: rotate(360deg); } }
-        @keyframes float { 
-            0%, 100% { transform: translateY(0); } 
-            50% { transform: translateY(-10px); } 
-        }
-
-        /* Mobil Ayarları */
-        @media (max-width: 768px) {
-            .message { font-size: 1.5rem; }
-            .berk-highlight { font-size: 4rem; }
-            .badge-container { width: 60px; height: 60px; top: -50px; right: 20px; }
-        }
     </style>
 </head>
 <body>
 
-    <div class="noise"></div>
-
-    <div class="container">
-
-        <div class="intro">Neye Baktın?</div>
-        
-        <div class="message">
-            Aradığın her neyse <br>
-            <span class="berk-highlight">Berk'e</span>
-            sor, o bilir.
-        </div>
-
-        <a href="tel:+905343073323" class="btn-call">
-            +90 534 307 33 23
-        </a>
-
+    <div id="start-overlay">
+        <h2 style="margin-bottom: 20px; color: white;">Merve & Berk</h2>
+        <button class="start-btn" id="startBtn">Zaman Yolculuğunu Başlat</button>
+        <p style="color: gray; margin-top: 10px; font-size: 0.8rem;">(Sesli ve Tam Ekran Deneyim)</p>
     </div>
 
+    <div class="time-display" id="yearDisplay">2024</div>
+    <div class="swipe-hint">← KAYDIR →</div>
+
+    <div class="timeline-wrapper" id="timeline">
+        <div class="track" id="track"></div>
+        
+        <div class="final-card">
+            <h1>Yolculuk Bitti mi?</h1>
+            <p>Hayır, asıl şimdi başlıyor...</p>
+            <br>
+            <button class="start-btn" onclick="sendWhatsapp()">Yemeğe Gidelim mi? 🌹</button>
+        </div>
+    </div>
+
+<script>
+    // --- 1. VERİLER (Resim kaynakları güncellendi) ---
+    // Gerçek fotolarını koyduğunda buradaki linkleri değiştireceksin.
+    const memories = [
+        { date: "Ocak 2024", title: "Tanıştığımız Gün", desc: "Hayatımın değiştiği an.", img: "https://placehold.co/400x300/222/fff?text=Tanisma" },
+        { date: "14 Şubat 2024", title: "İlk Sevgililer Günü", desc: "O kadar gergindim ki!", img: "https://placehold.co/400x300/222/fff?text=14+Subat" },
+        { date: "Yaz 2024", title: "Ege Turu", desc: "Mavi sular ve sen.", img: "https://placehold.co/400x300/222/fff?text=Tatil" },
+        { date: "Kasım 2024", title: "Konser", desc: "Sesimiz kısılana kadar bağırdık.", img: "https://placehold.co/400x300/222/fff?text=Konser" },
+        { date: "Bugün", title: "Seni Seviyorum", desc: "Nice aylarımıza, yıllarımıza...", img: "https://placehold.co/400x300/222/fff?text=Love" }
+    ];
+
+    // --- 2. SES MOTORU (Hata Korumalı) ---
+    let audioCtx;
+    
+    function initAudio() {
+        try {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            if (AudioContext) {
+                audioCtx = new AudioContext();
+            }
+        } catch (e) {
+            console.log("Ses motoru başlatılamadı:", e);
+        }
+    }
+
+    function playTickSound() {
+        if (!audioCtx) return;
+        if (audioCtx.state === 'suspended') audioCtx.resume(); // Tarayıcı durdurduysa devam ettir
+
+        const oscillator = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+
+        oscillator.type = 'triangle'; 
+        oscillator.frequency.setValueAtTime(800, audioCtx.currentTime); 
+        oscillator.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.1); 
+        
+        gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime); 
+        gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
+
+        oscillator.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+
+        oscillator.start();
+        oscillator.stop(audioCtx.currentTime + 0.1);
+    }
+
+    // --- 3. DOM OLUŞTURMA ---
+    const track = document.getElementById('track');
+    const TICK_GAP = 42; 
+
+    memories.forEach((mem, index) => {
+        const gap = index === 0 ? 5 : 8;
+        for(let i=0; i<gap; i++) {
+            let s = document.createElement('div');
+            s.className = 'tick-s';
+            track.appendChild(s);
+        }
+
+        let l = document.createElement('div');
+        l.className = 'tick-l';
+        l.dataset.date = mem.date;
+        l.innerHTML = `
+            <div class="memory-card">
+                <img src="${mem.img}" alt="${mem.title}">
+                <h3>${mem.title}</h3>
+                <p>${mem.desc}</p>
+                <small>${mem.date}</small>
+            </div>
+        `;
+        track.appendChild(l);
+    });
+    
+    for(let i=0; i<5; i++) { track.appendChild(document.createElement('div').className='tick-s'); }
+
+
+    // --- 4. TOUCH & MOUSE MANTIĞI (Bilgisayar Desteği Eklendi) ---
+    let currentX = 0;
+    let targetX = 0;
+    let isDragging = false;
+    let startX = 0;
+    
+    const timeline = document.getElementById('timeline');
+    const yearDisplay = document.getElementById('yearDisplay');
+    const bigTicks = document.querySelectorAll('.tick-l');
+
+    // Başlat Butonu
+    const startBtn = document.getElementById('startBtn');
+    const overlay = document.getElementById('start-overlay');
+    
+    startBtn.addEventListener('click', () => {
+        console.log("Butona tıklandı!"); // Debug için
+        initAudio();
+        
+        overlay.style.opacity = '0';
+        overlay.style.pointerEvents = 'none'; // Tıklamayı engelle
+        document.getElementById('yearDisplay').style.opacity = '1';
+        
+        setTimeout(() => { 
+            overlay.style.display = 'none'; 
+        }, 800);
+    });
+
+    // --- ORTAK FONKSİYONLAR (Touch ve Mouse için) ---
+    function handleStart(clientX) {
+        isDragging = true;
+        startX = clientX;
+    }
+
+    function handleMove(clientX) {
+        if(!isDragging) return;
+        const x = clientX;
+        const diff = (x - startX) * 1.5; 
+        targetX += diff;
+        startX = x;
+
+        // Sınır Kontrolü
+        if(targetX > 0) targetX = 0; 
+        const minX = -track.offsetWidth - window.innerWidth; // Biraz daha pay bırak
+        if(targetX < minX) targetX = minX;
+    }
+
+    function handleEnd() {
+        isDragging = false;
+    }
+
+    // --- EVENT LISTENERS ---
+    
+    // 1. Touch Events (Mobil)
+    document.addEventListener('touchstart', (e) => handleStart(e.touches[0].clientX), { passive: false });
+    document.addEventListener('touchmove', (e) => handleMove(e.touches[0].clientX), { passive: false });
+    document.addEventListener('touchend', handleEnd);
+
+    // 2. Mouse Events (Bilgisayar)
+    document.addEventListener('mousedown', (e) => handleStart(e.clientX));
+    document.addEventListener('mousemove', (e) => handleMove(e.clientX));
+    document.addEventListener('mouseup', handleEnd);
+    document.addEventListener('mouseleave', handleEnd); // Mouse ekrandan çıkarsa bırak
+
+    // 3. Mouse Wheel (Opsiyonel)
+    document.addEventListener('wheel', (e) => {
+        targetX -= e.deltaY;
+        if(targetX > 0) targetX = 0;
+    });
+
+    // --- 5. ANIMASYON LOOP ---
+    let lastPlayedTickIndex = -1;
+
+    function animate() {
+        // Yumuşak geçiş (Lerp)
+        currentX += (targetX - currentX) * 0.1;
+        timeline.style.transform = `translateX(${currentX}px)`;
+
+        // Ses Efekti (TİK)
+        let tickIndex = Math.floor(Math.abs(currentX) / TICK_GAP);
+        if (tickIndex > lastPlayedTickIndex) {
+            playTickSound();
+            lastPlayedTickIndex = tickIndex;
+            if (navigator.vibrate) navigator.vibrate(5); 
+        }
+
+        // Aktif Kartı Bulma
+        let centerPoint = Math.abs(currentX) + (window.innerWidth / 2);
+
+        bigTicks.forEach(tick => {
+            let tickLeft = tick.offsetLeft;
+            // Ekrana ortalandı mı? (Hassasiyet ayarı)
+            if (tickLeft > centerPoint - 100 && tickLeft < centerPoint + 100) {
+                if (!tick.classList.contains('active')) {
+                    tick.classList.add('active');
+                    yearDisplay.innerText = tick.dataset.date;
+                    yearDisplay.style.transform = "translateX(-50%) scale(1.2)";
+                }
+            } else {
+                if (tick.classList.contains('active')) {
+                    tick.classList.remove('active');
+                    yearDisplay.style.transform = "translateX(-50%) scale(1)";
+                }
+            }
+        });
+
+        requestAnimationFrame(animate);
+    }
+    
+    animate();
+
+    function sendWhatsapp() {
+        // Telefon numaranı buraya yazmayı unutma!
+        window.location.href = "https://wa.me/905xxxxxxxxx?text=Hazırlanıyorum,%20gelip%20beni%20alabilirsin!%20❤️"; 
+    }
+
+</script>
 </body>
 </html>
