@@ -66,9 +66,9 @@
             pointer-events: none; z-index: 0;
         }
         .vortex-img {
-            position: absolute; width: 150px; height: 150px; object-fit: cover;
-            border-radius: 10px; opacity: 0; border: 2px solid var(--love);
-            box-shadow: 0 0 20px var(--love);
+            position: absolute; width: 50vw; max-width: 300px; height: auto; object-fit: cover;
+            border-radius: 12px; opacity: 0; border: 3px solid var(--love);
+            box-shadow: 0 0 40px rgba(255, 0, 64, 0.6); z-index: 1;
         }
 
         .final-content { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; }
@@ -107,33 +107,41 @@
         }
         section.active .content { opacity: 1; transform: scale(1) translateY(0); }
 
+        /* MERKEZİ METİN (YENİ STİL - 1998 & 2010 İÇİN) */
+        .central-caption {
+            position: absolute;
+            bottom: 18%; /* Fotoğrafların altında */
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 1s 0.5s; /* Hafif gecikmeli gelsin */
+            z-index: 10;
+        }
+        section.active .central-caption { opacity: 1; }
+        .central-caption p {
+            font-size: 1rem; color: #fff; background: rgba(0,0,0,0.6);
+            padding: 10px 20px; border-radius: 30px; display: inline-block;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1);
+        }
+
         .tech-header { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 8px; margin-bottom: 12px; }
         .date-badge { font-family: 'Share Tech Mono', monospace; font-size: 1rem; letter-spacing: 1px; }
         .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #555; }
 
-        /* FOTOĞRAF KUTUSU (STANDART) */
-        .photo-box { 
-            width: 100%; height: 200px; 
-            overflow: hidden; border-radius: 8px; margin-bottom: 12px; border: 1px solid rgba(255,255,255,0.1); position: relative; 
-        }
-        
-        /* FOTOĞRAF KUTUSU (PORTRAIT / DİKEY) */
-        .photo-box.portrait {
-            height: 420px; /* Dikey fotolar için yükseklik */
-        }
-
+        .photo-box { width: 100%; height: 200px; overflow: hidden; border-radius: 8px; margin-bottom: 12px; border: 1px solid rgba(255,255,255,0.1); position: relative; }
+        .photo-box.portrait { height: 420px; } 
         .photo-box img { width: 100%; height: 100%; object-fit: cover; transform: scale(1.4); transition: transform 1.5s ease-out; }
         section.active .photo-box img { transform: scale(1); }
 
         h2 { font-size: 1.4rem; margin: 0 0 5px 0; font-weight: 800; text-transform: uppercase; }
         p { font-size: 0.9rem; color: #aaa; margin: 0; line-height: 1.4; }
 
-        /* Konumlandırma */
         .pos-left { margin-right: auto; margin-left: 5%; text-align: left; }
         .pos-right { margin-left: auto; margin-right: 5%; text-align: right; }
         .pos-center { margin: 0 auto; text-align: center; }
 
-        /* Glitch */
         .glitch-card { border: 1px solid var(--glitch); animation: shake 2s infinite; }
         .glitch-text { color: var(--glitch); font-family: 'Share Tech Mono', monospace; }
         @keyframes shake { 0%, 100% {transform:translate(0,0)} 5% {transform:translate(-2px,-2px)} 10% {transform:translate(2px,2px)} }
@@ -162,7 +170,6 @@
 
     <div id="final-layer">
         <div class="memory-vortex" id="memory-vortex"></div>
-        
         <div class="final-content">
             <svg class="heart-svg" viewBox="0 0 600 600">
                 <defs>
@@ -205,13 +212,14 @@
                 <div class="tech-header"><span class="date-badge">1998</span><div class="status-dot" style="background:var(--merve)"></div></div>
                 <div class="photo-box"><img src="merve1998.jpeg" alt="Merve"></div>
                 <h2>MERVE</h2>
-                <p>Hikaye burada başlıyor.</p>
             </div>
             <div class="content pos-right" style="width: 45%; border-right: 3px solid var(--berk);">
                 <div class="tech-header"><div class="status-dot" style="background:var(--berk)"></div><span class="date-badge">1998</span></div>
                 <div class="photo-box"><img src="berk1998.jpeg" alt="Berk"></div>
                 <h2>BERK</h2>
-                <p>İyi ki doğduk.</p>
+            </div>
+            <div class="central-caption">
+                <p>Hikaye burada başlıyor. İyi ki doğduk.</p>
             </div>
         </section>
 
@@ -219,12 +227,13 @@
             <div class="content pos-left" style="width: 45%; border-left: 3px solid var(--merve);">
                 <div class="tech-header"><span class="date-badge">2010</span></div>
                 <div class="photo-box"><img src="merve2010.jpeg" alt="Merve 2010"></div>
-                <p>Birbirlerinden habersiz büyüyorlar.</p>
             </div>
             <div class="content pos-right" style="width: 45%; border-right: 3px solid var(--berk);">
                 <div class="tech-header"><span class="date-badge">2010</span></div>
                 <div class="photo-box"><img src="berk2010.jpeg" alt="Berk 2010"></div>
-                <p>Neler neler bekliyor onları...</p>
+            </div>
+            <div class="central-caption">
+                <p>Birbirlerinden habersiz büyüyorlar. Neler neler bekliyor onları...</p>
             </div>
         </section>
 
@@ -355,7 +364,6 @@
     </div>
 
     <script>
-        // --- SES MOTORU ---
         let audioCtx;
         function initAudio() {
             if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -400,7 +408,6 @@
             }
         }
 
-        // --- GİRİŞ ---
         function startJourney() {
             initAudio();
             const intro = document.getElementById('intro-layer');
@@ -410,7 +417,6 @@
             setTimeout(() => { intro.style.display = 'none'; }, 1000);
         }
 
-        // --- SCROLL DRAWING ---
         const pathMerve = document.getElementById('active-merve');
         const pathBerk = document.getElementById('active-berk');
         const length = pathMerve.getTotalLength();
@@ -437,7 +443,6 @@
         }, { threshold: 0.5 });
         document.querySelectorAll('section').forEach(sec => observer.observe(sec));
 
-        // --- TIME TRAVEL ---
         function timeTravel() {
             playSound('warp');
             document.body.style.transition = "transform 0.1s";
@@ -464,7 +469,7 @@
                     <div class="tech-header" style="border-color:#ff0040;">
                         <span class="date-badge" style="color:#ff0040;">01.02.2026</span>
                     </div>
-                    <img src="yuzuk.png" style="width:100%; border-radius:8px; margin-bottom:10px;">
+                    <img src="yuzuk.jpeg" style="width:100%; border-radius:8px; margin-bottom:10px;">
                     <h2 style="color:#ff0040; margin-bottom:10px;">SEVGİLİM OLUR MUSUN?</h2>
                     <p style="color:white;">Resmi Başlangıç: 1 Şubat 2026</p>
                     <button onclick="startForever()" style="background:#ff0040; color:white; border:none; padding:15px 40px; border-radius:50px; font-weight:bold; cursor:pointer; margin-top:10px; box-shadow:0 0 20px #ff0040;">EVET! ❤️</button>
@@ -473,56 +478,63 @@
             }, 300);
         }
 
-        // --- FİNAL: MEMORY VORTEX & HEART ---
         function startForever() {
             playSound('romance');
             
-            // 1. Ana içeriği küçült
             const mainContent = document.getElementById('main-content');
             mainContent.style.transform = "scale(0) rotate(360deg)";
             mainContent.style.opacity = "0";
             
-            // 2. Final Katmanı ve Vortex
             const finalLayer = document.getElementById('final-layer');
             const vortex = document.getElementById('memory-vortex');
             finalLayer.classList.add('visible');
 
-            // 3. Fotoğrafları (1.jpeg - 10.jpeg) oluştur ve animasyonla fırlat
+            // FOTOĞRAFLARI OLUŞTUR
             for (let i = 1; i <= 10; i++) {
                 const img = document.createElement('img');
                 img.src = `${i}.jpeg`; 
                 img.className = 'vortex-img';
                 
-                const startX = (Math.random() - 0.5) * 200; 
-                const startY = (Math.random() - 0.5) * 200;
-                const delay = Math.random() * 2;
-                
-                img.style.left = `calc(50% + ${startX}vw)`;
-                img.style.top = `calc(50% + ${startY}vh)`;
-                img.style.transition = `all 3s ease ${delay}s`;
+                // Başlangıç: Merkezde gizli
+                img.style.left = '50%';
+                img.style.top = '50%';
+                img.style.transform = 'translate(-50%, -50%) scale(0)';
                 
                 vortex.appendChild(img);
 
+                // 1. ADIM: PATLAMA (Yavaşça Açılma)
+                const angle = Math.random() * Math.PI * 2;
+                const distance = 15 + Math.random() * 25; 
+                const moveX = Math.cos(angle) * distance; 
+                const moveY = Math.sin(angle) * distance;
+                const randomRotate = (Math.random() * 40) - 20;
+
                 setTimeout(() => {
-                    img.style.opacity = '0.8';
-                    img.style.left = '50%';
-                    img.style.top = '50%';
-                    img.style.transform = `translate(-50%, -50%) rotate(${Math.random()*360}deg) scale(0)`;
+                    img.style.transition = `all 2.5s cubic-bezier(0.25, 1, 0.5, 1) ${i * 0.1}s`;
+                    img.style.transform = `translate(calc(-50% + ${moveX}vw), calc(-50% + ${moveY}vh)) scale(1) rotate(${randomRotate}deg)`;
+                    img.style.opacity = '1';
                 }, 100);
+
+                // 2. ADIM: VORTEX (İçe Çekilme)
+                setTimeout(() => {
+                    img.style.transition = `all 3s ease-in-out`; 
+                    img.style.transform = `translate(-50%, -50%) scale(0) rotate(${Math.random()*720}deg)`; 
+                    img.style.opacity = '0';
+                }, 9000 + (i * 200)); 
             }
 
-            // 4. Kalbi Çiz
+            // 3. KALP ÇİZİMİ
             const heartPath = document.getElementById('final-heart-path');
             setTimeout(() => {
                 heartPath.style.transition = "stroke-dashoffset 4s ease-in-out";
                 heartPath.style.strokeDashoffset = "0";
-            }, 2000);
+            }, 12000);
 
-            // 5. Yazıları getir
+            // 4. METİN
             setTimeout(() => {
                 document.querySelector('.final-text').style.opacity = '1';
                 document.querySelector('.final-text').style.transform = 'translateY(0)';
-            }, 5500);
+            }, 16000);
         }
 
         function sendWhatsapp() {
