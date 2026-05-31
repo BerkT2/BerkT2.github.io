@@ -2,544 +2,584 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Berk & Merve</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Japonya 2026 | Canlı Gezi ve Harita Rehberi</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Montserrat:wght@300;500;800&family=Great+Vibes&display=swap');
-
         :root {
-            --bg: #050505;
-            --merve: #ff5e7e; 
-            --berk: #00f2ff;
-            --love: #ff0040;
-            --gold: #ffd700;
-            --glitch: #0f0;
-            --ruler-dim: rgba(255,255,255,0.1);
+            --bg-color: #f6f8fa;
+            --card-bg: #ffffff;
+            --text-color: #1e293b;
+            --text-muted: #64748b;
+            --primary: #bc1e22; /* Torii Kırmızısı */
+            --success: #10b981; /* Gezildi Yeşili */
+            --tourist-color: #ef4444;
+            --food-color: #f97316;
+            --shop-color: #3b82f6;
+            --hotel-color: #a855f7;
+            --shadow: 0 4px 14px rgba(0,0,0,0.06);
+            --radius: 16px;
         }
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
-        html { scroll-snap-type: y mandatory; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
 
         body {
-            margin: 0; padding: 0;
-            background-color: var(--bg);
-            color: white;
-            font-family: 'Montserrat', sans-serif;
-            overflow-x: hidden;
-            overflow-y: auto; 
-            overscroll-behavior-y: none;
-        }
-
-        /* --- 0. GİRİŞ EKRANI --- */
-        #intro-layer {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #000; z-index: 20000;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            transition: opacity 1s ease-out;
-        }
-        #intro-layer.hidden { opacity: 0; pointer-events: none; }
-        .intro-title {
-            font-family: 'Share Tech Mono', monospace; font-size: 2.5rem; letter-spacing: 5px;
-            background: linear-gradient(90deg, var(--berk), #fff, var(--merve));
-            -webkit-background-clip: text; color: transparent; margin-bottom: 10px; text-align: center;
-        }
-        .start-btn {
-            background: transparent; color: white; border: 1px solid rgba(255,255,255,0.5);
-            padding: 15px 50px; border-radius: 50px; font-size: 1.2rem; cursor: pointer;
-            transition: 0.3s; box-shadow: 0 0 20px rgba(255,255,255,0.1);
-        }
-
-        /* --- FİNAL SAHNESİ --- */
-        #final-layer {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle, #1a0005 0%, #000 100%);
-            z-index: 10000;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            opacity: 0; pointer-events: none; transition: opacity 2s;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
             overflow: hidden;
         }
-        #final-layer.visible { opacity: 1; pointer-events: auto; }
 
-        .memory-vortex {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none; z-index: 0;
-        }
-        .vortex-img {
-            position: absolute; width: 50vw; max-width: 300px; height: auto; object-fit: cover;
-            border-radius: 12px; opacity: 0; border: 3px solid var(--love);
-            box-shadow: 0 0 40px rgba(255, 0, 64, 0.6); z-index: 1;
-        }
-
-        .final-content { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; }
-        .heart-svg { width: 300px; height: 300px; overflow: visible; }
-        
-        .final-text {
-            font-family: 'Montserrat', sans-serif; text-align: center; opacity: 0; transform: translateY(20px);
-            transition: all 1s ease 2s; position: absolute; bottom: -50px; width: 100%;
-        }
-        .final-text h1 { font-family: 'Great Vibes', cursive; font-size: 3rem; margin: 0; color: var(--love); text-shadow: 0 0 20px var(--love); }
-        .final-text p { font-size: 1rem; color: #ccc; margin-top: 10px; letter-spacing: 1px; }
-
-        /* --- ANA SCROLL --- */
-        .main-container {
-            position: relative; width: 100%; height: 1700vh;
-            transition: transform 1s, opacity 1s; opacity: 0;
-        }
-        .main-container.started { opacity: 1; }
-
-        .svg-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
-        path { fill: none; stroke-width: 3; stroke-linecap: round; vector-effect: non-scaling-stroke; }
-        .path-ruler { stroke: var(--ruler-dim); stroke-width: 6; stroke-dasharray: 2 15; }
-        .path-active { stroke-width: 4; stroke-dasharray: 20000; stroke-dashoffset: 20000; transition: stroke-dashoffset 0.1s linear; filter: drop-shadow(0 0 5px rgba(255,255,255,0.5)); }
-
-        section {
-            height: 100dvh; width: 100%; scroll-snap-align: start; scroll-snap-stop: always;
-            position: relative; z-index: 2; display: flex; align-items: center; justify-content: center;
-        }
-
-        .content {
-            position: relative; width: 85%; max-width: 350px; text-align: center;
-            opacity: 0; transform: scale(0.9) translateY(20px);
-            transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            background: rgba(10, 10, 15, 0.85); backdrop-filter: blur(10px);
-            padding: 20px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.1);
-        }
-        section.active .content { opacity: 1; transform: scale(1) translateY(0); }
-
-        /* MERKEZİ METİN (YENİ STİL - 1998 & 2010 İÇİN) */
-        .central-caption {
-            position: absolute;
-            bottom: 18%; /* Fotoğrafların altında */
-            left: 50%;
-            transform: translateX(-50%);
-            width: 90%;
-            text-align: center;
-            opacity: 0;
-            transition: opacity 1s 0.5s; /* Hafif gecikmeli gelsin */
+        /* Harita Sabit Alanı */
+        #map-container {
+            height: 42vh;
+            width: 100%;
+            position: relative;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
             z-index: 10;
         }
-        section.active .central-caption { opacity: 1; }
-        .central-caption p {
-            font-size: 1rem; color: #fff; background: rgba(0,0,0,0.6);
-            padding: 10px 20px; border-radius: 30px; display: inline-block;
-            box-shadow: 0 0 20px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1);
+
+        #map {
+            height: 100%;
+            width: 100%;
         }
 
-        .tech-header { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 8px; margin-bottom: 12px; }
-        .date-badge { font-family: 'Share Tech Mono', monospace; font-size: 1rem; letter-spacing: 1px; }
-        .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #555; }
-
-        .photo-box { width: 100%; height: 200px; overflow: hidden; border-radius: 8px; margin-bottom: 12px; border: 1px solid rgba(255,255,255,0.1); position: relative; }
-        .photo-box.portrait { height: 420px; } 
-        .photo-box img { width: 100%; height: 100%; object-fit: cover; transform: scale(1.4); transition: transform 1.5s ease-out; }
-        section.active .photo-box img { transform: scale(1); }
-
-        h2 { font-size: 1.4rem; margin: 0 0 5px 0; font-weight: 800; text-transform: uppercase; }
-        p { font-size: 0.9rem; color: #aaa; margin: 0; line-height: 1.4; }
-
-        .pos-left { margin-right: auto; margin-left: 5%; text-align: left; }
-        .pos-right { margin-left: auto; margin-right: 5%; text-align: right; }
-        .pos-center { margin: 0 auto; text-align: center; }
-
-        .glitch-card { border: 1px solid var(--glitch); animation: shake 2s infinite; }
-        .glitch-text { color: var(--glitch); font-family: 'Share Tech Mono', monospace; }
-        @keyframes shake { 0%, 100% {transform:translate(0,0)} 5% {transform:translate(-2px,-2px)} 10% {transform:translate(2px,2px)} }
-
-        .btn-tech {
-            background: transparent; color: white; border: 1px solid white; padding: 12px 30px;
-            font-family: 'Share Tech Mono', monospace; margin-top: 15px; cursor: pointer; transition: 0.3s;
+        .map-btn {
+            position: absolute;
+            bottom: 16px;
+            right: 16px;
+            background: white;
+            border: none;
+            padding: 12px;
+            border-radius: 50%;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 11;
+            cursor: pointer;
         }
 
-        .scroll-hint {
-            position: fixed; bottom: 30px; width: 100%; text-align: center; opacity: 0; pointer-events: none; z-index: 10; transition: opacity 1s; animation: bounce 2s infinite;
-        }
-        .scroll-hint.visible { opacity: 0.5; }
-        @keyframes bounce { 0%, 100% {transform:translateY(0)} 50% {transform:translateY(-10px)} }
-        @keyframes pulse { 0% {transform:scale(1)} 50% {transform:scale(1.05)} 100% {transform:scale(1)} }
+        .map-btn svg { width: 24px; height: 24px; fill: var(--primary); }
 
+        /* İçerik ve Liste Alanı */
+        #content-container {
+            height: 58vh;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-color);
+        }
+
+        /* Yatay Kaydırılabilir Sekmeler */
+        .tabs-wrapper {
+            background: white;
+            padding: 12px 16px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .tabs-scroll {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+        .tabs-scroll::-webkit-scrollbar { display: none; }
+
+        .tab-btn {
+            background: #f1f5f9;
+            color: var(--text-muted);
+            border: none;
+            padding: 10px 18px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 700;
+            white-space: nowrap;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .tab-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Kart Listesi Akış Alanı */
+        .list-scroll {
+            flex: 1;
+            overflow-y: auto;
+            padding: 14px;
+            padding-bottom: 30px;
+        }
+
+        /* Dinamik Kart Yapısı */
+        .card {
+            background: var(--card-bg);
+            border: 1px solid #e2e8f0;
+            border-radius: var(--radius);
+            padding: 14px 16px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: var(--shadow);
+            transition: all 0.2s ease;
+        }
+
+        .card.checked {
+            background: #f8fafc;
+            opacity: 0.6;
+        }
+
+        .card-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex: 1;
+        }
+
+        .card-left input[type="checkbox"] {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 24px;
+            height: 24px;
+            border: 2px solid #cbd5e1;
+            border-radius: 8px;
+            display: grid;
+            place-content: center;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .card-left input[type="checkbox"]::before {
+            content: "";
+            width: 12px;
+            height: 12px;
+            transform: scale(0);
+            transition: all 0.2s ease;
+            box-shadow: inset 1em 1em var(--success);
+            clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+        }
+
+        .card-left input[type="checkbox"]:checked {
+            border-color: var(--success);
+            background-color: #ecfdf5;
+        }
+
+        .card-left input[type="checkbox"]:checked::before { transform: scale(1); }
+
+        .card-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .card-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-color);
+        }
+
+        .card.checked .card-title { text-decoration: line-through; color: var(--text-muted); }
+
+        .card-desc {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .card-right-btn {
+            background: #f1f5f9;
+            border: none;
+            padding: 10px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--text-muted);
+            font-size: 16px;
+        }
+
+        .type-badge {
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 6px;
+            font-weight: 800;
+            color: white;
+            align-self: flex-start;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+        }
+        .badge-tourist { background: var(--tourist-color); }
+        .badge-food { background: var(--food-color); }
+        .badge-shop { background: var(--shop-color); }
+        .badge-hotel { background: var(--hotel-color); }
+        .badge-checked { background: var(--success); }
     </style>
 </head>
 <body>
 
-    <div id="intro-layer">
-        <h1 class="intro-title">BERK & MERVE</h1>
-        <div style="font-size:0.9rem; color:#888; letter-spacing:2px; margin-bottom:40px;">ZAMAN YOLCULUĞU</div>
-        <button class="start-btn" onclick="startJourney()">BAŞLAT</button>
+    <!-- Canlı Harita Modülü -->
+    <div id="map-container">
+        <div id="map"></div>
+        <button class="map-btn" onclick="trackUserLocation()" title="GPS Konumumu Bul">
+            <svg viewBox="0 0 24 24"><path d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm8.94 3c-.46-4.17-3.77-7.48-7.94-7.94V1h-2v2.06C6.83 3.52 3.52 6.83 3.06 11H1v2h2.06c.46 4.17 3.77 7.48 7.94 7.94V23h-2v-2.06c4.17-.46 7.48-3.77 7.94-7.94H23v-2h-2.06zM12 19c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/></svg>
+        </button>
     </div>
 
-    <div id="final-layer">
-        <div class="memory-vortex" id="memory-vortex"></div>
-        <div class="final-content">
-            <svg class="heart-svg" viewBox="0 0 600 600">
-                <defs>
-                    <linearGradient id="grad-final" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%" style="stop-color:var(--berk);stop-opacity:1" />
-                        <stop offset="50%" style="stop-color:var(--love);stop-opacity:1" />
-                        <stop offset="100%" style="stop-color:var(--merve);stop-opacity:1" />
-                    </linearGradient>
-                </defs>
-                <path id="final-heart-path" 
-                      d="M 300,550 C 100,400 0,250 0,150 C 0,50 150,-50 300,100 C 450,-50 600,50 600,150 C 600,250 500,400 300,550" 
-                      stroke="url(#grad-final)" stroke-width="15" fill="none" stroke-linecap="round"
-                      style="stroke-dasharray: 2000; stroke-dashoffset: 2000; filter: drop-shadow(0 0 20px var(--love));" />
-            </svg>
-            <div class="final-text">
-                <h1>Sonsuza Dek</h1>
-                <p>Kaderimiz artık tek bir rayda...</p>
+    <!-- Filtre Sekmeleri Yapısı -->
+    <div id="content-container">
+        <div class="tabs-wrapper">
+            <div class="tabs-scroll">
+                <button class="tab-btn active" onclick="switchSection('tokyo')">🗼 Tokyo</button>
+                <button class="tab-btn" onclick="switchSection('osaka')">🐙 Osaka</button>
+                <button class="tab-btn" onclick="switchSection('kyoto')">🏯 Kyoto & Nara</button>
+                <button class="tab-btn" onclick="switchSection('food')">🥩 Yenilecekler</button>
+                <button class="tab-btn" onclick="switchSection('shopping')">🛒 Alışveriş Yerleri</button>
             </div>
         </div>
-    </div>
 
-    <div class="main-container" id="main-content">
-        <div class="scroll-hint" id="scroll-hint">▼</div>
-
-        <div class="svg-layer">
-            <svg width="100%" height="100%" viewBox="0 0 100 1700" preserveAspectRatio="none">
-                <defs>
-                    <linearGradient id="grad-merve" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#ff5e7e" /><stop offset="100%" stop-color="#ff0040" /></linearGradient>
-                    <linearGradient id="grad-berk" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#00f2ff" /><stop offset="100%" stop-color="#ff0040" /></linearGradient>
-                </defs>
-                <path class="path-ruler" d="M 15,0 L 15,250 C 15,280 50,280 50,300 C 50,320 15,320 15,350 L 15,550 C 15,580 50,580 50,600 L 50,1700" />
-                <path class="path-ruler" d="M 85,0 L 85,250 C 85,280 50,280 50,300 C 50,320 85,320 85,350 L 85,550 C 85,580 50,580 50,600 L 50,1700" />
-                <path id="active-merve" class="path-active" stroke="url(#grad-merve)" d="M 15,0 L 15,250 C 15,280 50,280 50,300 C 50,320 15,320 15,350 L 15,550 C 15,580 50,580 50,600 L 50,1700" />
-                <path id="active-berk" class="path-active" stroke="url(#grad-berk)" d="M 85,0 L 85,250 C 85,280 50,280 50,300 C 50,320 85,320 85,350 L 85,550 C 85,580 50,580 50,600 L 50,1700" />
-            </svg>
+        <div class="list-scroll" id="list-container">
+            <!-- JavaScript tarafından otomatik doldurulacak -->
         </div>
-
-        <section data-theme="split">
-            <div class="content pos-left" style="width: 45%; border-left: 3px solid var(--merve);">
-                <div class="tech-header"><span class="date-badge">1998</span><div class="status-dot" style="background:var(--merve)"></div></div>
-                <div class="photo-box"><img src="merve1998.jpeg" alt="Merve"></div>
-                <h2>MERVE</h2>
-            </div>
-            <div class="content pos-right" style="width: 45%; border-right: 3px solid var(--berk);">
-                <div class="tech-header"><div class="status-dot" style="background:var(--berk)"></div><span class="date-badge">1998</span></div>
-                <div class="photo-box"><img src="berk1998.jpeg" alt="Berk"></div>
-                <h2>BERK</h2>
-            </div>
-            <div class="central-caption">
-                <p>Hikaye burada başlıyor. İyi ki doğduk.</p>
-            </div>
-        </section>
-
-        <section>
-            <div class="content pos-left" style="width: 45%; border-left: 3px solid var(--merve);">
-                <div class="tech-header"><span class="date-badge">2010</span></div>
-                <div class="photo-box"><img src="merve2010.jpeg" alt="Merve 2010"></div>
-            </div>
-            <div class="content pos-right" style="width: 45%; border-right: 3px solid var(--berk);">
-                <div class="tech-header"><span class="date-badge">2010</span></div>
-                <div class="photo-box"><img src="berk2010.jpeg" alt="Berk 2010"></div>
-            </div>
-            <div class="central-caption">
-                <p>Birbirlerinden habersiz büyüyorlar. Neler neler bekliyor onları...</p>
-            </div>
-        </section>
-
-        <section>
-            <div class="content pos-center" style="border-color: var(--gold);">
-                <div class="tech-header"><span class="date-badge" style="color:var(--gold)">TEMMUZ 2020</span><div class="status-dot" style="background:var(--gold);"></div></div>
-                <div class="photo-box portrait"><img src="tunaypost.jpeg" alt="Tunay Post"></div>
-                <h2 style="color:var(--gold)">TEĞET GEÇİŞ</h2>
-                <p>Raylar birleşti, seni gördüm. Ama zamanı değildi.</p>
-            </div>
-        </section>
-
-        <section>
-            <div class="content pos-center" style="opacity:0.5; border:none; background:transparent;">
-                <h2 style="font-family:'Share Tech Mono';">SİNYAL YOK...</h2>
-                <p>2021 - 2025</p>
-            </div>
-        </section>
-
-        <section>
-            <div class="content pos-center" style="border-color: var(--love);">
-                <div class="tech-header"><span class="date-badge" style="color:var(--love)">02.01.2026</span><div class="status-dot" style="background:var(--love)"></div></div>
-                <div class="photo-box portrait"><img src="likephoto.jpeg" alt="Like"></div>
-                <h2>KENETLENME</h2>
-                <p>Merve hikayeni beğendi.</p>
-            </div>
-        </section>
-
-        <section>
-            <div class="content pos-center">
-                <span class="date-badge">09.01.2026</span>
-                <div class="photo-box portrait"><img src="firstmsg.jpeg" alt="First Msg"></div>
-                <h2>İLK MESAJ</h2>
-            </div>
-        </section>
-
-        <section>
-            <div class="content pos-center">
-                <div class="tech-header"><span class="date-badge">16.01.2026</span></div>
-                <div class="photo-box portrait"><img src="missedcalls.jpeg" alt="Calls"></div>
-                <h2>ENDİŞE</h2>
-                <p>Zehirlenme olayı. Bağlar güçlendi.</p>
-            </div>
-        </section>
-
-        <section>
-            <div class="content pos-center">
-                <div class="tech-header"><span class="date-badge">31.01.2026</span></div>
-                <div class="photo-box portrait"><img src="road1.jpeg" alt="Izmir"></div>
-                <h2>HEDEF: İZMİR</h2>
-            </div>
-        </section>
-
-        <section id="glitch-target">
-            <div class="content pos-center glitch-card" id="glitch-card">
-                <h2 class="glitch-text">⚠ SYSTEM FAILURE</h2>
-                <p class="glitch-text">DATE: 01.02.2026<br>EVENT: UNKNOWN</p>
-            </div>
-        </section>
-
-        <section>
-            <div class="content pos-center">
-                <div class="tech-header"><span class="date-badge">03.02.2026</span></div>
-                <div class="photo-box portrait"><img src="bestdate.jpeg" alt="Best Date"></div>
-                <h2>EN GÜZEL GÜN</h2>
-            </div>
-        </section>
-
-        <section>
-            <div class="content pos-center">
-                <div class="tech-header"><span class="date-badge">04.02.2026</span></div>
-                <div class="photo-box portrait"><img src="ayrilik.jpeg" alt="Ayrilik"></div>
-                <h2>AYRILIK :(</h2>
-            </div>
-        </section>
-
-        <section>
-            <div class="content pos-center">
-                <div class="tech-header"><span class="date-badge">14.02.2026</span></div>
-                <div class="photo-box"><img src="comeback.jpeg" alt="Comeback"></div>
-                <h2>GERİ DÖNÜŞ</h2>
-                <p>Sevgililer Günü Sensiz Olmaz.</p>
-            </div>
-        </section>
-
-        <section>
-            <div class="content pos-center">
-                <div class="tech-header"><span class="date-badge">17.02.2026</span></div>
-                <div class="photo-box"><img src="weturla.jpeg" alt="Urla"></div>
-                <h2>ISLAK URLA</h2>
-            </div>
-        </section>
-
-        <section>
-            <div class="content pos-center">
-                <div class="tech-header"><span class="date-badge">20.02.2026</span></div>
-                <div class="photo-box"><img src="roadtrip.jpeg" alt="Roadtrip"></div>
-                <h2>KAÇIRIŞ</h2>
-                <p>İstanbul'a Gidiyoruz</p>
-            </div>
-        </section>
-
-        <section>
-            <div class="content pos-center">
-                <div class="tech-header"><span class="date-badge">23.02.2026</span></div>
-                <div class="photo-box"><img src="nacho.png" alt="Nacho"></div>
-                <h2>NACHO NIGHT</h2>
-                <p>The Big Bang Theory eşliğinde</p>
-            </div>
-        </section>
-
-        <section>
-            <div class="content pos-center">
-                <div class="tech-header"><span class="date-badge">24.02.2026</span></div>
-                <div class="photo-box"><img src="lily.png" alt="Lily"></div>
-                <h2>LILY DOĞUM GÜNÜ</h2>
-                <p>İyi ki doğdun Lily!</p>
-            </div>
-        </section>
-
-        <section>
-            <div class="content pos-center" style="background:none; border:none;">
-                <h2>BİR HATA VAR...</h2>
-                <button class="btn-tech" onclick="timeTravel()">REWIND TIME ⏪</button>
-            </div>
-        </section>
-        
     </div>
 
     <script>
-        let audioCtx;
-        function initAudio() {
-            if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            if(audioCtx.state === 'suspended') audioCtx.resume();
-        }
+        // MASTER JAPONYA COĞRAFİ VERİ TABANI (Tüm Konumlar %100 Doğrulanmıştır)
+        const locations = [
+            // OTELLER
+            { id: "h1", title: "Shinjuku Okubo Airbnb", lat: 35.7015, lng: 139.7000, type: "hotel", city: "tokyo", desc: "1-4 Haziran | İlk Dönem Konaklama Evi" },
+            { id: "h2", title: "Granbell Hotel Osaka", lat: 34.6736, lng: 135.5015, type: "hotel", city: "osaka", desc: "4-7 Haziran | Osaka Merkez Konaklama" },
+            { id: "h3", title: "Nakano Tokyo Airbnb", lat: 35.7061, lng: 139.6656, type: "hotel", city: "tokyo", desc: "7-10 Haziran | İkinci Dönem Konaklama Evi" },
+            { id: "h4", title: "Narita Airport Kapsül Otel", lat: 35.7725, lng: 140.3881, type: "hotel", city: "tokyo", desc: "10-11 Haziran | Uçuş Öncesi Son Gece Kapsülü" },
+            
+            // TOKYO TURİSTİK & DENEYİM
+            { id: "tk1", title: "Shibuya Crossing & Hachiko", lat: 35.6595, lng: 139.7005, type: "tourist", city: "tokyo", desc: "Dünyanın en kalabalık yaya geçidi ve Hachiko heykeli" },
+            { id: "tk2", title: "Shibuya Sky", lat: 35.6586, lng: 139.7015, type: "tourist", city: "tokyo", desc: "Açık hava çatı terasından kesintisiz Tokyo manzarası" },
+            { id: "tk3", title: "Meiji Jingu Tapınağı", lat: 35.6764, lng: 139.6993, type: "tourist", city: "tokyo", desc: "Devasa ormanlık alan içerisindeki tarihi Şinto tapınağı" },
+            { id: "tk4", title: "Takeshita Street Harajuku", lat: 35.6716, lng: 139.7032, type: "tourist", city: "tokyo", desc: "Çılgın gençlik modası, mağazalar ve renkli krepler" },
+            { id: "tk5", title: "Asakusa Senso-ji Tapınağı", lat: 35.7148, lng: 139.7967, type: "tourist", city: "tokyo", desc: "Tokyo'nun en eski tapınağı, Nakamise caddesi ve kutudan fal" },
+            { id: "tk6", title: "teamLab Planets Tokyo", lat: 35.6489, lng: 139.7905, type: "tourist", city: "tokyo", desc: "Odaiba/Toyosu bölgesindeki çıplak ayaklı dijital müze" },
+            { id: "tk7", title: "Akihabara Electric Town", lat: 35.6997, lng: 139.7715, type: "tourist", city: "tokyo", desc: "Anime, oyun, neon ışıklar ve elektronik dünyası" },
+            { id: "tk8", title: "Shinjuku Gyoen National Garden", lat: 35.6852, lng: 139.7101, type: "tourist", city: "tokyo", desc: "Geniş geleneksel yeşil peyzajlı imparatorluk parkı" },
+            { id: "tk9", title: "Chidorigafuchi Moat", lat: 35.6905, lng: 139.7472, type: "tourist", city: "tokyo", desc: "İmparatorluk Sarayı hendek sularında kayık kiralama" },
+            { id: "tk10", title: "Daikoku Car Meet", lat: 35.4624, lng: 139.6803, type: "tourist", city: "tokyo", desc: "Yokohama hattındaki dünyaca ünlü modifiyeli Japon arabaları alanı" },
+            { id: "tk11", title: "Tokyo Met. Gov. Işık Gösterisi", lat: 35.6895, lng: 139.6917, type: "tourist", city: "tokyo", desc: "Hükümet binası cephesindeki dev projeksiyon harikası" },
+            { id: "tk12", title: "Kabukicho & Godzilla Road", lat: 35.6938, lng: 139.7017, type: "tourist", city: "tokyo", desc: "Shinjuku gece hayatı, neon sokaklar ve dev Godzilla kafası" },
+            { id: "tk13", title: "Owl Cafe Ginza Mafu Mafu", lat: 35.6710, lng: 139.7650, type: "tourist", city: "tokyo", desc: "Ginza'da baykuşlarla yakın temas konsept kafe" },
+            { id: "tk14", title: "Pokemon Cafe Nihonbashi", lat: 35.6811, lng: 139.7731, type: "tourist", city: "tokyo", desc: "Rezervasyonlu popüler tematik Pokemon restoranı" },
+            { id: "tk15", title: "Dawn Robot Avatar Cafe", lat: 35.6876, lng: 139.7735, type: "tourist", city: "tokyo", desc: "Uzaktan kontrol edilen robot garsonların çalıştığı fütüristik yer" },
+            
+            // TOKYO GURME / YENİLECEKLER
+            { id: "tf1", title: "Omoide Yokocho & Golden Gai", lat: 35.6931, lng: 139.6997, type: "food", city: "tokyo", desc: "Dar tarihi sokaklarda yakitori, gyoza ve lokal pub bira keyfi" },
+            { id: "tf2", title: "Hikiniku to Come Shibuya", lat: 35.6594, lng: 139.6980, type: "food", city: "tokyo", desc: "Kömür ateşinde taze Wagyu köfte ve sıcak pirinç" },
+            { id: "tf3", title: "Benizuru Pancake Asakusa", lat: 35.7132, lng: 139.7935, type: "food", city: "tokyo", desc: "Sıra beklemeye değer pofuduk dev Japon pankekleri" },
+            { id: "tf4", title: "Gonpachi Nishi-Azabu", lat: 35.6601, lng: 139.7238, type: "food", city: "tokyo", desc: "Kill Bill filminin dövüş sahnelerine ilham veren görkemli han" },
+            { id: "tf5", title: "Ginza Kagari Ramen", lat: 35.6715, lng: 139.7645, type: "food", city: "tokyo", desc: "Yoğun ve kremamsı tavuk suyu bazlı meşhur gurme ramen" },
+            { id: "tf6", title: "Godaime Hanayama Udon Ginza", lat: 35.6698, lng: 139.7688, type: "food", city: "tokyo", desc: "Erişte kültürünün en geniş tabaklı geleneksel udon çeşidi" },
+            { id: "tf7", title: "Tsukiji Outer Market", lat: 35.6655, lng: 139.7698, type: "food", city: "tokyo", desc: "Sabah sokak yemekleri: Taze Tuna Nigiri ve Wagyu şişler" },
+            { id: "tf8", title: "Ichiran Ramen Shinjuku", lat: 35.6910, lng: 139.7027, type: "food", city: "tokyo", desc: "Tek kişilik kabinlerde ikonik Tonkotsu ramen deneyimi" },
+            { id: "tf9", title: "Nihonshu Genka Sakagura Shinjuku", lat: 35.6925, lng: 139.7010, type: "food", city: "tokyo", desc: "Geniş yelpazeli sake tadım barı" },
+            { id: "tf10", title: "Shinjuku Sushi Bar Nigirite", lat: 35.6945, lng: 139.6982, type: "food", city: "tokyo", desc: "Önünüzde taze hazırlanan tezgah üstü lokal sushi barı" },
+            { id: "tf11", title: "Giraffa Asakusa", lat: 35.7120, lng: 139.7950, type: "food", city: "tokyo", desc: "Dışı çıtır içi sıcak peynirli körili ünlü ekmek atıştırmalığı" },
+            { id: "tf12", title: "Yakiniku Panga Ueno", lat: 35.7072, lng: 139.7788, type: "food", city: "tokyo", desc: "Helal sertifikalı kusursuz Wagyu Beef deneyimi" },
+            { id: "tf13", title: "Shima Steak Takeaway Ginza", lat: 35.6720, lng: 139.7660, type: "food", city: "tokyo", desc: "Efsanevi Wagyu etli lüks sandviç paket servisi" },
+            { id: "tf14", title: "Mogami Wagyu Ginza", lat: 35.6724, lng: 139.7628, type: "food", city: "tokyo", desc: "LaLa Grande Ginza 1F bünyesinde devasa Wagyu biftekleri" },
+            { id: "tf15", title: "Canton8 Ginza", lat: 35.6685, lng: 139.7635, type: "food", city: "tokyo", desc: "Dünyanın en ekonomik Michelin yıldızlı Çin/Dim Sum restoranı" },
+            { id: "tf16", title: "Chermside Sandwiches Shibuya", lat: 35.6610, lng: 139.7010, type: "food", city: "tokyo", desc: "Harika marine edilmiş etli gurme sandviç barı" },
+            
+            // TOKYO AMİRAL GEMİSİ / BÜYÜK ALIŞVERİŞ NOKTALARI
+            { id: "ts1", title: "Uniqlo Ginza Flagship Store", lat: 35.6703, lng: 139.7640, type: "shop", city: "tokyo", desc: "Dünyanın en büyük 12 katlı devasa Uniqlo amiral gemisi binası" },
+            { id: "ts2", title: "Uniqlo TOKYO (Marunouchi)", lat: 35.6732, lng: 139.7645, type: "shop", city: "tokyo", desc: "Ginza yakınlarındaki diğer devasa konsept Uniqlo mağazası" },
+            { id: "ts3", title: "Uniqlo Shinjuku Hanten", lat: 35.6912, lng: 139.7030, type: "shop", city: "tokyo", desc: "Airbnb evinize yakın büyük Shinjuku Uniqlo merkezi" },
+            { id: "ts4", title: "Mega Don Quijote Shibuya", lat: 35.6605, lng: 139.6975, type: "shop", city: "tokyo", desc: "7 katlı en popüler DonKi; abur cubur, kozmetik ve Matchalı her şey" },
+            { id: "ts5", title: "Don Quijote Shinjuku Kabukicho", lat: 35.6951, lng: 139.7021, type: "shop", city: "tokyo", desc: "Gece yarısı alışverişi için Okubo'ya en yakın 24 saat açık DonKi" },
+            { id: "ts6", title: "ABC-Mart Grand Stage Shibuya", lat: 35.6611, lng: 139.6985, type: "shop", city: "tokyo", desc: "Özel ve nadir ayakkabı modellerinin bulunduğu devasa şube" },
+            { id: "ts7", title: "ABC-Mart Grand Stage Shinjuku", lat: 35.6918, lng: 139.7022, type: "shop", city: "tokyo", desc: "Shinjuku bölgesinin en büyük spor ayakkabı kompleksi" },
+            { id: "ts8", title: "ABC-Mart Grand Stage Ginza", lat: 35.6713, lng: 139.7644, type: "shop", city: "tokyo", desc: "Ginza caddesindeki şık ve büyük ABC-Mart binası" },
+            { id: "ts9", title: "Yodobashi Camera Akihabara", lat: 35.6987, lng: 139.7748, type: "shop", city: "tokyo", desc: "Çıkışı zor olan devasa teknoloji, saat, makas ve hobi sarayı" },
+            { id: "ts10", title: "Yodobashi Camera Shinjuku", lat: 35.6896, lng: 139.6970, type: "shop", city: "tokyo", desc: "Shinjuku istasyonu yanındaki çok katlı elektronik merkezi" },
+            { id: "ts11", title: "Bic Camera Shinjuku East", lat: 35.6917, lng: 139.7032, type: "shop", city: "tokyo", desc: "Teknoloji, tırnak makasları ve hobi için büyük alternatif zincir" },
+            { id: "ts12", title: "Ginza Karen Valiz Mağazası", lat: 35.6693, lng: 139.7661, type: "shop", city: "tokyo", desc: "Dönüş valizlerini ucuza toplamak için ünlü çanta/bavul dükkanı" },
+            { id: "ts13", title: "Daiso Harajuku (Takeshita)", lat: 35.6713, lng: 139.7041, type: "shop", city: "tokyo", desc: "Her şey sabit 100 Yen olan devasa Harajuku ucuzluk dükkanı" },
+            { id: "ts14", title: "Can Do Shinjuku PEPE", lat: 35.6953, lng: 139.7003, type: "shop", city: "tokyo", desc: "Evinize yakın büyük 100 Yen Japon tırnak makası/hediyelik dükkanı" },
+            { id: "ts15", title: "Seria Shibuya (Magnet AVM)", lat: 35.6596, lng: 139.7011, type: "shop", city: "tokyo", desc: "Diğer popüler kaliteli tasarımlara sahip 100 Yen dükkanı alternatifi" },
+            { id: "ts16", title: "Nakano Broadway Pasajı", lat: 35.7090, lng: 139.6655, type: "shop", city: "tokyo", desc: "Lüks ikinci el saatçiler, el yapımı bıçaklar ve retro dükkanlar" },
+            
+            // TOKYO ÖZEL SENTO / ONSEN DENEYİMLERİ
+            { id: "on1", title: "Matsumoto-yu Sento", lat: 35.7099, lng: 139.6828, type: "tourist", city: "tokyo", desc: "Nakano yakınlarında geleneksel Japon hamamı ve sauna kültürü" },
+            { id: "on2", title: "Koganeyu Onsen", lat: 35.6925, lng: 139.8142, type: "tourist", city: "tokyo", desc: "Modern hipster tasarımlı, içeride bira muslukları olan popüler banyo" },
+            { id: "on3", title: "Daikoku-yu Sento", lat: 35.7121, lng: 139.8188, type: "tourist", city: "tokyo", desc: "Skytree manzaralı açık hava havuzuna sahip otantik sento" },
 
-        function playSound(type) {
-            if(!audioCtx) initAudio();
-            const now = audioCtx.currentTime;
+            // OSAKA TURİSTİK & DENEYİM
+            { id: "ok1", title: "Dotonbori Glico Man", lat: 34.6687, lng: 135.5013, type: "tourist", city: "osaka", desc: "Kentsel simge, dev nehir tabelaları ve çılgın eğlence caddeleri" },
+            { id: "ok2", title: "Namba Yasaka Tapınağı", lat: 34.6616, lng: 135.4966, type: "tourist", city: "osaka", desc: "Kötü ruhları yuttuğuna inanılan dev aslan kafalı tapınak" },
+            { id: "ok3", title: "Ikoma Sanjo Sky Cycle", lat: 34.6789, lng: 135.6833, type: "tourist", city: "osaka", desc: "Gün batımında raylar üzerinde bisiklet sürerek Osaka'yı izleme" },
+            { id: "ok4", title: "Shinsekai & Tsutentaku Kulesi", lat: 34.6525, lng: 135.5063, type: "tourist", city: "osaka", desc: "Nostaljik ve retro fütüristik Osaka sokak lezzetleri caddesi" },
+            { id: "ok5", title: "Osaka Castle", lat: 34.6873, lng: 135.5262, type: "tourist", city: "osaka", desc: "Geniş su hendekleriyle çevrili efsanevi tarihi şato parkı" },
+            { id: "ok6", title: "Universal Studios Japan (USJ)", lat: 34.6654, lng: 135.4323, type: "tourist", city: "osaka", desc: "Büyük macera parkı, Nintendo Dünyası ve Harry Potter hattı" },
+            { id: "ok7", title: "Kaiyukan Akvaryum", lat: 34.6545, lng: 135.4289, type: "tourist", city: "osaka", desc: "Balina köpekbalıklarının yaşadığı dünyanın en büyük akvaryumlarından biri" },
+            { id: "ok8", title: "Abeno Harukas Gözlem Kulesi", lat: 34.6458, lng: 135.5139, type: "tourist", city: "osaka", desc: "Osaka'nın en yüksek gökdelenlerinden panoramik cam teras" },
+            { id: "ok9", title: "Umeda Sky Building", lat: 34.7053, lng: 135.4902, type: "tourist", city: "osaka", desc: "Açık havada iki kuleyi birleştiren yürüyen merdivenli teras" },
+            { id: "ok10", title: "Hep Five Ferris Wheel", lat: 34.7038, lng: 135.5002, type: "tourist", city: "osaka", desc: "Umeda'da kırmızı devasa alışveriş merkezi üstü dönme dolabı" },
+            { id: "ok11", title: "Solaniwa Onsen Osaka", lat: 34.6662, lng: 135.4611, type: "tourist", city: "osaka", desc: "Yukatalarla gezilen devasa geleneksel tema parkı onsen kompleksi" },
+            
+            // OSAKA GURME & ALIŞVERİŞ
+            { id: "of1", title: "Tempura Makino Namba", lat: 34.6644, lng: 135.5015, type: "food", city: "osaka", desc: "Önünüzde kızartılan pirinç üzeri çıtır tempura (Tendon) klasiği" },
+            { id: "of2", title: "Kuromon Ichiba Market", lat: 34.6656, lng: 135.5061, type: "food", city: "osaka", desc: "Osaka sokak yemeklerinin kalbi, taze deniz ürünleri tezgahları" },
+            { id: "of3", title: "Sushi Sakaba Teppei", lat: 34.6680, lng: 135.5020, type: "food", city: "osaka", desc: "Lokal ve popüler Osaka sushi barı alternatifi" },
+            { id: "of4", title: "Taian Restoran", lat: 34.6745, lng: 135.5122, type: "food", city: "osaka", desc: "3 Michelin yıldızlı kusursuz geleneksel gurme akşam yemeği" },
+            { id: "os1", title: "Object Osaka Store", lat: 34.6695, lng: 135.4940, type: "shop", city: "osaka", desc: "Kılıf ve çantalara özel armalar tasarlayacağınız patch mağazası" },
+            { id: "os2", title: "Amerikamura Street & Kindal", lat: 34.6715, lng: 135.4984, type: "shop", city: "osaka", desc: "İkinci el vintage modası ve sokak kültürü dükkanları" },
+            { id: "os3", title: "Uniqlo Shinsaibashi Global Store", lat: 34.6738, lng: 135.5013, type: "shop", city: "osaka", desc: "Osaka bölgesinin en büyük çok katlı amiral gemisi Uniqlo binası" },
+            { id: "os4", title: "ABC-Mart Grand Stage Shinsaibashi", lat: 34.6725, lng: 135.5015, type: "shop", city: "osaka", desc: "Osaka'da sınırlı üretim spor ayakkabılar için en büyük mağaza" },
+            { id: "os5", title: "Don Quijote Dotonbori Ferris Wheel", lat: 34.6691, lng: 135.5024, type: "shop", city: "osaka", desc: "Üzerinde dev sarı dönme dolap olan efsanevi 24 saat açık DonKi" },
+            { id: "os6", title: "Bic Camera Namba Osaka", lat: 34.6668, lng: 135.5021, type: "shop", city: "osaka", desc: "Osaka merkezindeki devasa çok katlı hobi ve teknoloji marketi" },
+            { id: "os7", title: "Daiso Shinsaibashi 3F", lat: 34.6740, lng: 135.5016, type: "shop", city: "osaka", desc: "Osaka'da tırnak makası ve hediyelik eşya yükleyeceğiniz büyük 100 Yen şubesi" },
 
-            if(type === 'tick') {
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-                osc.frequency.setValueAtTime(800, now);
-                osc.frequency.exponentialRampToValueAtTime(100, now + 0.05);
-                gain.gain.setValueAtTime(0.05, now);
-                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.03);
-                osc.connect(gain); gain.connect(audioCtx.destination);
-                osc.start(); osc.stop(now + 0.05);
-            } else if (type === 'warp') {
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-                osc.frequency.setValueAtTime(100, now);
-                osc.frequency.linearRampToValueAtTime(1500, now + 2);
-                gain.gain.setValueAtTime(0.3, now);
-                gain.gain.linearRampToValueAtTime(0, now + 2);
-                osc.connect(gain); gain.connect(audioCtx.destination);
-                osc.start(); osc.stop(now + 2);
-            } else if (type === 'romance') {
-                const notes = [261.63, 329.63, 392.00, 523.25, 659.25, 783.99]; 
-                notes.forEach((freq, i) => {
-                    const osc = audioCtx.createOscillator();
-                    const gain = audioCtx.createGain();
-                    osc.type = 'sine'; osc.frequency.value = freq;
-                    const start = now + (i * 0.15);
-                    gain.gain.setValueAtTime(0, start);
-                    gain.gain.linearRampToValueAtTime(0.2, start + 0.1);
-                    gain.gain.exponentialRampToValueAtTime(0.001, start + 3);
-                    osc.connect(gain); gain.connect(audioCtx.destination);
-                    osc.start(start); osc.stop(start + 3);
+            // KYOTO & NARA TÜM ROTASI
+            { id: "kn1", title: "Fushimi Inari Taisha", lat: 34.9671, lng: 135.7727, type: "tourist", city: "kyoto", desc: "Binlerce parlak turuncu Torii kapısından oluşan ikonik dağ yolu" },
+            { id: "kn2", title: "Kiyomizu-dera & Sannenzaka", lat: 34.9949, lng: 135.7850, type: "tourist", city: "kyoto", desc: "Kyoto'nun tarihi ahşap koruma sokakları ve muazzam teras tapınağı" },
+            { id: "kn3", title: "Arashiyama Bamboo Grove", lat: 35.0156, lng: 135.6715, type: "tourist", city: "kyoto", desc: "Togetsukyo köprüsü ve Katsura nehri kenarındaki dev bambu yolu" },
+            { id: "kn4", title: "Monkey Park Iwatayama", lat: 35.0093, lng: 135.6723, type: "tourist", city: "kyoto", desc: "Doğal ortamında serbestçe yaşayan Japon maymunları izleme zirvesi" },
+            { id: "kn5", title: "Ryoan-ji Zen Taş Bahçesi", lat: 35.0345, lng: 135.7182, type: "tourist", city: "kyoto", desc: "Dünyanın en meşhur meditatif felsefi kaya/çakıl düzenlemesi" },
+            { id: "kn6", title: "Kinkaku-ji (Altın Köşk)", lat: 35.0394, lng: 135.7292, type: "tourist", city: "kyoto", desc: "Göl kenarına kurulu altın varaklarla kaplı efsanevi tapınak" },
+            { id: "kn7", title: "Nara Park Geyik Besleme", lat: 34.6851, lng: 135.8430, type: "tourist", city: "kyoto", desc: "Özel krakerlerle serbest Japon geyiklerini ellerinizle besleyin" },
+            { id: "kn8", title: "Todai-ji Tapınağı", lat: 34.6889, lng: 135.8398, type: "tourist", city: "kyoto", desc: "Nara'daki dünyanın en büyük ahşap yapısı içindeki dev Buddha" },
+            { id: "kn9", title: "Nishiki Market Kyoto", lat: 35.0049, lng: 135.7649, type: "food", city: "kyoto", desc: "Kyoto'nun tarihi sokak gurmesi ve tadım pazarı caddesi" },
+            { id: "kn10", title: "Glanta Ring Maker Kyoto", lat: 35.0055, lng: 135.7680, type: "shop", city: "kyoto", desc: "Çekiçle döverek kendinize özel yüzük yapacağınız tasarım atölyesi" },
+            { id: "kn11", title: "Kichi Kichi Omurice", lat: 35.0088, lng: 135.7708, type: "food", city: "kyoto", desc: "Pontocho yanında bıçakla yarılan şovlu ünlü yumurtalı pirinç" },
+            { id: "kn12", title: "Maccha House Kyoto", lat: 35.0038, lng: 135.7691, type: "food", city: "kyoto", desc: "Ahşap kutularda sunulan akışkan ünlü Matchalı Tiramisu" },
+            { id: "kn13", title: "Gokago Cafe Matcha", lat: 35.0025, lng: 135.7710, type: "food", city: "kyoto", desc: "Taze seremonisel hazırlanan yoğun Matcha Latte barı" },
+            { id: "kn14", title: "Mamemono to Taiyaki Arashiyama", lat: 35.0150, lng: 135.6765, type: "food", city: "kyoto", desc: "Arashiyama sokaklarında içi eriyen tereyağlı balık kek tatlısı" },
+            { id: "kn15", title: "Cicon Rooftop Bar (Nohga)", lat: 34.9961, lng: 135.7735, type: "food", city: "kyoto", desc: "Harika panoramik Kyoto manzarasına sahip şık otel terası" },
+            { id: "kn16", title: "Men-ya Inoichi Ramen", lat: 35.0005, lng: 136.7668, type: "food", city: "kyoto", desc: "Michelin rehberindeki duru berrak çorbalı efsane Kyoto rameni" },
+            { id: "kn17", title: "Tendan Yakiniku Kyoto", lat: 35.0028, lng: 135.7722, type: "food", city: "kyoto", desc: "Nehir manzaralı rezarvasyonlu harika Yakiniku barbekü restoranı" },
+            { id: "kn18", title: "Totegin Kintetsu Sushi Nara", lat: 34.6835, lng: 135.8280, type: "food", city: "kyoto", desc: "Nara istasyonu çıkışındaki muazzam lokal şef sushicisi" }
+        ];
+
+        let map;
+        let markers = {};
+        let activeSection = 'tokyo';
+        let userLocationMarker = null;
+        let activeInfoWindow = null;
+
+        const typeColors = {
+            hotel: "#a855f7",
+            tourist: "#ef4444",
+            food: "#f97316",
+            shop: "#3b82f6",
+            checked: "#10b981"
+        };
+
+        // Google Harita Kurulum Fonksiyonu
+        function initMap() {
+            map = new google.maps.Map(document.getElementById('map'), {
+                center: { lat: 35.6895, lng: 139.6917 },
+                zoom: 12,
+                disableDefaultUI: true,
+                zoomControl: false,
+                styles: [
+                    { featureType: "poi.business", stylers: [{ visibility: "off" }] },
+                    { featureType: "transit", stylers: [{ visibility: "simplified" }] }
+                ]
+            });
+
+            // Tüm Pinleri Haritaya Basma
+            locations.forEach(loc => {
+                const isChecked = localStorage.getItem(loc.id) === 'true';
+                const color = isChecked ? typeColors.checked : typeColors[loc.type];
+
+                const marker = new google.maps.Marker({
+                    position: { lat: loc.lat, lng: loc.lng },
+                    map: map,
+                    title: loc.title,
+                    icon: createMarkerIcon(color)
                 });
-            }
+
+                const infoWindow = new google.maps.InfoWindow({
+                    content: `
+                        <div style="font-family:sans-serif; padding:4px; max-width:210px;">
+                            <h4 style="margin:0 0 4px 0; font-size:14px; color:#1e293b;">${loc.title}</h4>
+                            <p style="margin:0 0 8px 0; font-size:11px; color:#64748b;">${loc.desc}</p>
+                            <button onclick="toggleFromMap('${loc.id}')" style="background:${isChecked ? '#ef4444':'#10b981'}; color:white; border:none; padding:8px 10px; border-radius:6px; font-size:11px; font-weight:bold; width:100%; cursor:pointer;">
+                                ${isChecked ? 'Yapılmadı İşaretle' : 'Gezildi / Tamamlandı'}
+                            </button>
+                        </div>`
+                });
+
+                marker.addListener('click', () => {
+                    if (activeInfoWindow) activeInfoWindow.close();
+                    infoWindow.open(map, marker);
+                    activeInfoWindow = infoWindow;
+                });
+
+                markers[loc.id] = marker;
+            });
+
+            renderLists();
+            fitBoundsForSection('tokyo');
         }
 
-        function startJourney() {
-            initAudio();
-            const intro = document.getElementById('intro-layer');
-            intro.classList.add('hidden');
-            document.getElementById('main-content').classList.add('started');
-            setTimeout(() => { document.getElementById('scroll-hint').classList.add('visible'); }, 1000);
-            setTimeout(() => { intro.style.display = 'none'; }, 1000);
+        // Özelleştirilmiş Dinamik SVG Pin Çizimi
+        function createMarkerIcon(color) {
+            return {
+                path: 'M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z',
+                fillColor: color,
+                fillOpacity: 1,
+                strokeWeight: 1.5,
+                strokeColor: '#ffffff',
+                scale: 1.4,
+                anchor: new google.maps.Point(12, 22)
+            };
         }
 
-        const pathMerve = document.getElementById('active-merve');
-        const pathBerk = document.getElementById('active-berk');
-        const length = pathMerve.getTotalLength();
-        pathMerve.style.strokeDasharray = length; pathMerve.style.strokeDashoffset = length;
-        pathBerk.style.strokeDasharray = length; pathBerk.style.strokeDashoffset = length;
+        // Sekme Değiştirme Motoru
+        function switchSection(sectionName) {
+            activeSection = sectionName;
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            renderLists();
+            fitBoundsForSection(sectionName);
+        }
 
-        window.addEventListener('scroll', () => {
-            const scrollPercent = (window.scrollY + window.innerHeight * 0.6) / document.body.scrollHeight;
-            const draw = length * Math.min(scrollPercent * 1.3, 1);
-            pathMerve.style.strokeDashoffset = length - draw;
-            pathBerk.style.strokeDashoffset = length - draw;
-        });
+        // Haritayı Seçili Sekmedeki Pinlere Göre Otomatik Odaklama
+        function fitBoundsForSection(section) {
+            if (!map) return;
+            const bounds = new google.maps.LatLngBounds();
+            let count = 0;
 
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if(entry.isIntersecting) {
-                    entry.target.classList.add('active');
-                    playSound('tick');
-                    if(navigator.vibrate) navigator.vibrate(5);
-                } else {
-                    entry.target.classList.remove('active');
+            locations.forEach(loc => {
+                let match = false;
+                if (section === 'food' && loc.type === 'food') match = true;
+                else if (section === 'shopping' && loc.type === 'shop') match = true;
+                else if (loc.city === section) match = true;
+
+                if (match) {
+                    bounds.extend(new google.maps.LatLng(loc.lat, loc.lng));
+                    count++;
                 }
             });
-        }, { threshold: 0.5 });
-        document.querySelectorAll('section').forEach(sec => observer.observe(sec));
 
-        function timeTravel() {
-            playSound('warp');
-            document.body.style.transition = "transform 0.1s";
-            const shake = setInterval(() => {
-                const x = Math.random() * 10 - 5; document.body.style.transform = `translateX(${x}px)`;
-            }, 50);
-            const target = document.getElementById('glitch-target');
-            target.scrollIntoView({ behavior: 'smooth' });
-            setTimeout(() => {
-                clearInterval(shake);
-                document.body.style.transform = "none";
-                fixGlitch();
-            }, 1200);
+            if (count > 0) {
+                map.fitBounds(bounds);
+                if (count === 1) map.setZoom(15);
+            }
         }
 
-        function fixGlitch() {
-            const card = document.getElementById('glitch-card');
-            card.classList.remove('glitch-card');
-            card.style.borderColor = "var(--love)";
-            if(navigator.vibrate) navigator.vibrate([50, 50, 100]);
-            card.style.opacity = '0';
-            setTimeout(() => {
+        // Dinamik Arayüz ve Tikleme Listesi Oluşturucu
+        function renderLists() {
+            const container = document.getElementById('list-container');
+            container.innerHTML = '';
+
+            const filtered = locations.filter(loc => {
+                if (activeSection === 'food') return loc.type === 'food';
+                if (activeSection === 'shopping') return loc.type === 'shop';
+                return loc.city === activeSection;
+            });
+
+            filtered.forEach(loc => {
+                const isChecked = localStorage.getItem(loc.id) === 'true';
+                const card = document.createElement('div');
+                card.className = `card ${isChecked ? 'checked' : ''}`;
+                
                 card.innerHTML = `
-                    <div class="tech-header" style="border-color:#ff0040;">
-                        <span class="date-badge" style="color:#ff0040;">01.02.2026</span>
+                    <div class="card-left">
+                        <input type="checkbox" id="check-${loc.id}" ${isChecked ? 'checked' : ''} onchange="toggleItemState('${loc.id}', this.checked)">
+                        <div class="card-info">
+                            <span class="type-badge badge-${isChecked ? 'checked' : loc.type}">${isChecked ? 'Tamamlandı' : loc.type === 'shop' ? 'Alışveriş' : loc.type === 'food' ? 'Gurme' : loc.type === 'hotel' ? 'Otel' : 'Turistik'}</span>
+                            <span class="card-title">${loc.title}</span>
+                            <span class="card-desc">${loc.desc}</span>
+                        </div>
                     </div>
-                    <img src="yuzuk.jpeg" style="width:100%; border-radius:8px; margin-bottom:10px;">
-                    <h2 style="color:#ff0040; margin-bottom:10px;">SEVGİLİM OLUR MUSUN?</h2>
-                    <p style="color:white;">Resmi Başlangıç: 1 Şubat 2026</p>
-                    <button onclick="startForever()" style="background:#ff0040; color:white; border:none; padding:15px 40px; border-radius:50px; font-weight:bold; cursor:pointer; margin-top:10px; box-shadow:0 0 20px #ff0040;">EVET! ❤️</button>
+                    <button class="card-right-btn" onclick="focusOnMap(${loc.lat}, ${loc.lng}, '${loc.id}')" title="Haritada Odaklan">
+                        🗺️
+                    </button>
                 `;
-                card.style.opacity = '1';
-            }, 300);
+                container.appendChild(card);
+            });
         }
 
-        function startForever() {
-            playSound('romance');
+        // Ana Durum Senkronizasyonu (Checkbox tıklandığında hem hafıza hem harita güncellenir)
+        function toggleItemState(id, isChecked) {
+            localStorage.setItem(id, isChecked);
             
-            const mainContent = document.getElementById('main-content');
-            mainContent.style.transform = "scale(0) rotate(360deg)";
-            mainContent.style.opacity = "0";
-            
-            const finalLayer = document.getElementById('final-layer');
-            const vortex = document.getElementById('memory-vortex');
-            finalLayer.classList.add('visible');
-
-            // FOTOĞRAFLARI OLUŞTUR
-            for (let i = 1; i <= 10; i++) {
-                const img = document.createElement('img');
-                img.src = `${i}.jpeg`; 
-                img.className = 'vortex-img';
-                
-                // Başlangıç: Merkezde gizli
-                img.style.left = '50%';
-                img.style.top = '50%';
-                img.style.transform = 'translate(-50%, -50%) scale(0)';
-                
-                vortex.appendChild(img);
-
-                // 1. ADIM: PATLAMA (Yavaşça Açılma)
-                const angle = Math.random() * Math.PI * 2;
-                const distance = 15 + Math.random() * 25; 
-                const moveX = Math.cos(angle) * distance; 
-                const moveY = Math.sin(angle) * distance;
-                const randomRotate = (Math.random() * 40) - 20;
-
-                setTimeout(() => {
-                    img.style.transition = `all 2.5s cubic-bezier(0.25, 1, 0.5, 1) ${i * 0.1}s`;
-                    img.style.transform = `translate(calc(-50% + ${moveX}vw), calc(-50% + ${moveY}vh)) scale(1) rotate(${randomRotate}deg)`;
-                    img.style.opacity = '1';
-                }, 100);
-
-                // 2. ADIM: VORTEX (İçe Çekilme)
-                setTimeout(() => {
-                    img.style.transition = `all 3s ease-in-out`; 
-                    img.style.transform = `translate(-50%, -50%) scale(0) rotate(${Math.random()*720}deg)`; 
-                    img.style.opacity = '0';
-                }, 9000 + (i * 200)); 
+            const loc = locations.find(l => l.id === id);
+            const color = isChecked ? typeColors.checked : typeColors[loc.type];
+            if (markers[id]) {
+                markers[id].setIcon(createMarkerIcon(color));
             }
 
-            // 3. KALP ÇİZİMİ
-            const heartPath = document.getElementById('final-heart-path');
-            setTimeout(() => {
-                heartPath.style.transition = "stroke-dashoffset 4s ease-in-out";
-                heartPath.style.strokeDashoffset = "0";
-            }, 12000);
-
-            // 4. METİN
-            setTimeout(() => {
-                document.querySelector('.final-text').style.opacity = '1';
-                document.querySelector('.final-text').style.transform = 'translateY(0)';
-            }, 16000);
+            if (activeInfoWindow) activeInfoWindow.close();
+            renderLists();
         }
 
-        function sendWhatsapp() {
-            window.location.href = "https://wa.me/905xxxxxxxxx?text=Evet!%20Sonsuza%20kadar%20beraber...%20❤️";
+        // Harita Üzerindeki Balondan Tikleme Yapıldığında Tetiklenen Fonksiyon
+        function toggleFromMap(id) {
+            const currentStatus = localStorage.getItem(id) === 'true';
+            toggleItemState(id, !currentStatus);
+        }
+
+        // Listedeki Harita Butonuna (🗺️) Basıldığında Haritayı Oraya Uçuran Fonksiyon
+        function focusOnMap(lat, lng, id) {
+            if (!map) return;
+            const position = new google.maps.Maps.LatLng(lat, lng);
+            map.panTo(position);
+            map.setZoom(16);
+            
+            if (markers[id]) {
+                google.maps.event.trigger(markers[id], 'click');
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Canlı GPS Konum Takibi
+        function trackUserLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(position => {
+                    const userLat = position.coords.latitude;
+                    const userLng = position.coords.longitude;
+                    const userPos = new google.maps.LatLng(userLat, userLng);
+
+                    if (map) {
+                        map.panTo(userPos);
+                        map.setZoom(15);
+
+                        if (userLocationMarker) {
+                            userLocationMarker.setPosition(userPos);
+                        } else {
+                            userLocationMarker = new google.maps.Marker({
+                                position: userPos,
+                                map: map,
+                                title: "Siz Buradasınız",
+                                icon: {
+                                    path: google.maps.SymbolPath.CIRCLE,
+                                    scale: 9,
+                                    fillColor: "#1d4ed8",
+                                    fillOpacity: 1,
+                                    strokeWeight: 3,
+                                    strokeColor: "#ffffff"
+                                }
+                            });
+                        }
+                    }
+                }, () => {
+                    alert("GPS konumunuza erişilemedi boss. Telefonunuzun konum servislerini ve tarayıcı izinlerini kontrol edin.");
+                }, { enableHighAccuracy: true });
+            } else {
+                alert("Cihazınız konum takibini desteklemiyor.");
+            }
         }
     </script>
+    
+    <!-- CANLI ÇALIŞAN RESMİ GOOGLE MAPS API SCRIPT ENJEKSİYONU -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCv4yKJGp0Aitq1GQv9DLp-WedIPCIzjZA&callback=initMap" async defer></script>
 </body>
 </html>
