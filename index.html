@@ -46,6 +46,16 @@
             z-index: 10;
         }
 
+        /* TAM EKRAN MODU */
+        #map-container.fullscreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 100vw;
+            z-index: 9999;
+        }
+
         #map {
             height: 100%;
             width: 100%;
@@ -65,6 +75,12 @@
             justify-content: center;
             z-index: 11;
             cursor: pointer;
+        }
+
+        /* Tam ekran butonu (sağ üst) */
+        .map-btn.fullscreen-btn {
+            top: 16px;
+            bottom: auto;
         }
 
         .map-btn svg { width: 24px; height: 24px; fill: var(--primary); }
@@ -222,6 +238,13 @@
 
         .source-tag { font-weight: 700; color: var(--primary); }
 
+        /* Kart Aksiyon Butonları (Harita + Yol Tarifi) */
+        .card-actions {
+            display: flex;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+
         .card-right-btn {
             background: #f1f5f9;
             border: none;
@@ -232,6 +255,9 @@
             justify-content: center;
             cursor: pointer;
             font-size: 14px;
+        }
+        .card-right-btn.dir-btn {
+            background: #eff6ff;
         }
 
         .type-badge {
@@ -256,6 +282,11 @@
     <!-- Canlı Harita Modülü -->
     <div id="map-container">
         <div id="map"></div>
+        <!-- Tam Ekran Butonu -->
+        <button class="map-btn fullscreen-btn" onclick="toggleFullscreen()" title="Tam Ekran">
+            <svg id="fs-icon" viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
+        </button>
+        <!-- GPS Butonu -->
         <button class="map-btn" onclick="trackUserLocation()" title="GPS Konumumu Bul">
             <svg viewBox="0 0 24 24"><path d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm8.94 3c-.46-4.17-3.77-7.48-7.94-7.94V1h-2v2.06C6.83 3.52 3.52 6.83 3.06 11H1v2h2.06c.46 4.17 3.77 7.48 7.94 7.94V23h-2v-2.06c4.17-.46 7.48-3.77 7.94-7.94H23v-2h-2.06zM12 19c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/></svg>
         </button>
@@ -264,16 +295,16 @@
     <!-- Gelişmiş Matris Filtre Paneli -->
     <div id="content-container">
         <div class="filter-panel">
-            <!-- Satır 1: Şehir Filtresi -->
+            <!-- Satır 1: Şehir Filtresi (Çoklu Seçim) -->
             <div class="filter-row" id="city-row">
-                <button class="f-btn active" onclick="filterCity('all', this)">🗺️ Tüm Şehirler</button>
-                <button class="f-btn" onclick="filterCity('tokyo', this)">🗼 Tokyo</button>
-                <button class="f-btn" onclick="filterCity('osaka', this)">🐙 Osaka</button>
-                <button class="f-btn" onclick="filterCity('kyoto', this)">🏯 Kyoto & Nara</button>
+                <button class="f-btn active" data-city="all" onclick="filterCity('all', this)">🗺️ Tüm Şehirler</button>
+                <button class="f-btn" data-city="tokyo" onclick="filterCity('tokyo', this)">🗼 Tokyo</button>
+                <button class="f-btn" data-city="osaka" onclick="filterCity('osaka', this)">🐙 Osaka</button>
+                <button class="f-btn" data-city="kyoto" onclick="filterCity('kyoto', this)">🏯 Kyoto & Nara</button>
             </div>
-            <!-- Satır 2: Kategori Filtresi & Gizleme -->
+            <!-- Satır 2: Kategori Filtresi (Çoklu Seçim) & Gizleme -->
             <div class="filter-row" id="type-row">
-                <button class="f-btn active" onclick="filterType('all', this)">📍 Hepsi</button>
+                <button class="f-btn active" data-type="all" onclick="filterType('all', this)">📍 Hepsi</button>
                 <button class="f-btn" data-type="tourist" onclick="filterType('tourist', this)">🔴 Turistik</button>
                 <button class="f-btn" data-type="food" onclick="filterType('food', this)">🟠 Gurme</button>
                 <button class="f-btn" data-type="shop" onclick="filterType('shop', this)">🔵 Alışveriş</button>
@@ -292,9 +323,9 @@
         // MASTER JAPONYA COĞRAFİ VERİ TABANI
         const locations = [
             // OTELLER
-            { id: "h1", title: "Shinjuku Okubo Airbnb", lat: 35.7015, lng: 139.7000, type: "hotel", city: "tokyo", desc: "<strong>[Konaklama / Ev]</strong> 1-4 Haziran İlk Bölge Evi | <span class='source-tag'>[Berk & Atakan'ın PDF'i]</span>" },
-            { id: "h2", title: "Granbell Hotel Osaka", lat: 34.6736, lng: 135.5015, type: "hotel", city: "osaka", desc: "<strong>[Otel]</strong> 4-7 Haziran Osaka Merkez Oteli | <span class='source-tag'>[Berk & Atakan'ın PDF'i]</span>" },
-            { id: "h3", title: "Nakano Tokyo Airbnb", lat: 35.7061, lng: 139.6656, type: "hotel", city: "tokyo", desc: "<strong>[Konaklama / Ev]</strong> 7-10 Haziran İkinci Bölge Evi | <span class='source-tag'>[Berk & Atakan'ın PDF'i]</span>" },
+            { id: "h1", title: "Shinjuku Okubo Airbnb", lat: 35.6994722, lng: 139.7063889, type: "hotel", city: "tokyo", desc: "<strong>[Konaklama / Ev]</strong> 1-4 Haziran İlk Bölge Evi | <span class='source-tag'>[Berk & Atakan'ın PDF'i]</span>" },
+            { id: "h2", title: "Granbell Hotel Osaka", lat: 34.679748, lng: 135.503825, type: "hotel", city: "osaka", desc: "<strong>[Otel]</strong> 4-7 Haziran Osaka Merkez Oteli | <span class='source-tag'>[Berk & Atakan'ın PDF'i]</span>" },
+            { id: "h3", title: "Nakano Tokyo Airbnb", lat: 35.7015177, lng: 139.6785455, type: "hotel", city: "tokyo", desc: "<strong>[Konaklama / Ev]</strong> 7-10 Haziran İkinci Bölge Evi | <span class='source-tag'>[Berk & Atakan'ın PDF'i]</span>" },
             { id: "h4", title: "Narita Airport Kapsül Otel", lat: 35.7725, lng: 140.3881, type: "hotel", city: "tokyo", desc: "<strong>[Kapsül Otel]</strong> Son Gece Havaalanı İçi Deneyimi | <span class='source-tag'>[Berk & Atakan'ın PDF'i]</span>" },
             
             // TOKYO TURİSTİK & DENEYİM
@@ -402,7 +433,7 @@
             { id: "kn13", title: "Gokago Cafe Matcha", lat: 35.0025, lng: 135.7710, type: "food", city: "kyoto", desc: "<strong>[Geleneksel Yoğun Matcha Barı]</strong> Gözünüzün önünde fırçalanarak yapılan seremonisel Matcha Latte | <span class='source-tag'>[Atakan'ın PDF'i]</span>" },
             { id: "kn14", title: "Mamemono to Taiyaki Arashiyama", lat: 35.0150, lng: 135.6765, type: "food", city: "kyoto", desc: "<strong>[Eriyen Tereyağlı Balık Kek Tatlıcısı]</strong> Sıcak balık şeklinde hamur içi taze tereyağı | <span class='source-tag'>[Atakan'ın PDF'i]</span>" },
             { id: "kn15", title: "Cicon Rooftop Bar (Nohga)", lat: 34.9961, lng: 135.7735, type: "food", city: "kyoto", desc: "<strong>[Panoramik Kyoto Manzarasına Sahip Şık Teras]</strong> Akşam kokteyli için harika manzaralı modern teras | <span class='source-tag'>[Atakan'ın PDF'i]</span>" },
-            { id: "kn16", title: "Men-ya Inoichi Ramen", lat: 35.0005, lng: 136.7668, type: "food", city: "kyoto", desc: "<strong>[Michelin Ödüllü Berrak Ramen]</strong> Berrak, duru ve hafif, ödüllü inanılmaz Kyoto rameni | <span class='source-tag'>[Atakan'ın PDF'i]</span>" },
+            { id: "kn16", title: "Men-ya Inoichi Ramen", lat: 35.0005, lng: 135.7668, type: "food", city: "kyoto", desc: "<strong>[Michelin Ödüllü Berrak Ramen]</strong> Berrak, duru ve hafif, ödüllü inanılmaz Kyoto rameni | <span class='source-tag'>[Atakan'ın PDF'i]</span>" },
             { id: "kn17", title: "Tendan Yakiniku Kyoto", lat: 35.0028, lng: 135.7722, type: "food", city: "kyoto", desc: "<span style='color:red; font-weight:bold;'>[⚠️ REZERVASYON ŞART!]</span> <strong>[Nehir Manzaralı Barbekü Restoranı]</strong> Kamogawa nehir kenarında harika kaliteli Yakiniku | <span class='source-tag'>[Atakan'ın PDF'i]</span>" },
             { id: "kn18", title: "Totegin Kintetsu Sushi Nara", lat: 34.6835, lng: 135.8280, type: "food", city: "kyoto", desc: "<strong>[Lokal Şef Sushi Barı]</strong> Nara istasyon çıkışında el yapımı harika set sushiler | <span class='source-tag'>[Clarissa's PDF]</span>" }
         ];
@@ -412,10 +443,10 @@
         let userLocationMarker = null;
         let activeInfoWindow = null;
 
-        // MATRİS FİLTRE DURUMU (State Management)
+        // MATRİS FİLTRE DURUMU (Çoklu Seçim - Set tabanlı)
         const activeFilters = {
-            city: 'all',
-            type: 'all',
+            cities: new Set(),   // boş = tüm şehirler
+            types: new Set(),    // boş = tüm kategoriler
             hideChecked: false
         };
 
@@ -457,8 +488,11 @@
                         <div style="font-family:sans-serif; padding:4px; max-width:210px;">
                             <h4 style="margin:0 0 4px 0; font-size:14px; color:#1e293b;">${loc.title}</h4>
                             <p style="margin:0 0 8px 0; font-size:11px; color:#64748b;">${loc.desc}</p>
-                            <button onclick="toggleFromMap('${loc.id}')" style="background:${isChecked ? '#ef4444':'#10b981'}; color:white; border:none; padding:8px 10px; border-radius:6px; font-size:11px; font-weight:bold; width:100%; cursor:pointer;">
+                            <button onclick="toggleFromMap('${loc.id}')" style="background:${isChecked ? '#ef4444':'#10b981'}; color:white; border:none; padding:8px 10px; border-radius:6px; font-size:11px; font-weight:bold; width:100%; cursor:pointer; margin-bottom:6px;">
                                 ${isChecked ? 'Yapılmadı İşaretle' : 'Gezildi / Tamamlandı'}
+                            </button>
+                            <button onclick="getDirections(${loc.lat}, ${loc.lng})" style="background:#1d4ed8; color:white; border:none; padding:8px 10px; border-radius:6px; font-size:11px; font-weight:bold; width:100%; cursor:pointer;">
+                                🧭 Yol Tarifi Al
                             </button>
                         </div>`
                 });
@@ -488,19 +522,53 @@
             };
         }
 
-        // Filtre Fonksiyonları (Şehir)
+        // Filtre Fonksiyonları (Şehir - Çoklu Seçim)
         function filterCity(cityCode, btnElement) {
-            activeFilters.city = cityCode;
-            document.querySelectorAll('#city-row .f-btn').forEach(btn => btn.classList.remove('active'));
-            btnElement.classList.add('active');
+            const allBtn = document.querySelector('#city-row .f-btn[data-city="all"]');
+            if (cityCode === 'all') {
+                activeFilters.cities.clear();
+                document.querySelectorAll('#city-row .f-btn').forEach(btn => btn.classList.remove('active'));
+                allBtn.classList.add('active');
+            } else {
+                if (activeFilters.cities.has(cityCode)) {
+                    activeFilters.cities.delete(cityCode);
+                    btnElement.classList.remove('active');
+                } else {
+                    activeFilters.cities.add(cityCode);
+                    btnElement.classList.add('active');
+                }
+                // Hiç seçim yoksa "Tüm Şehirler"e geri dön
+                if (activeFilters.cities.size === 0) {
+                    allBtn.classList.add('active');
+                } else {
+                    allBtn.classList.remove('active');
+                }
+            }
             applyGlobalFilters();
         }
 
-        // Filtre Fonksiyonları (Kategori)
+        // Filtre Fonksiyonları (Kategori - Çoklu Seçim)
         function filterType(typeCode, btnElement) {
-            activeFilters.type = typeCode;
-            document.querySelectorAll('#type-row .f-btn:not(.toggle-btn)').forEach(btn => btn.classList.remove('active'));
-            btnElement.classList.add('active');
+            const allBtn = document.querySelector('#type-row .f-btn[data-type="all"]');
+            if (typeCode === 'all') {
+                activeFilters.types.clear();
+                document.querySelectorAll('#type-row .f-btn:not(.toggle-btn)').forEach(btn => btn.classList.remove('active'));
+                allBtn.classList.add('active');
+            } else {
+                if (activeFilters.types.has(typeCode)) {
+                    activeFilters.types.delete(typeCode);
+                    btnElement.classList.remove('active');
+                } else {
+                    activeFilters.types.add(typeCode);
+                    btnElement.classList.add('active');
+                }
+                // Hiç seçim yoksa "Hepsi"ye geri dön
+                if (activeFilters.types.size === 0) {
+                    allBtn.classList.add('active');
+                } else {
+                    allBtn.classList.remove('active');
+                }
+            }
             applyGlobalFilters();
         }
 
@@ -509,6 +577,22 @@
             activeFilters.hideChecked = !activeFilters.hideChecked;
             btnElement.classList.toggle('active', activeFilters.hideChecked);
             applyGlobalFilters();
+        }
+
+        // Tam Ekran Aç/Kapat
+        function toggleFullscreen() {
+            const container = document.getElementById('map-container');
+            container.classList.toggle('fullscreen');
+            // Harita boyutu değiştiği için yeniden çiz
+            setTimeout(() => {
+                if (map) google.maps.event.trigger(map, 'resize');
+            }, 120);
+        }
+
+        // Yol Tarifi Al - Google Maps'e direkt yönlendir
+        function getDirections(lat, lng) {
+            const url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=transit`;
+            window.open(url, '_blank');
         }
 
         // ANA MATRİS FİLTRE MOTORU (Hem Haritayı Hem Listeyi Aynı Anda Günceller)
@@ -521,9 +605,9 @@
             locations.forEach(loc => {
                 const isChecked = localStorage.getItem(loc.id) === 'true';
                 
-                // Filtre Eşleşme Kontrolleri
-                const matchCity = (activeFilters.city === 'all' || loc.city === activeFilters.city);
-                const matchType = (activeFilters.type === 'all' || loc.type === activeFilters.type);
+                // Çoklu Filtre Eşleşme Kontrolleri
+                const matchCity = (activeFilters.cities.size === 0 || activeFilters.cities.has(loc.city));
+                const matchType = (activeFilters.types.size === 0 || activeFilters.types.has(loc.type));
                 const matchChecked = !(activeFilters.hideChecked && isChecked);
 
                 const finalVisibility = matchCity && matchType && matchChecked;
@@ -555,8 +639,8 @@
 
             const filteredList = locations.filter(loc => {
                 const isChecked = localStorage.getItem(loc.id) === 'true';
-                const matchCity = (activeFilters.city === 'all' || loc.city === activeFilters.city);
-                const matchType = (activeFilters.type === 'all' || loc.type === activeFilters.type);
+                const matchCity = (activeFilters.cities.size === 0 || activeFilters.cities.has(loc.city));
+                const matchType = (activeFilters.types.size === 0 || activeFilters.types.has(loc.type));
                 const matchChecked = !(activeFilters.hideChecked && isChecked);
                 return matchCity && matchType && matchChecked;
             });
@@ -580,9 +664,10 @@
                             <span class="card-desc">${loc.desc}</span>
                         </div>
                     </div>
-                    <button class="card-right-btn" onclick="focusOnMap(${loc.lat}, ${loc.lng}, '${loc.id}')" title="Haritada Odaklan">
-                        🗺️
-                    </button>
+                    <div class="card-actions">
+                        <button class="card-right-btn" onclick="focusOnMap(${loc.lat}, ${loc.lng}, '${loc.id}')" title="Haritada Odaklan">🗺️</button>
+                        <button class="card-right-btn dir-btn" onclick="getDirections(${loc.lat}, ${loc.lng})" title="Yol Tarifi Al">🧭</button>
+                    </div>
                 `;
                 container.appendChild(card);
             });
