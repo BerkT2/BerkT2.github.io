@@ -227,6 +227,44 @@
         .badge-shop { background: var(--shop-color); }
         .badge-hotel { background: var(--hotel-color); }
         .badge-checked { background: var(--success); }
+
+        /* Notlar Tabu İçin Özel Stil Tasarımları */
+        .note-block {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: var(--radius);
+            padding: 16px;
+            margin-bottom: 12px;
+            box-shadow: var(--shadow);
+        }
+        .note-block h3 {
+            font-size: 15px;
+            color: var(--primary);
+            margin-bottom: 10px;
+            font-weight: 800;
+            border-bottom: 2px solid #f1f5f9;
+            padding-bottom: 6px;
+        }
+        .note-block ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        .note-block li {
+            font-size: 13px;
+            color: var(--text-color);
+            margin-bottom: 8px;
+            position: relative;
+            padding-left: 14px;
+            line-height: 1.4;
+        }
+        .note-block li::before {
+            content: "•";
+            color: var(--primary);
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+            top: 0;
+        }
     </style>
 </head>
 <body>
@@ -243,11 +281,11 @@
     <div id="content-container">
         <div class="tabs-wrapper">
             <div class="tabs-scroll">
-                <button class="tab-btn active" onclick="switchSection('tokyo')">🗼 Tokyo</button>
-                <button class="tab-btn" onclick="switchSection('osaka')">🐙 Osaka</button>
-                <button class="tab-btn" onclick="switchSection('kyoto')">🏯 Kyoto & Nara</button>
-                <button class="tab-btn" onclick="switchSection('food')">🥩 Yenilecekler</button>
-                <button class="tab-btn" onclick="switchSection('shopping')">🛒 Alışveriş Yerleri</button>
+                <button class="tab-btn active" onclick="switchSection('tokyo', this)">🗼 Tokyo</button>
+                <button class="tab-btn" onclick="switchSection('osaka', this)">🐙 Osaka</button>
+                <button class="tab-btn" onclick="switchSection('kyoto', this)">🏯 Kyoto & Nara</button>
+                <button class="tab-btn" onclick="switchSection('food', this)">🥩 Yenilecekler</button>
+                <button class="tab-btn" onclick="switchSection('shopping', this)">🛒 Alışveriş Yerleri</button>
             </div>
         </div>
 
@@ -257,22 +295,22 @@
     </div>
 
     <script>
-        // MASTER JAPONYA COĞRAFİ VERİ TABANI (Kaynak Atamaları Tamamen Gerçekleştirilmiştir)
+        // MASTER JAPONYA COĞRAFİ VERİ TABANI
         const locations = [
             // OTELLER
-            { id: "h1", title: "Shinjuku Okubo Airbnb", lat: 35.7015, lng: 139.7000, type: "hotel", city: "tokyo", desc: "1-4 Haziran Konaklama | <span class='source-tag'>[Berk'in Notları]</span>" },
-            { id: "h2", title: "Granbell Hotel Osaka", lat: 34.6736, lng: 135.5015, type: "hotel", city: "osaka", desc: "4-7 Haziran Konaklama | <span class='source-tag'>[Berk'in Notları]</span>" },
-            { id: "h3", title: "Nakano Tokyo Airbnb", lat: 35.7061, lng: 139.6656, type: "hotel", city: "tokyo", desc: "7-10 Haziran Konaklama | <span class='source-tag'>[Berk'in Notları]</span>" },
-            { id: "h4", title: "Narita Airport Kapsül Otel", lat: 35.7725, lng: 140.3881, type: "hotel", city: "tokyo", desc: "Son Gece Kapsül Otel Deneyimi | <span class='source-tag'>[Berk'in Notları]</span>" },
+            { id: "h1", title: "Shinjuku Okubo Airbnb", lat: 35.7015, lng: 139.7000, type: "hotel", city: "tokyo", desc: "1-4 Haziran Konaklama | <span class='source-tag'>[Berk & Atakan'ın PDF'i]</span>" },
+            { id: "h2", title: "Granbell Hotel Osaka", lat: 34.6736, lng: 135.5015, type: "hotel", city: "osaka", desc: "4-7 Haziran Konaklama | <span class='source-tag'>[Berk & Atakan'ın PDF'i]</span>" },
+            { id: "h3", title: "Nakano Tokyo Airbnb", lat: 35.7061, lng: 139.6656, type: "hotel", city: "tokyo", desc: "7-10 Haziran Konaklama | <span class='source-tag'>[Berk & Atakan'ın PDF'i]</span>" },
+            { id: "h4", title: "Narita Airport Kapsül Otel", lat: 35.7725, lng: 140.3881, type: "hotel", city: "tokyo", desc: "Son Gece Kapsül Otel Deneyimi | <span class='source-tag'>[Berk & Atakan'ın PDF'i]</span>" },
             
             // TOKYO TURİSTİK & DENEYİM
-            { id: "tk1", title: "Shibuya Crossing & Hachiko", lat: 35.6595, lng: 139.7005, type: "tourist", city: "tokyo", desc: "Ünlü yaya geçidi ve Hachiko heykeli | <span class='source-tag'>[Berk'in Notları, Clarissa & Atakan]</span>" },
+            { id: "tk1", title: "Shibuya Crossing & Hachiko", lat: 35.6595, lng: 139.7005, type: "tourist", city: "tokyo", desc: "Ünlü yaya geçidi ve Hachiko heykeli | <span class='source-tag'>[Berk, Clarissa & Atakan]</span>" },
             { id: "tk2", title: "Shibuya Sky", lat: 35.6586, lng: 139.7015, type: "tourist", city: "tokyo", desc: "Çatı terasından Tokyo manzarası | <span class='source-tag'>[Clarissa's PDF & Atakan'ın PDF'i]</span>" },
             { id: "tk3", title: "Meiji Jingu Tapınağı", lat: 35.6764, lng: 139.6993, type: "tourist", city: "tokyo", desc: "Ormanlık alan içerisindeki Şinto tapınağı | <span class='source-tag'>[Clarissa's PDF & Atakan'ın PDF'i]</span>" },
-            { id: "tk4", title: "Takeshita Street Harajuku", lat: 35.6716, lng: 139.7032, type: "tourist", city: "tokyo", desc: "Gençlik modası, mağazalar ve krepler | <span class='source-tag'>[Berk'in Notları, Clarissa & Atakan]</span>" },
-            { id: "tk5", title: "Asakusa Senso-ji Tapınağı", lat: 35.7148, lng: 139.7967, type: "tourist", city: "tokyo", desc: "Tokyo'nun en eski tapınağı ve Omikuji falı | <span class='source-tag'>[Berk'in Notları, Clarissa & Atakan]</span>" },
-            { id: "tk6", title: "teamLab Planets Tokyo", lat: 35.6489, lng: 139.7905, type: "tourist", city: "tokyo", desc: "Toyosu bölgesindeki çıplak ayaklı dijital müze | <span class='source-tag'>[Berk'in Notları & Clarissa's PDF]</span>" },
-            { id: "tk7", title: "Akihabara Electric Town", lat: 35.6997, lng: 139.7715, type: "tourist", city: "tokyo", desc: "Anime, oyun, neon ışıklar ve teknoloji | <span class='source-tag'>[Berk'in Notları, Clarissa & Atakan]</span>" },
+            { id: "tk4", title: "Takeshita Street Harajuku", lat: 35.6716, lng: 139.7032, type: "tourist", city: "tokyo", desc: "Gençlik modası, mağazalar ve krepler | <span class='source-tag'>[Berk, Clarissa & Atakan]</span>" },
+            { id: "tk5", title: "Asakusa Senso-ji Tapınağı", lat: 35.7148, lng: 139.7967, type: "tourist", city: "tokyo", desc: "Tokyo'nun en eski tapınağı ve Omikuji falı | <span class='source-tag'>[Berk, Clarissa & Atakan]</span>" },
+            { id: "tk6", title: "teamLab Planets Tokyo", lat: 35.6489, lng: 139.7905, type: "tourist", city: "tokyo", desc: "Toyosu bölgesindeki çıplak ayaklı dijital müze | <span class='source-tag'>[Berk & Clarissa's PDF]</span>" },
+            { id: "tk7", title: "Akihabara Electric Town", lat: 35.6997, lng: 139.7715, type: "tourist", city: "tokyo", desc: "Anime, oyun, neon ışıklar ve teknoloji | <span class='source-tag'>[Berk, Clarissa & Atakan]</span>" },
             { id: "tk8", title: "Shinjuku Gyoen National Garden", lat: 35.6852, lng: 139.7101, type: "tourist", city: "tokyo", desc: "Geleneksel yeşil imparatorluk parkı | <span class='source-tag'>[Clarissa's PDF]</span>" },
             { id: "tk9", title: "Chidorigafuchi Moat", lat: 35.6905, lng: 139.7472, type: "tourist", city: "tokyo", desc: "İmparatorluk Sarayı hendeğinde kayık kiralama | <span class='source-tag'>[Clarissa's PDF]</span>" },
             { id: "tk10", title: "Daikoku Car Meet", lat: 35.4624, lng: 139.6803, type: "tourist", city: "tokyo", desc: "Dünyaca ünlü modifiyeli Japon arabaları buluşması | <span class='source-tag'>[Clarissa's PDF]</span>" },
@@ -280,7 +318,7 @@
             { id: "tk12", title: "Kabukicho & Godzilla Road", lat: 35.6938, lng: 139.7017, type: "tourist", city: "tokyo", desc: "Shinjuku gece hayatı ve dev Godzilla kafası | <span class='source-tag'>[Atakan'ın PDF'i]</span>" },
             { id: "tk13", title: "Owl Cafe Ginza Mafu Mafu", lat: 35.6710, lng: 139.7650, type: "tourist", city: "tokyo", desc: "Ginza'da baykuşlarla yakın temas konsept kafe | <span class='source-tag'>[Clarissa's PDF]</span>" },
             { id: "tk14", title: "Pokemon Cafe Nihonbashi", lat: 35.6811, lng: 139.7731, type: "tourist", city: "tokyo", desc: "Popüler tematik Pokemon restoran zinciri | <span class='source-tag'>[Atakan'ın PDF'i]</span>" },
-            { id: "tk15", title: "Dawn Robot Avatar Cafe", lat: 35.6876, lng: 139.7735, type: "tourist", city: "tokyo", desc: "Robot garsonların çalıştığı fütüristik mekan | <span class='source-tag'>[Berk'in Notları & Atakan'ın PDF'i]</span>" },
+            { id: "tk15", title: "Dawn Robot Avatar Cafe", lat: 35.6876, lng: 139.7735, type: "tourist", city: "tokyo", desc: "Robot garsonların çalıştığı fütüristik mekan | <span class='source-tag'>[Berk & Atakan'ın PDF'i]</span>" },
             { id: "tk16", title: "Tokyo Tower", lat: 35.6586, lng: 139.7454, type: "tourist", city: "tokyo", desc: "Tokyo'nun ikonik kırmızı kulesi ve gece ışıkları | <span class='source-tag'>[Clarissa's PDF]</span>" },
             
             // TOKYO GURME / YENİLECEKLER
@@ -297,40 +335,40 @@
             { id: "tf11", title: "Giraffa Asakusa", lat: 35.7120, lng: 139.7950, type: "food", city: "tokyo", desc: "Dışı çıtır içi sıcak peynirli körili ekmek | <span class='source-tag'>[Atakan'ın PDF'i]</span>" },
             { id: "tf12", title: "Yakiniku Panga Ueno", lat: 35.7072, lng: 139.7788, type: "food", city: "tokyo", desc: "Kusursuz ızgara Wagyu Beef deneyimi | <span class='source-tag'>[Atakan'ın PDF'i]</span>" },
             { id: "tf13", title: "Shima Steak Takeaway Ginza", lat: 35.6720, lng: 139.7660, type: "food", city: "tokyo", desc: "Efsanevi Wagyu etli lüks sandviç paketi | <span class='source-tag'>[Atakan'ın PDF'i]</span>" },
-            { id: "tf14", title: "Mogami Wagyu Ginza", lat: 35.6724, lng: 139.7628, type: "food", city: "tokyo", desc: "LaLa Grande Ginza 1F bünyesinde devasa Wagyu biftekleri | <span class='source-tag'>[Berk'in Notları]</span>" },
+            { id: "tf14", title: "Mogami Wagyu Ginza", lat: 35.6724, lng: 139.7628, type: "food", city: "tokyo", desc: "LaLa Grande Ginza 1F bünyesinde devasa Wagyu biftekleri | <span class='source-tag'>[Berk]</span>" },
             { id: "tf15", title: "Canton8 Ginza", lat: 35.6685, lng: 139.7635, type: "food", city: "tokyo", desc: "Dünyanın en ekonomik Michelin yıldızlı restoranı | <span class='source-tag'>[Atakan'ın PDF'i]</span>" },
             { id: "tf16", title: "Chermside Sandwiches Shibuya", lat: 35.6610, lng: 139.7010, type: "food", city: "tokyo", desc: "Harika marine edilmiş etli gurme sandviç barı | <span class='source-tag'>[Atakan'ın PDF'i]</span>" },
             
             // TOKYO ALIŞVERİŞ NOKTALARI
-            { id: "ts1", title: "Uniqlo Ginza Flagship Store", lat: 35.6703, lng: 139.7640, type: "shop", city: "tokyo", desc: "Dünyanın en büyük 12 katlı devasa Uniqlo binası | <span class='source-tag'>[Berk'in Notları & Atakan'ın PDF'i]</span>" },
-            { id: "ts2", title: "Uniqlo TOKYO (Marunouchi)", lat: 35.6732, lng: 139.7645, type: "shop", city: "tokyo", desc: "Ginza yakınlarındaki devasa konsept Uniqlo mağazası | <span class='source-tag'>[Berk'in Notları & Atakan'ın PDF'i]</span>" },
-            { id: "ts3", title: "Uniqlo Shinjuku Hanten", lat: 35.6912, lng: 139.7030, type: "shop", city: "tokyo", desc: "Shinjuku bölgesindeki büyük Uniqlo şubesi | <span class='source-tag'>[Berk'in Notları & Atakan'ın PDF'i]</span>" },
-            { id: "ts4", title: "Mega Don Quijote Shibuya", lat: 35.6605, lng: 139.6975, type: "shop", city: "tokyo", desc: "7 katlı en popüler DonKi; abur cubur ve Matchalı her şey | <span class='source-tag'>[Berk'in Notları & Atakan'ın PDF'i]</span>" },
-            { id: "ts5", title: "Don Quijote Shinjuku Kabukicho", lat: 35.6951, lng: 139.7021, type: "shop", city: "tokyo", desc: "Okubo'ya en yakın 24 saat açık DonKi şubesi | <span class='source-tag'>[Berk'in Notları & Atakan'ın PDF'i]</span>" },
-            { id: "ts6", title: "ABC-Mart Grand Stage Shibuya", lat: 35.6611, lng: 139.6985, type: "shop", city: "tokyo", desc: "Özel ve nadir ayakkabı modellerinin bulunduğu devasa şube | <span class='source-tag'>[Berk'in Notları & Atakan'ın PDF'i]</span>" },
-            { id: "ts7", title: "ABC-Mart Grand Stage Shinjuku", lat: 35.6918, lng: 139.7022, type: "shop", city: "tokyo", desc: "Shinjuku bölgesinin en büyük spor ayakkabı kompleksi | <span class='source-tag'>[Berk'in Notları & Atakan'ın PDF'i]</span>" },
-            { id: "ts8", title: "ABC-Mart Grand Stage Ginza", lat: 35.6713, lng: 139.7644, type: "shop", city: "tokyo", desc: "Ginza caddesindeki şık ve büyük ABC-Mart binası | <span class='source-tag'>[Berk'in Notları & Atakan'ın PDF'i]</span>" },
-            { id: "ts9", title: "Yodobashi Camera Akihabara", lat: 35.6987, lng: 139.7748, type: "shop", city: "tokyo", desc: "Çıkışı zor olan devasa teknoloji, saat ve hobi sarayı | <span class='source-tag'>[Berk'in Notları & Atakan'ın PDF'i]</span>" },
-            { id: "ts10", title: "Yodobashi Camera Shinjuku", lat: 35.6896, lng: 139.6970, type: "shop", city: "tokyo", desc: "Shinjuku istasyonu yanındaki çok katlı elektronik merkezi | <span class='source-tag'>[Berk'in Notları & Atakan'ın PDF'i]</span>" },
-            { id: "ts11", title: "Bic Camera Shinjuku East", lat: 35.6917, lng: 139.7032, type: "shop", city: "tokyo", desc: "Teknoloji, tırnak makasları ve hobi zinciri | <span class='source-tag'>[Berk'in Notları & Atakan'ın PDF'i]</span>" },
+            { id: "ts1", title: "Uniqlo Ginza Flagship Store", lat: 35.6703, lng: 139.7640, type: "shop", city: "tokyo", desc: "Dünyanın en büyük 12 katlı devasa Uniqlo binası | <span class='source-tag'>[Berk & Atakan'ın PDF'i]</span>" },
+            { id: "ts2", title: "Uniqlo TOKYO (Marunouchi)", lat: 35.6732, lng: 139.7645, type: "shop", city: "tokyo", desc: "Ginza yakınlarındaki devasa konsept Uniqlo mağazası | <span class='source-tag'>[Berk & Atakan'ın PDF'i]</span>" },
+            { id: "ts3", title: "Uniqlo Shinjuku Hanten", lat: 35.6912, lng: 139.7030, type: "shop", city: "tokyo", desc: "Shinjuku bölgesindeki büyük Uniqlo şubesi | <span class='source-tag'>[Berk & Atakan'ın PDF'i]</span>" },
+            { id: "ts4", title: "Mega Don Quijote Shibuya", lat: 35.6605, lng: 139.6975, type: "shop", city: "tokyo", desc: "7 katlı en popüler DonKi; abur cubur ve Matchalı her şey | <span class='source-tag'>[Berk & Atakan'ın PDF'i]</span>" },
+            { id: "ts5", title: "Don Quijote Shinjuku Kabukicho", lat: 35.6951, lng: 139.7021, type: "shop", city: "tokyo", desc: "Okubo'ya en yakın 24 saat açık DonKi şubesi | <span class='source-tag'>[Berk & Atakan'ın PDF'i]</span>" },
+            { id: "ts6", title: "ABC-Mart Grand Stage Shibuya", lat: 35.6611, lng: 139.6985, type: "shop", city: "tokyo", desc: "Özel ve nadir ayakkabı modellerinin bulunduğu devasa şube | <span class='source-tag'>[Berk & Atakan'ın PDF'i]</span>" },
+            { id: "ts7", title: "ABC-Mart Grand Stage Shinjuku", lat: 35.6918, lng: 139.7022, type: "shop", city: "tokyo", desc: "Shinjuku bölgesinin en büyük spor ayakkabı kompleksi | <span class='source-tag'>[Berk & Atakan'ın PDF'i]</span>" },
+            { id: "ts8", title: "ABC-Mart Grand Stage Ginza", lat: 35.6713, lng: 139.7644, type: "shop", city: "tokyo", desc: "Ginza caddesindeki şık ve büyük ABC-Mart binası | <span class='source-tag'>[Berk & Atakan'ın PDF'i]</span>" },
+            { id: "ts9", title: "Yodobashi Camera Akihabara", lat: 35.6987, lng: 139.7748, type: "shop", city: "tokyo", desc: "Çıkışı zor olan devasa teknoloji, saat ve hobi sarayı | <span class='source-tag'>[Berk & Atakan'ın PDF'i]</span>" },
+            { id: "ts10", title: "Yodobashi Camera Shinjuku", lat: 35.6896, lng: 139.6970, type: "shop", city: "tokyo", desc: "Shinjuku istasyonu yanındaki çok katlı elektronik merkezi | <span class='source-tag'>[Berk & Atakan'ın PDF'i]</span>" },
+            { id: "ts11", title: "Bic Camera Shinjuku East", lat: 35.6917, lng: 139.7032, type: "shop", city: "tokyo", desc: "Teknoloji, tırnak makasları ve hobi zinciri | <span class='source-tag'>[Berk & Atakan'ın PDF'i]</span>" },
             { id: "ts12", title: "Ginza Karen Valiz Mağazası", lat: 35.6693, lng: 139.7661, type: "shop", city: "tokyo", desc: "Dönüş valizlerini ucuza toplamak için ünlü çanta dükkanı | <span class='source-tag'>[Atakan'ın PDF'i]</span>" },
-            { id: "ts13", title: "Daiso Harajuku (Takeshita)", lat: 35.6713, lng: 139.7041, type: "shop", city: "tokyo", desc: "Sabit 100 Yen olan devasa Harajuku ucuzluk dükkanı | <span class='source-tag'>[Berk'in Notları]</span>" },
-            { id: "ts14", title: "Can Do Shinjuku PEPE", lat: 35.6953, lng: 139.7003, type: "shop", city: "tokyo", desc: "Büyük 100 Yen Japon tırnak makası/hediyelik dükkanı | <span class='source-tag'>[Berk'in Notları]</span>" },
-            { id: "ts15", title: "Seria Shibuya (Magnet AVM)", lat: 35.6596, lng: 139.7011, type: "shop", city: "tokyo", desc: "Kaliteli tasarımlara sahip 100 Yen dükkanı alternatifi | <span class='source-tag'>[Berk'in Notları]</span>" },
+            { id: "ts13", title: "Daiso Harajuku (Takeshita)", lat: 35.6713, lng: 139.7041, type: "shop", city: "tokyo", desc: "Sabit 100 Yen olan devasa Harajuku ucuzluk dükkanı | <span class='source-tag'>[Berk]</span>" },
+            { id: "ts14", title: "Can Do Shinjuku PEPE", lat: 35.6953, lng: 139.7003, type: "shop", city: "tokyo", desc: "Büyük 100 Yen Japon tırnak makası/hediyelik dükkanı | <span class='source-tag'>[Berk]</span>" },
+            { id: "ts15", title: "Seria Shibuya (Magnet AVM)", lat: 35.6596, lng: 139.7011, type: "shop", city: "tokyo", desc: "Kaliteli tasarımlara sahip 100 Yen dükkanı alternatifi | <span class='source-tag'>[Berk]</span>" },
             { id: "ts16", title: "Nakano Broadway Pasajı", lat: 35.7090, lng: 139.6655, type: "shop", city: "tokyo", desc: "Lüks ikinci el saatçiler ve retro oyuncak dükkanları | <span class='source-tag'>[Atakan'ın PDF'i]</span>" },
             
             // TOKYO ÖZEL SENTO / ONSEN DENEYİMLERİ
-            { id: "on1", title: "Matsumoto-yu Sento", lat: 35.7099, lng: 138.6828, type: "tourist", city: "tokyo", desc: "Geleneksel Japon hamamı ve derin sauna havuzları | <span class='source-tag'>[Berk'in Notları]</span>" },
-            { id: "on2", title: "Koganeyu Onsen", lat: 35.6925, lng: 139.8142, type: "tourist", city: "tokyo", desc: "Modern hipster tasarımlı, içeride bira muslukları olan hamam | <span class='source-tag'>[Berk'in Notları]</span>" },
-            { id: "on3", title: "Daikoku-yu Sento", lat: 35.7121, lng: 139.8188, type: "tourist", city: "tokyo", desc: "Skytree manzaralı açık hava havuzlu otantik sento | <span class='source-tag'>[Berk'in Notları]</span>" },
+            { id: "on1", title: "Matsumoto-yu Sento", lat: 35.7099, lng: 139.6828, type: "tourist", city: "tokyo", desc: "Geleneksel Japon hamamı ve derin sauna havuzları | <span class='source-tag'>[Berk]</span>" },
+            { id: "on2", title: "Koganeyu Onsen", lat: 35.6925, lng: 139.8142, type: "tourist", city: "tokyo", desc: "Modern hipster tasarımlı, içeride bira muslukları olan hamam | <span class='source-tag'>[Berk]</span>" },
+            { id: "on3", title: "Daikoku-yu Sento", lat: 35.7121, lng: 139.8188, type: "tourist", city: "tokyo", desc: "Skytree manzaralı açık hava havuzlu otantik sento | <span class='source-tag'>[Berk]</span>" },
 
             // OSAKA TURİSTİK & DENEYİM
             { id: "ok1", title: "Dotonbori Glico Man", lat: 34.6687, lng: 135.5013, type: "tourist", city: "osaka", desc: "Osaka'nın kalbi, neon tabelalar ve nehir hattı | <span class='source-tag'>[Clarissa's PDF & Atakan'ın PDF'i]</span>" },
             { id: "ok2", title: "Namba Yasaka Tapınağı", lat: 34.6616, lng: 135.4966, type: "tourist", city: "osaka", desc: "Dev aslan kafası formundaki ikonik büyük tapınak | <span class='source-tag'>[Atakan'ın PDF'i]</span>" },
-            { id: "ok3", title: "Ikoma Sanjo Sky Cycle", lat: 34.6789, lng: 135.6833, type: "tourist", city: "osaka", desc: "Gün batımında raylar üzerinde bisikletle şehir izleme | <span class='source-tag'>[Berk'in Notları & Atakan'ın PDF'i]</span>" },
-            { id: "ok4", title: "Shinsekai & Tsutentaku Kulesi", lat: 34.6525, lng: 135.5063, type: "tourist", city: "osaka", desc: "Nostaljik ve retro fütüristik sokak lezzetleri caddesi | <span class='source-tag'>[Atakan'ın PDF'i]</span>" },
+            { id: "ok3", title: "Ikoma Sanjo Sky Cycle", lat: 34.6789, lng: 135.6833, type: "tourist", city: "osaka", desc: "Gün batımında raylar üzerinde bisikletle şehir izleme | <span class='source-tag'>[Berk & Atakan'ın PDF'i]</span>" },
+            { id: "ok4", title: "Shinsekai & Tsutentaku Kulesi", lat: 34.6525, lng: 135.5063, type: "tourist", city: "osaka", desc: "Nostaljik ve retro fütüristik Osaka sokak lezzetleri caddesi | <span class='source-tag'>[Atakan'ın PDF'i]</span>" },
             { id: "ok5", title: "Osaka Castle", lat: 34.6873, lng: 135.5262, type: "tourist", city: "osaka", desc: "Geniş su hendekleriyle çevrili efsanevi tarihi şato parkı | <span class='source-tag'>[Atakan'ın PDF'i]</span>" },
-            { id: "ok6", title: "Universal Studios Japan (USJ)", lat: 34.6654, lng: 135.4323, type: "tourist", city: "osaka", desc: "Büyük macera parkı, Nintendo Dünyası ve Harry Potter | <span class='source-tag'>[Clarissa's PDF & Atakan'ın PDF'i]</span>" },
+            { id: "ok6", title: "Universal Studios Japan (USJ)", lat: 34.6654, lng: 135.4323, type: "tourist", city: "osaka", desc: "Büyük macera parkı, Nintendo Dünyası og Harry Potter | <span class='source-tag'>[Clarissa's PDF & Atakan'ın PDF'i]</span>" },
             { id: "ok7", title: "Kaiyukan Akvaryum", lat: 34.6545, lng: 135.4289, type: "tourist", city: "osaka", desc: "Balina köpekbalıklarının yaşadığı devasa dünya akvaryumu | <span class='source-tag'>[Atakan'ın PDF'i]</span>" },
             { id: "ok8", title: "Abeno Harukas Gözlem Kulesi", lat: 34.6458, lng: 135.5139, type: "tourist", city: "osaka", desc: "Osaka'nın en yüksek gökdelenlerinden panoramik cam teras | <span class='source-tag'>[Atakan'ın PDF'i]</span>" },
             { id: "ok9", title: "Umeda Sky Building", lat: 34.7053, lng: 135.4902, type: "tourist", city: "osaka", desc: "Açık havada iki kuleyi birleştiren meşhur teras | <span class='source-tag'>[Clarissa's PDF & Atakan'ın PDF'i]</span>" },
@@ -338,17 +376,17 @@
             { id: "ok11", title: "Solaniwa Onsen Osaka", lat: 34.6662, lng: 135.4611, type: "tourist", city: "osaka", desc: "Yukatalarla gezilen devasa tema parkı onsen kompleksi | <span class='source-tag'>[Atakan'ın PDF'i]</span>" },
             
             // OSAKA GURME & ALIŞVERİŞ
-            { id: "of1", title: "Tempura Makino Namba", lat: 34.6644, lng: 135.5015, type: "food", city: "osaka", desc: "Önünüzde kızartılan pirinç üzeri çıtır tempura (Tendon) | <span class='source-tag'>[Berk'in Notları & Atakan'ın PDF'i]</span>" },
+            { id: "of1", title: "Tempura Makino Namba", lat: 34.6644, lng: 135.5015, type: "food", city: "osaka", desc: "Önünüzde kızartılan pirinç üzeri çıtır tempura (Tendon) | <span class='source-tag'>[Berk & Atakan'ın PDF'i]</span>" },
             { id: "of2", title: "Kuromon Ichiba Market", lat: 34.6656, lng: 135.5061, type: "food", city: "osaka", desc: "Osaka sokak yemeklerinin kalbi, taze ürün tezgahları | <span class='source-tag'>[Clarissa's PDF & Atakan'ın PDF'i]</span>" },
             { id: "of3", title: "Sushi Sakaba Teppei", lat: 34.6680, lng: 135.5020, type: "food", city: "osaka", desc: "Lokal ve popüler Osaka sushi barı alternatifi | <span class='source-tag'>[Clarissa's PDF]</span>" },
             { id: "of4", title: "Taian Restoran", lat: 34.6745, lng: 135.5122, type: "food", city: "osaka", desc: "3 Michelin yıldızlı kusursuz geleneksel gurme akşam yemeği | <span class='source-tag'>[Clarissa's PDF & Atakan'ın PDF'i]</span>" },
-            { id: "os1", title: "Object Osaka Store", lat: 34.6695, lng: 135.4940, type: "shop", city: "osaka", desc: "Kılıf ve çantalara özel armalar tasarlayacağınız patch mağazası | <span class='source-tag'>[Berk'in Notları]</span>" },
-            { id: "os2", title: "Amerikamura Street & Kindal", lat: 34.6715, lng: 135.4984, type: "shop", city: "osaka", desc: "İkinci el vintage modası ve sokak kültürü dükkanları | <span class='source-tag'>[Atakan'ın PDF'i]</span>" },
-            { id: "os3", title: "Uniqlo Shinsaibashi Global Store", lat: 34.6738, lng: 135.5013, type: "shop", city: "osaka", desc: "Osaka bölgesinin en büyük çok katlı amiral gemisi Uniqlo binası | <span class='source-tag'>[Berk'in Notları & Atakan'ın PDF'i]</span>" },
-            { id: "os4", title: "ABC-Mart Grand Stage Shinsaibashi", lat: 34.6725, lng: 135.5015, type: "shop", city: "osaka", desc: "Sınırlı üretim spor ayakkabılar için en büyük mağaza | <span class='source-tag'>[Berk'in Notları & Atakan'ın PDF'i]</span>" },
-            { id: "os5", title: "Don Quijote Dotonbori Ferris Wheel", lat: 34.6691, lng: 135.5024, type: "shop", city: "osaka", desc: "Üzerinde dev sarı dönme dolap olan 24 saat açık ünlü DonKi | <span class='source-tag'>[Berk'in Notları & Atakan'ın PDF'i]</span>" },
-            { id: "os6", title: "Bic Camera Namba Osaka", lat: 34.6668, lng: 135.5021, type: "shop", city: "osaka", desc: "Osaka merkezindeki devasa çok katlı teknoloji marketi | <span class='source-tag'>[Berk'in Notları & Atakan'ın PDF'i]</span>" },
-            { id: "os7", title: "Daiso Shinsaibashi 3F", lat: 34.6740, lng: 135.5016, type: "shop", city: "osaka", desc: "Tırnak makası ve hediyelik eşya yükleyeceğiniz büyük 100 Yen şubesi | <span class='source-tag'>[Berk'in Notları & Atakan'ın PDF'i]</span>" },
+            { id: "os1", title: "Object Osaka Store", lat: 34.6695, lng: 135.4940, type: "shop", city: "osaka", desc: "Kılıf ve çantalara özel armalar tasarlayacağınız patch mağazası | <span class='source-tag'>[Berk]</span>" },
+            { id: "os2", title: "Amerikamura Street & Kindal", lat: 34.6715, lng: 135.4984, type: "shop", city: "osaka", desc: "İkinci el vintage modası og sokak kültürü dükkanları | <span class='source-tag'>[Atakan'ın PDF'i]</span>" },
+            { id: "os3", title: "Uniqlo Shinsaibashi Global Store", lat: 34.6738, lng: 135.5013, type: "shop", city: "osaka", desc: "Osaka bölgesinin en büyük çok katlı amiral gemisi Uniqlo binası | <span class='source-tag'>[Berk & Atakan'ın PDF'i]</span>" },
+            { id: "os4", title: "ABC-Mart Grand Stage Shinsaibashi", lat: 34.6725, lng: 135.5015, type: "shop", city: "osaka", desc: "Sınırlı üretim spor ayakkabılar için en büyük mağaza | <span class='source-tag'>[Berk & Atakan'ın PDF'i]</span>" },
+            { id: "os5", title: "Don Quijote Dotonbori Ferris Wheel", lat: 34.6691, lng: 135.5024, type: "shop", city: "osaka", desc: "Üzerinde dev sarı dönme dolap olan 24 saat açık ünlü DonKi | <span class='source-tag'>[Berk & Atakan'ın PDF'i]</span>" },
+            { id: "os6", title: "Bic Camera Namba Osaka", lat: 34.6668, lng: 135.5021, type: "shop", city: "osaka", desc: "Osaka merkezindeki devasa çok katlı teknoloji marketi | <span class='source-tag'>[Berk & Atakan'ın PDF'i]</span>" },
+            { id: "os7", title: "Daiso Shinsaibashi 3F", lat: 34.6740, lng: 135.5016, type: "shop", city: "osaka", desc: "Tırnak makası ve hediyelik eşya yükleyeceğiniz büyük 100 Yen şubesi | <span class='source-tag'>[Berk & Atakan'ın PDF'i]</span>" },
 
             // KYOTO & NARA TÜM ROTASI
             { id: "kn1", title: "Fushimi Inari Taisha", lat: 34.9671, lng: 135.7727, type: "tourist", city: "kyoto", desc: "Binlerce parlak turuncu Torii kapısından oluşan ikonik dağ yolu | <span class='source-tag'>[Clarissa's PDF & Atakan'ın PDF'i]</span>" },
@@ -448,12 +486,14 @@
         }
 
         // Sekme Değiştirme Motoru
-        function switchSection(sectionName) {
+        function switchSection(sectionName, element) {
             activeSection = sectionName;
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
+            element.classList.add('active');
             renderLists();
-            fitBoundsForSection(sectionName);
+            if (sectionName !== 'notes') {
+                fitBoundsForSection(sectionName);
+            }
         }
 
         // Haritayı Seçili Sekmedeki Pinlere Göre Otomatik Odaklama
@@ -480,11 +520,47 @@
             }
         }
 
-        // Dinamik Arayüz ve Tikleme Listesi Oluşturucu
+        // Dinamik Arayüz ve Tikleme Listesi Oluşturucu (Artık Notlar sekmesini de yönetiyor)
         function renderLists() {
             const container = document.getElementById('list-container');
             container.innerHTML = '';
 
+            // ÖNEMLİ NOTLAR SEKMESİ SEÇİLDİYSE ÖZEL TASARIMI BAS
+            if (activeSection === 'notes') {
+                container.innerHTML = `
+                    <div class="note-block">
+                        <h3>Berk'in Çıkardığı Altın Notlar</h3>
+                        <ul>
+                            <li><strong>Havalimanı İlk 3 Adım:</strong> Dış hatlar çıkışı sağdaki döviz bürosundan min 50$ nakit bozdurun. Merdivenlerden hemen inince soldaki metro alanından Welcome Suica kart alın ve 5.000 Yen bakiye yükleyin[cite: 4].</li>
+                            <li><strong>Nakit & ATM Taktikleri:</strong> Pasaportunuz her an yanınızda olsun, 5.000 Yen üzeri alışverişlerde direkt kasada vergi düşülür (Tax-Free)[cite: 4]. Küçük restoranlarda sadece nakit geçer; nakitiniz biterse en yakın 7-Eleven ATM'lerini kullanın[cite: 4].</li>
+                            <li><strong>Sushi & Yemek Seçimi:</strong> Tamamen İngilizce isimli ve İngilizce menülü yerler turist tuzağıdır ve iyi değildir; her zaman lokal, yerel sushicileri tercih edin[cite: 4]. Market ödemesini yaptıktan sonra köşeye geçip poşetlemeyi kendiniz yaparsınız[cite: 4].</li>
+                            <li><strong>Uyum Yasaları:</strong> Yanıltıcı paketleme Japonya'da kesinlikle yasaktır; menüde gördüğünüz porsiyon boyutu/içeriği önünüze gelen tabakla tıpatıp aynı boyuttadır[cite: 4].</li>
+                            <li><strong>Ulaşım Kuralı:</strong> Toplu taşımada (metro/tren) hem istasyon girişinde hem de istasyon çıkışında kartınızı veya biletinizi turnikeye basmak zorundasınız[cite: 4].</li>
+                        </ul>
+                    </div>
+
+                    <div class="note-block">
+                        <h3>Atakan'ın PDF Raporu Notları</h3>
+                        <ul>
+                            <li><strong>Tren Dakikliği:</strong> Japonya'da trenler tam saniyesinde kalkar. İstasyon saatini sakın kaçırmayın, vakti geldiği an kapılar kapanır ve hareket eder[cite: 4].</li>
+                            <li><strong>Büyük Valiz Kuralı:</strong> Büyük bavullarla seyahat ediyorsanız, Shinkansen hızlı tren bileti alırken mutlaka "oversize bagaj" (büyük valiz bölmeli) koltuk seçeneğini tercih edin[cite: 4].</li>
+                            <li><strong>Eşsiz Fuji Dağı Manzarası:</strong> Tokyo'dan Kyoto/Osaka yönüne giderken trenin sağ tarafındaki cam kenarı koltukları (genelde E koltuğu); dönüş yolculuğunda ise sol kısım Fuji Dağı'nı görür[cite: 4].</li>
+                            <li><strong>Tapınak Ziyaret Saati:</strong> Asakusa Senso-ji Tapınağı gün içinde aşırı kalabalık ve insan seli olur. Sıralardan kaçmak için ya sabah çok erken saatte ya da hava karardıktan sonra akşam ışıklarıyla gidin[cite: 4].</li>
+                        </ul>
+                    </div>
+
+                    <div class="note-block">
+                        <h3>Clarissa's PDF İpuçları</h3>
+                        <ul>
+                            <li><strong>Ön Rezervasyon Şartı:</strong> Shibuya Sky, teamLab Planets, Universal Studios veya özel Michelin restoranları gibi popüler noktalar için biletleri haftalar öncesinden Klook veya resmi sitelerinden ayırtın[cite: 5].</li>
+                            <li><strong>Navigasyon ve Konumlandırma:</strong> Şehir içi karmaşık metro hatlarında kaybolmamak için her zaman güncel Google Maps harita bağlantılarını ve platform içi rota yönlendirmelerini takip edin[cite: 5].</li>
+                        </ul>
+                    </div>
+                `;
+                return;
+            }
+
+            // DİĞER COĞRAFİ SEKMELERİN STANDART ÇIKTISI
             const filtered = locations.filter(loc => {
                 if (activeSection === 'food') return loc.type === 'food';
                 if (activeSection === 'shopping') return loc.type === 'shop';
@@ -533,7 +609,7 @@
             toggleItemState(id, !currentStatus);
         }
 
-        // KUSURSUZ ÇALIŞAN ODAKLANMA FONKSİYONU
+        // Harita Odaklanma Fonksiyonu
         function focusOnMap(lat, lng, id) {
             if (!map) return;
             const position = { lat: parseFloat(lat), lng: parseFloat(lng) };
