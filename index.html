@@ -276,6 +276,7 @@
             { id: "tk13", title: "Owl Cafe Ginza Mafu Mafu", lat: 35.6710, lng: 139.7650, type: "tourist", city: "tokyo", desc: "Ginza'da baykuşlarla yakın temas konsept kafe" },
             { id: "tk14", title: "Pokemon Cafe Nihonbashi", lat: 35.6811, lng: 139.7731, type: "tourist", city: "tokyo", desc: "Rezervasyonlu popüler tematik Pokemon restoranı" },
             { id: "tk15", title: "Dawn Robot Avatar Cafe", lat: 35.6876, lng: 139.7735, type: "tourist", city: "tokyo", desc: "Uzaktan kontrol edilen robot garsonların çalıştığı fütüristik yer" },
+            { id: "tk16", title: "Tokyo Tower", lat: 35.6586, lng: 139.7454, type: "tourist", city: "tokyo", desc: "Tokyo'nun ikonik kırmızı kulesi; akşam ışıklandırması muazzamdır." },
             
             // TOKYO GURME / YENİLECEKLER
             { id: "tf1", title: "Omoide Yokocho & Golden Gai", lat: 35.6931, lng: 139.6997, type: "food", city: "tokyo", desc: "Dar tarihi sokaklarda yakitori, gyoza ve lokal pub bira keyfi" },
@@ -284,7 +285,7 @@
             { id: "tf4", title: "Gonpachi Nishi-Azabu", lat: 35.6601, lng: 139.7238, type: "food", city: "tokyo", desc: "Kill Bill filminin dövüş sahnelerine ilham veren görkemli han" },
             { id: "tf5", title: "Ginza Kagari Ramen", lat: 35.6715, lng: 139.7645, type: "food", city: "tokyo", desc: "Yoğun ve kremamsı tavuk suyu bazlı meşhur gurme ramen" },
             { id: "tf6", title: "Godaime Hanayama Udon Ginza", lat: 35.6698, lng: 139.7688, type: "food", city: "tokyo", desc: "Erişte kültürünün en geniş tabaklı geleneksel udon çeşidi" },
-            { id: "tf7", title: "Tsukiji Outer Market", lat: 35.6655, lng: 139.7698, type: "food", city: "tokyo", desc: "Sabah sokak yemekleri: Taze Tuna Nigiri ve Wagyu şişler" },
+            { id: "tf7", title: "Tsukiji Outer Market", lat: 35.6655, lng: 139.7698, type: "food", city: "tokyo", desc: "Sabah sokak yemekleri: Taze Tuna Nigiri og Wagyu şişler" },
             { id: "tf8", title: "Ichiran Ramen Shinjuku", lat: 35.6910, lng: 139.7027, type: "food", city: "tokyo", desc: "Tek kişilik kabinlerde ikonik Tonkotsu ramen deneyimi" },
             { id: "tf9", title: "Nihonshu Genka Sakagura Shinjuku", lat: 35.6925, lng: 139.7010, type: "food", city: "tokyo", desc: "Geniş yelpazeli sake tadım barı" },
             { id: "tf10", title: "Shinjuku Sushi Bar Nigirite", lat: 35.6945, lng: 139.6982, type: "food", city: "tokyo", desc: "Önünüzde taze hazırlanan tezgah üstü lokal sushi barı" },
@@ -349,7 +350,7 @@
             { id: "kn2", title: "Kiyomizu-dera & Sannenzaka", lat: 34.9949, lng: 135.7850, type: "tourist", city: "kyoto", desc: "Kyoto'nun tarihi ahşap koruma sokakları ve muazzam teras tapınağı" },
             { id: "kn3", title: "Arashiyama Bamboo Grove", lat: 35.0156, lng: 135.6715, type: "tourist", city: "kyoto", desc: "Togetsukyo köprüsü ve Katsura nehri kenarındaki dev bambu yolu" },
             { id: "kn4", title: "Monkey Park Iwatayama", lat: 35.0093, lng: 135.6723, type: "tourist", city: "kyoto", desc: "Doğal ortamında serbestçe yaşayan Japon maymunları izleme zirvesi" },
-            { id: "kn5", title: "Ryoan-ji Zen Taş Bahçesi", lat: 35.0345, lng: 135.7182, type: "tourist", city: "kyoto", desc: "Dünyanın en meşhur meditatif felsefi kaya/çakıl düzenlemesi" },
+            { id: "kn5", title: "Ryoan-ji Zen Taş Bahçesi", lat: 35.0345, lng: 135.7182, type: "tourist", city: "kyoto", desc: "Dünyaca ünlü felsefi ve meditatif kaya/çakıl düzenlemesi" },
             { id: "kn6", title: "Kinkaku-ji (Altın Köşk)", lat: 35.0394, lng: 135.7292, type: "tourist", city: "kyoto", desc: "Göl kenarına kurulu altın varaklarla kaplı efsanevi tapınak" },
             { id: "kn7", title: "Nara Park Geyik Besleme", lat: 34.6851, lng: 135.8430, type: "tourist", city: "kyoto", desc: "Özel krakerlerle serbest Japon geyiklerini ellerinizle besleyin" },
             { id: "kn8", title: "Todai-ji Tapınağı", lat: 34.6889, lng: 135.8398, type: "tourist", city: "kyoto", desc: "Nara'daki dünyanın en büyük ahşap yapısı içindeki dev Buddha" },
@@ -527,10 +528,10 @@
             toggleItemState(id, !currentStatus);
         }
 
-        // Listedeki Harita Butonuna (🗺️) Basıldığında Haritayı Oraya Uçuran Fonksiyon
+        // KUSURSUZ ÇALIŞAN ODAKLANMA FONKSİYONU (Typo Giderildi)
         function focusOnMap(lat, lng, id) {
             if (!map) return;
-            const position = new google.maps.Maps.LatLng(lat, lng);
+            const position = { lat: parseFloat(lat), lng: parseFloat(lng) };
             map.panTo(position);
             map.setZoom(16);
             
