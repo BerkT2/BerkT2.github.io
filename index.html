@@ -37,9 +37,9 @@
             overflow: hidden;
         }
 
-        /* Harita Sabit Alanı */
+        /* Harita Alanı */
         #map-container {
-            height: 42vh;
+            height: 40vh;
             width: 100%;
             position: relative;
             box-shadow: 0 4px 20px rgba(0,0,0,0.08);
@@ -69,62 +69,87 @@
 
         .map-btn svg { width: 24px; height: 24px; fill: var(--primary); }
 
-        /* İçerik ve Liste Alanı */
+        /* İçerik Panel Alanı */
         #content-container {
-            height: 58vh;
+            height: 60vh;
             display: flex;
             flex-direction: column;
             background: var(--bg-color);
         }
 
-        /* Yatay Kaydırılabilir Sekmeler */
-        .tabs-wrapper {
+        /* Matris Filtre Paneli (Kompakt Tasarım) */
+        .filter-panel {
             background: white;
-            padding: 12px 16px;
+            padding: 10px 14px;
             border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
         }
 
-        .tabs-scroll {
+        .filter-row {
             display: flex;
-            gap: 8px;
+            gap: 6px;
             overflow-x: auto;
             scrollbar-width: none;
+            padding-bottom: 2px;
         }
-        .tabs-scroll::-webkit-scrollbar { display: none; }
+        .filter-row::-webkit-scrollbar { display: none; }
 
-        .tab-btn {
+        .f-btn {
             background: #f1f5f9;
             color: var(--text-muted);
-            border: none;
-            padding: 10px 18px;
+            border: 1px solid #e2e8f0;
+            padding: 6px 14px;
             border-radius: 20px;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 700;
             white-space: nowrap;
-            transition: all 0.2s ease;
             cursor: pointer;
+            transition: all 0.15s ease;
         }
 
-        .tab-btn.active {
-            background: var(--primary);
+        .f-btn.active {
+            background: var(--text-color);
             color: white;
+            border-color: var(--text-color);
         }
 
-        /* Kart Listesi Akış Alanı */
+        /* Kategori Butonları Aktif Renkleri */
+        .f-btn[data-type="tourist"].active { background: var(--tourist-color); border-color: var(--tourist-color); }
+        .f-btn[data-type="food"].active { background: var(--food-color); border-color: var(--food-color); }
+        .f-btn[data-type="shop"].active { background: var(--shop-color); border-color: var(--shop-color); }
+        .f-btn[data-type="hotel"].active { background: var(--hotel-color); border-color: var(--hotel-color); }
+
+        /* Gizleme Seçeneği Özel Tasarımı */
+        .toggle-btn {
+            background: #ecfdf5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+            font-weight: 800;
+        }
+        .toggle-btn.active {
+            background: var(--success);
+            color: white;
+            border-color: var(--success);
+        }
+
+        /* Liste Akış Alanı */
         .list-scroll {
             flex: 1;
             overflow-y: auto;
-            padding: 14px;
+            padding: 12px;
             padding-bottom: 30px;
         }
 
-        /* Dinamik Kart Yapısı */
+        /* Kart Tasarımı */
         .card {
             background: var(--card-bg);
             border: 1px solid #e2e8f0;
             border-radius: var(--radius);
-            padding: 14px 16px;
-            margin-bottom: 10px;
+            padding: 12px 14px;
+            margin-bottom: 8px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -134,36 +159,36 @@
 
         .card.checked {
             background: #f8fafc;
-            opacity: 0.6;
+            opacity: 0.5;
         }
 
         .card-left {
             display: flex;
             align-items: center;
-            gap: 14px;
+            gap: 12px;
             flex: 1;
         }
 
         .card-left input[type="checkbox"] {
             appearance: none;
             -webkit-appearance: none;
-            width: 24px;
-            height: 24px;
+            width: 22px;
+            height: 22px;
             border: 2px solid #cbd5e1;
             border-radius: 8px;
             display: grid;
             place-content: center;
-            transition: all 0.2s ease;
+            transition: all 0.15s ease;
             cursor: pointer;
             flex-shrink: 0;
         }
 
         .card-left input[type="checkbox"]::before {
             content: "";
-            width: 12px;
-            height: 12px;
+            width: 10px;
+            height: 10px;
             transform: scale(0);
-            transition: all 0.2s ease;
+            transition: all 0.15s ease;
             box-shadow: inset 1em 1em var(--success);
             clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
         }
@@ -182,7 +207,7 @@
         }
 
         .card-title {
-            font-size: 15px;
+            font-size: 14px;
             font-weight: 700;
             color: var(--text-color);
         }
@@ -190,36 +215,33 @@
         .card.checked .card-title { text-decoration: line-through; color: var(--text-muted); }
 
         .card-desc {
-            font-size: 12px;
+            font-size: 11px;
             color: var(--text-muted);
+            line-height: 1.3;
         }
 
-        .source-tag {
-            font-weight: 700;
-            color: var(--primary);
-        }
+        .source-tag { font-weight: 700; color: var(--primary); }
 
         .card-right-btn {
             background: #f1f5f9;
             border: none;
-            padding: 10px;
-            border-radius: 12px;
+            padding: 8px;
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            color: var(--text-muted);
-            font-size: 16px;
+            font-size: 14px;
         }
 
         .type-badge {
-            font-size: 10px;
-            padding: 2px 6px;
-            border-radius: 6px;
+            font-size: 9px;
+            padding: 1px 5px;
+            border-radius: 5px;
             font-weight: 800;
             color: white;
             align-self: flex-start;
-            margin-bottom: 4px;
+            margin-bottom: 2px;
             text-transform: uppercase;
         }
         .badge-tourist { background: var(--tourist-color); }
@@ -227,44 +249,6 @@
         .badge-shop { background: var(--shop-color); }
         .badge-hotel { background: var(--hotel-color); }
         .badge-checked { background: var(--success); }
-
-        /* Notlar Tabu Tasarımları */
-        .note-block {
-            background: white;
-            border: 1px solid #e2e8f0;
-            border-radius: var(--radius);
-            padding: 16px;
-            margin-bottom: 12px;
-            box-shadow: var(--shadow);
-        }
-        .note-block h3 {
-            font-size: 15px;
-            color: var(--primary);
-            margin-bottom: 10px;
-            font-weight: 800;
-            border-bottom: 2px solid #f1f5f9;
-            padding-bottom: 6px;
-        }
-        .note-block ul {
-            list-style: none;
-            padding-left: 0;
-        }
-        .note-block li {
-            font-size: 13px;
-            color: var(--text-color);
-            margin-bottom: 8px;
-            position: relative;
-            padding-left: 14px;
-            line-height: 1.4;
-        }
-        .note-block li::before {
-            content: "•";
-            color: var(--primary);
-            font-weight: bold;
-            position: absolute;
-            left: 0;
-            top: 0;
-        }
     </style>
 </head>
 <body>
@@ -277,25 +261,35 @@
         </button>
     </div>
 
-    <!-- Filtre Sekmeleri Yapısı -->
+    <!-- Gelişmiş Matris Filtre Paneli -->
     <div id="content-container">
-        <div class="tabs-wrapper">
-            <div class="tabs-scroll">
-                <button class="tab-btn active" onclick="switchSection('tokyo', this)">🗼 Tokyo</button>
-                <button class="tab-btn" onclick="switchSection('osaka', this)">🐙 Osaka</button>
-                <button class="tab-btn" onclick="switchSection('kyoto', this)">🏯 Kyoto & Nara</button>
-                <button class="tab-btn" onclick="switchSection('food', this)">🥩 Yenilecekler</button>
-                <button class="tab-btn" onclick="switchSection('shopping', this)">🛒 Alışveriş Yerleri</button>
+        <div class="filter-panel">
+            <!-- Satır 1: Şehir Filtresi -->
+            <div class="filter-row" id="city-row">
+                <button class="f-btn active" onclick="filterCity('all', this)">🗺️ Tüm Şehirler</button>
+                <button class="f-btn" onclick="filterCity('tokyo', this)">🗼 Tokyo</button>
+                <button class="f-btn" onclick="filterCity('osaka', this)">🐙 Osaka</button>
+                <button class="f-btn" onclick="filterCity('kyoto', this)">🏯 Kyoto & Nara</button>
+            </div>
+            <!-- Satır 2: Kategori Filtresi & Gizleme -->
+            <div class="filter-row" id="type-row">
+                <button class="f-btn active" onclick="filterType('all', this)">📍 Hepsi</button>
+                <button class="f-btn" data-type="tourist" onclick="filterType('tourist', this)">🔴 Turistik</button>
+                <button class="f-btn" data-type="food" onclick="filterType('food', this)">🟠 Gurme</button>
+                <button class="f-btn" data-type="shop" onclick="filterType('shop', this)">🔵 Alışveriş</button>
+                <button class="f-btn" data-type="hotel" onclick="filterType('hotel', this)">🟣 Otel</button>
+                <button class="f-btn toggle-btn" onclick="toggleCheckedFilter(this)">✔️ Gezilenleri Gizle</button>
             </div>
         </div>
 
+        <!-- Dinamik Liste Kart Akış Alanı -->
         <div class="list-scroll" id="list-container">
-            <!-- JavaScript tarafından otomatik doldurulacak -->
+            <!-- JavaScript ile doldurulacak -->
         </div>
     </div>
 
     <script>
-        // MASTER JAPONYA COĞRAFİ VERİ TABANI (Rezervasyon ve Tür Etiketleri Tamamlanmıştır)
+        // MASTER JAPONYA COĞRAFİ VERİ TABANI
         const locations = [
             // OTELLER
             { id: "h1", title: "Shinjuku Okubo Airbnb", lat: 35.7015, lng: 139.7000, type: "hotel", city: "tokyo", desc: "<strong>[Konaklama / Ev]</strong> 1-4 Haziran İlk Bölge Evi | <span class='source-tag'>[Berk & Atakan'ın PDF'i]</span>" },
@@ -304,7 +298,7 @@
             { id: "h4", title: "Narita Airport Kapsül Otel", lat: 35.7725, lng: 140.3881, type: "hotel", city: "tokyo", desc: "<strong>[Kapsül Otel]</strong> Son Gece Havaalanı İçi Deneyimi | <span class='source-tag'>[Berk & Atakan'ın PDF'i]</span>" },
             
             // TOKYO TURİSTİK & DENEYİM
-            { id: "tk1", title: "Shibuya Crossing & Hachiko", lat: 35.6595, lng: 139.7005, type: "tourist", city: "tokyo", desc: "<strong>[İkonik Cadde & Meydan]</strong> Ünlü yaya geçidi ve Hachiko heykeli | <span class='source-tag'>[Berk, Clarissa & Atakan]</span>" },
+            { id: "tk1", title: "Shibuya Crossing & Hachiko", lat: 35.6595, lng: 139.7005, type: "tourist", city: "tokyo", desc: "<strong>[İkonik Cadde & Meydan]</strong> Ünlü yaya geçidi og Hachiko heykeli | <span class='source-tag'>[Berk, Clarissa & Atakan]</span>" },
             { id: "tk2", title: "Shibuya Sky", lat: 35.6586, lng: 139.7015, type: "tourist", city: "tokyo", desc: "<span style='color:red; font-weight:bold;'>[⚠️ REZERVASYON ŞART!]</span> <strong>[Seyir Terası / Manzara]</strong> Açık hava gökdelen çatı terası | <span class='source-tag'>[Clarissa's PDF & Atakan'ın PDF'i]</span>" },
             { id: "tk3", title: "Meiji Jingu Tapınağı", lat: 35.6764, lng: 139.6993, type: "tourist", city: "tokyo", desc: "<strong>[Ünlü Şinto Tapınağı]</strong> Ormanlık alan içerisindeki tarihi tapınak | <span class='source-tag'>[Clarissa's PDF & Atakan'ın PDF'i]</span>" },
             { id: "tk4", title: "Takeshita Street Harajuku", lat: 35.6716, lng: 139.7032, type: "tourist", city: "tokyo", desc: "<strong>[Kültür & Alışveriş Caddesi]</strong> Çılgın gençlik modası ve renkli krepler | <span class='source-tag'>[Berk, Clarissa & Atakan]</span>" },
@@ -325,7 +319,7 @@
             // TOKYO GURME / YENİLECEKLER
             { id: "tf1", title: "Omoide Yokocho & Golden Gai", lat: 35.6931, lng: 139.6997, type: "food", city: "tokyo", desc: "<strong>[Tarihi Sokak Lezzetleri / Bar]</strong> Dar otantik sokaklarda yakitori ve publar | <span class='source-tag'>[Clarissa, Atakan & Airbnb]</span>" },
             { id: "tf2", title: "Hikiniku to Come Shibuya", lat: 35.6594, lng: 139.6980, type: "food", city: "tokyo", desc: "<strong>[Özel Wagyu Köftecisi]</strong> Kömür ateşinde taze pişen köfte ve pirinç (Sabah sıra beklenir) | <span class='source-tag'>[Atakan'ın PDF'i]</span>" },
-            { id: "tf3", title: "Benizuru Pancake Asakusa", lat: 35.7132, lng: 139.7935, type: "food", city: "tokyo", desc: "<strong>[Meşhur Pofuduk Pankekçi]</strong> Bulut gibi hafif devasa geleneksel pankekler | <span class='source-tag'>[Atakan'ın PDF'i]</span>" },
+            { id: "tf3", title: "Benizuru Pancake Asakusa", lat: 35.7132, lng: 139.7935, type: "food", city: "tokyo", desc: "<strong>[Meşhur Pofuduk Pankekçi]</strong> Bulut gibi hafif devasa geleneksel pankekleri | <span class='source-tag'>[Atakan'ın PDF'i]</span>" },
             { id: "tf4", title: "Gonpachi Nishi-Azabu", lat: 35.6601, lng: 139.7238, type: "food", city: "tokyo", desc: "<strong>[Kill Bill Temalı Restoran]</strong> Filmin dövüş sahnesine ilham olan görkemli han | <span class='source-tag'>[Atakan'ın PDF'i]</span>" },
             { id: "tf5", title: "Ginza Kagari Ramen", lat: 35.6715, lng: 139.7645, type: "food", city: "tokyo", desc: "<strong>[Gurme Tavuklu Ramen]</strong> Yoğun, kremamsı ve efsanevi lezzette çorbalı erişte | <span class='source-tag'>[Atakan'ın PDF'i]</span>" },
             { id: "tf6", title: "Godaime Hanayama Udon Ginza", lat: 35.6698, lng: 139.7688, type: "food", city: "tokyo", desc: "<strong>[Efsane Geniş Udon Eriştesi]</strong> Kurdele gibi geniş tabak geleneksel udon | <span class='source-tag'>[Atakan'ın PDF'i]</span>" },
@@ -352,7 +346,7 @@
             { id: "ts6", title: "ABC-Mart Grand Stage Shibuya", lat: 35.6611, lng: 139.6985, type: "shop", city: "tokyo", desc: "<strong>[Nadir Modeller / Dev Spor Ayakkabıcı]</strong> Sınırlı üretim koleksiyon modeller | <span class='source-tag'>[Berk & Atakan'ın PDF'i]</span>" },
             { id: "ts7", title: "ABC-Mart Grand Stage Shinjuku", lat: 35.6918, lng: 139.7022, type: "shop", city: "tokyo", desc: "<strong>[Büyük Spor Ayakkabı Kompleksi]</strong> Shinjuku bölgesinin ana büyük ayakkabı binası | <span class='source-tag'>[Berk & Atakan'ın PDF'i]</span>" },
             { id: "ts8", title: "ABC-Mart Grand Stage Ginza", lat: 35.6713, lng: 139.7644, type: "shop", city: "tokyo", desc: "<strong>[Şık Dev Spor Ayakkabıcı]</strong> Ginza ana caddesindeki şık tasarımlı büyük şube | <span class='source-tag'>[Berk & Atakan'ın PDF'i]</span>" },
-            { id: "ts9", title: "Yodobashi Camera Akihabara", lat: 35.6987, lng: 139.7748, type: "shop", city: "tokyo", desc: "<strong>[Dev Teknoloji & Hobi Sarayı]</strong> Çok katlı hobi, saat, tırnak makası og elektronik kompleksi | <span class='source-tag'>[Berk & Atakan'ın PDF'i]</span>" },
+            { id: "ts9", title: "Yodobashi Camera Akihabara", lat: 35.6987, lng: 139.7748, type: "shop", city: "tokyo", desc: "<strong>[Dev Teknoloji & Hobi Sarayı]</strong> Çok katlı hobi, saat, tırnak makası ve elektronik kompleksi | <span class='source-tag'>[Berk & Atakan'ın PDF'i]</span>" },
             { id: "ts10", title: "Yodobashi Camera Shinjuku", lat: 35.6896, lng: 139.6970, type: "shop", city: "tokyo", desc: "<strong>[Çok Katlı Elektronik Merkezi]</strong> Shinjuku istasyon çıkışındaki devasa teknoloji marketi | <span class='source-tag'>[Berk & Atakan'ın PDF'i]</span>" },
             { id: "ts11", title: "Bic Camera Shinjuku East", lat: 35.6917, lng: 139.7032, type: "shop", city: "tokyo", desc: "<strong>[Teknoloji & Hobi Market]</strong> Elektronik ürünler, mutfak gereçleri ve kaliteli makaslar | <span class='source-tag'>[Berk & Atakan'ın PDF'i]</span>" },
             { id: "ts12", title: "Ginza Karen Valiz Mağazası", lat: 35.6693, lng: 139.7661, type: "shop", city: "tokyo", desc: "<strong>[Ucuz Bavul & Valiz Mağazası]</strong> Dönüşte eşyaları yüklemek için ucuz ve sağlam bavulcu | <span class='source-tag'>[Atakan'ın PDF'i]</span>" },
@@ -387,9 +381,9 @@
             { id: "os1", title: "Object Osaka Store", lat: 34.6695, lng: 135.4940, type: "shop", city: "osaka", desc: "<strong>[Özel Tasarım Patch/Arma Mağazası]</strong> Çanta ve kılıflara kendi armalarınızı bastığınız yer | <span class='source-tag'>[Berk]</span>" },
             { id: "os2", title: "Amerikamura Street & Kindal", lat: 34.6715, lng: 135.4984, type: "shop", city: "osaka", desc: "<strong>[Vintage & Sokak Modası]</strong> İkinci el harika ceketler, retro dükkanlar ve sokak kültürü | <span class='source-tag'>[Atakan'ın PDF'i]</span>" },
             { id: "os3", title: "Uniqlo Shinsaibashi Global Store", lat: 34.6738, lng: 135.5013, type: "shop", city: "osaka", desc: "<strong>[Osaka'nın En Büyük Uniqlo'su]</strong> Bölgenin en büyük çok katlı büyük amiral şubesi | <span class='source-tag'>[Berk & Atakan'ın PDF'i]</span>" },
-            { id: "os4", title: "ABC-Mart Grand Stage Shinsaibashi", lat: 34.6725, lng: 135.5015, type: "shop", city: "osaka", desc: "<strong>[Osaka'nın En Büyük ABC-Mart'ı]</strong> Sınırlı üretim spor ayakkabılar için dev merkez | <span class='source-tag'>[Berk & Atakan'ın PDF'i]</span>" },
+            { id: "os4", title: "ABC-Mart Grand Stage Shinsaibashi", lat: 34.6725, lng: 135.5015, type: "shop", city: "osaka", desc: "<strong>[Osaka'nın En Büyük ABC-Mart'ı]</strong> Sınırlı üretim spor ayakkbılar için dev merkez | <span class='source-tag'>[Berk & Atakan'ın PDF'i]</span>" },
             { id: "os5", title: "Don Quijote Dotonbori Ferris Wheel", lat: 34.6691, lng: 135.5024, type: "shop", city: "osaka", desc: "<strong>[Dönme Dolaplı 24 Saat Açık DonKi]</strong> Üzerinde dev sarı dönme dolap olan nehir kenarı DonKi | <span class='source-tag'>[Berk & Atakan'ın PDF'i]</span>" },
-            { id: "os6", title: "Bic Camera Namba Osaka", lat: 34.6668, lng: 135.5021, type: "shop", city: "osaka", desc: "<strong>[Çok Katlı Teknoloji & Hobi Market]</strong> Namba merkezindeki devasa elektronik, saat og hobi sarayı | <span class='source-tag'>[Berk & Atakan'ın PDF'i]</span>" },
+            { id: "os6", title: "Bic Camera Namba Osaka", lat: 34.6668, lng: 135.5021, type: "shop", city: "osaka", desc: "<strong>[Çok Katlı Teknoloji & Hobi Market]</strong> Namba merkezindeki devasa elektronik, saat ve hobi sarayı | <span class='source-tag'>[Berk & Atakan'ın PDF'i]</span>" },
             { id: "os7", title: "Daiso Shinsaibashi 3F", lat: 34.6740, lng: 135.5016, type: "shop", city: "osaka", desc: "<strong>[Büyük 100 Yen Mağazası]</strong> Tırnak makasları ve hediyelik eşya toplama alanı | <span class='source-tag'>[Berk & Atakan'ın PDF'i]</span>" },
 
             // KYOTO & NARA TÜM ROTASI
@@ -409,15 +403,21 @@
             { id: "kn14", title: "Mamemono to Taiyaki Arashiyama", lat: 35.0150, lng: 135.6765, type: "food", city: "kyoto", desc: "<strong>[Eriyen Tereyağlı Balık Kek Tatlıcısı]</strong> Sıcak balık şeklinde hamur içi taze tereyağı | <span class='source-tag'>[Atakan'ın PDF'i]</span>" },
             { id: "kn15", title: "Cicon Rooftop Bar (Nohga)", lat: 34.9961, lng: 135.7735, type: "food", city: "kyoto", desc: "<strong>[Panoramik Kyoto Manzarasına Sahip Şık Teras]</strong> Akşam kokteyli için harika manzaralı modern teras | <span class='source-tag'>[Atakan'ın PDF'i]</span>" },
             { id: "kn16", title: "Men-ya Inoichi Ramen", lat: 35.0005, lng: 136.7668, type: "food", city: "kyoto", desc: "<strong>[Michelin Ödüllü Berrak Ramen]</strong> Berrak, duru ve hafif, ödüllü inanılmaz Kyoto rameni | <span class='source-tag'>[Atakan'ın PDF'i]</span>" },
-            { id: "kn17", title: "Tendan Yakiniku Kyoto", lat: 35.0028, lng: 135.7722, type: "food", city: "kyoto", desc: "<span style='color:red; font-weight:bold;'>[⚠️ REZERVASYON ŞART!]</span> <strong>[Nehir Manzaralı Barbekü Restoranı]</strong> Kamogawa nehri kenarında harika kaliteli Yakiniku | <span class='source-tag'>[Atakan'ın PDF'i]</span>" },
+            { id: "kn17", title: "Tendan Yakiniku Kyoto", lat: 35.0028, lng: 135.7722, type: "food", city: "kyoto", desc: "<span style='color:red; font-weight:bold;'>[⚠️ REZERVASYON ŞART!]</span> <strong>[Nehir Manzaralı Barbekü Restoranı]</strong> Kamogawa nehir kenarında harika kaliteli Yakiniku | <span class='source-tag'>[Atakan'ın PDF'i]</span>" },
             { id: "kn18", title: "Totegin Kintetsu Sushi Nara", lat: 34.6835, lng: 135.8280, type: "food", city: "kyoto", desc: "<strong>[Lokal Şef Sushi Barı]</strong> Nara istasyon çıkışında el yapımı harika set sushiler | <span class='source-tag'>[Clarissa's PDF]</span>" }
         ];
 
         let map;
         let markers = {};
-        let activeSection = 'tokyo';
         let userLocationMarker = null;
         let activeInfoWindow = null;
+
+        // MATRİS FİLTRE DURUMU (State Management)
+        const activeFilters = {
+            city: 'all',
+            type: 'all',
+            hideChecked: false
+        };
 
         const typeColors = {
             hotel: "#a855f7",
@@ -427,7 +427,7 @@
             checked: "#10b981"
         };
 
-        // Google Harita Kurulum Fonksiyonu
+        // Google Harita Başlatma Motoru
         function initMap() {
             map = new google.maps.Map(document.getElementById('map'), {
                 center: { lat: 35.6895, lng: 139.6917 },
@@ -440,7 +440,7 @@
                 ]
             });
 
-            // Tüm Pinleri Haritaya Basma
+            // Pinleri Haritaya Ekleme
             locations.forEach(loc => {
                 const isChecked = localStorage.getItem(loc.id) === 'true';
                 const color = isChecked ? typeColors.checked : typeColors[loc.type];
@@ -473,10 +473,9 @@
             });
 
             renderLists();
-            fitBoundsForSection('tokyo');
+            applyGlobalFilters();
         }
 
-        // Özelleştirilmiş Dinamik SVG Pin Çizimi
         function createMarkerIcon(color) {
             return {
                 path: 'M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z',
@@ -489,89 +488,85 @@
             };
         }
 
-        // Sekme Değiştirme Motoru
-        function switchSection(sectionName, element) {
-            activeSection = sectionName;
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            element.classList.add('active');
-            renderLists();
-            if (sectionName !== 'notes') {
-                fitBoundsForSection(sectionName);
-            }
+        // Filtre Fonksiyonları (Şehir)
+        function filterCity(cityCode, btnElement) {
+            activeFilters.city = cityCode;
+            document.querySelectorAll('#city-row .f-btn').forEach(btn => btn.classList.remove('active'));
+            btnElement.classList.add('active');
+            applyGlobalFilters();
         }
 
-        // Haritayı Seçili Sekmedeki Pinlere Göre Otomatik Odaklama
-        function fitBoundsForSection(section) {
+        // Filtre Fonksiyonları (Kategori)
+        function filterType(typeCode, btnElement) {
+            activeFilters.type = typeCode;
+            document.querySelectorAll('#type-row .f-btn:not(.toggle-btn)').forEach(btn => btn.classList.remove('active'));
+            btnElement.classList.add('active');
+            applyGlobalFilters();
+        }
+
+        // Gittiklerimi Gizle Switçhi
+        function toggleCheckedFilter(btnElement) {
+            activeFilters.hideChecked = !activeFilters.hideChecked;
+            btnElement.classList.toggle('active', activeFilters.hideChecked);
+            applyGlobalFilters();
+        }
+
+        // ANA MATRİS FİLTRE MOTORU (Hem Haritayı Hem Listeyi Aynı Anda Günceller)
+        function applyGlobalFilters() {
             if (!map) return;
+            
             const bounds = new google.maps.LatLngBounds();
-            let count = 0;
+            let visibleCount = 0;
 
             locations.forEach(loc => {
-                let match = false;
-                if (section === 'food' && loc.type === 'food') match = true;
-                else if (section === 'shopping' && loc.type === 'shop') match = true;
-                else if (loc.city === section) match = true;
+                const isChecked = localStorage.getItem(loc.id) === 'true';
+                
+                // Filtre Eşleşme Kontrolleri
+                const matchCity = (activeFilters.city === 'all' || loc.city === activeFilters.city);
+                const matchType = (activeFilters.type === 'all' || loc.type === activeFilters.type);
+                const matchChecked = !(activeFilters.hideChecked && isChecked);
 
-                if (match) {
-                    bounds.extend(new google.maps.LatLng(loc.lat, loc.lng));
-                    count++;
+                const finalVisibility = matchCity && matchType && matchChecked;
+
+                // Harita üzerindeki marker görünürlüğünü güncelle
+                if (markers[loc.id]) {
+                    markers[loc.id].setVisible(finalVisibility);
+                    if (finalVisibility) {
+                        bounds.extend(new google.maps.LatLng(loc.lat, loc.lng));
+                        visibleCount++;
+                    }
                 }
             });
 
-            if (count > 0) {
+            // Ekran listesini render et
+            renderLists();
+
+            // Haritayı kalan pinlere göre otomatik odakla
+            if (visibleCount > 0) {
                 map.fitBounds(bounds);
-                if (count === 1) map.setZoom(15);
+                if (visibleCount === 1) map.setZoom(15);
             }
         }
 
-        // Dinamik Arayüz ve Tikleme Listesi Oluşturucu
+        // Dinamik Liste Kart Oluşturucu
         function renderLists() {
             const container = document.getElementById('list-container');
             container.innerHTML = '';
 
-            // ÖNEMLİ NOTLAR SEKMESİ SEÇİLDİYSE ÖZEL TASARIMI BAS
-            if (activeSection === 'notes') {
-                container.innerHTML = `
-                    <div class="note-block">
-                        <h3>Berk'in Çıkardığı Altın Notlar</h3>
-                        <ul>
-                            <li><strong>Havalimanı İlk 3 Adım:</strong> Dış hatlar çıkışı sağdaki döviz bürosundan min 50$ nakit bozdurun. Merdivenlerden hemen inince soldaki metro alanından Welcome Suica kart alın ve 5.000 Yen bakiye yükleyin[cite: 4].</li>
-                            <li><strong>Nakit & ATM Taktikleri:</strong> Pasaportunuz her an yanınızda olsun, 5.000 Yen üzeri alışverişlerde direkt kasada vergi düşülür (Tax-Free)[cite: 4]. Küçük restoranlarda sadece nakit geçer; nakitiniz biterse en yakın 7-Eleven ATM'lerini kullanın[cite: 4].</li>
-                            <li><strong>Sushi & Yemek Seçimi:</strong> Tamamen İngilizce isimli ve İngilizce menülü yerler turist tuzağıdır ve iyi değildir; her zaman lokal, yerel sushicileri tercih edin[cite: 4]. Market ödemesini yaptıktan sonra köşeye geçip poşetlemeyi kendiniz yaparsınız[cite: 4].</li>
-                            <li><strong>Uyum Yasaları:</strong> Yanıltıcı paketleme Japonya'da kesinlikle yasaktır; menüde gördüğünüz porsiyon boyutu/içeriği önünüze gelen tabakla tıpatıp aynı boyuttadır[cite: 4].</li>
-                            <li><strong>Ulaşım Kuralı:</strong> Toplu taşımada (metro/tren) hem istasyon girişinde hem de istasyon çıkışında kartınızı veya biletinizi turnikeye basmak zorundasınız[cite: 4].</li>
-                        </ul>
-                    </div>
+            const filteredList = locations.filter(loc => {
+                const isChecked = localStorage.getItem(loc.id) === 'true';
+                const matchCity = (activeFilters.city === 'all' || loc.city === activeFilters.city);
+                const matchType = (activeFilters.type === 'all' || loc.type === activeFilters.type);
+                const matchChecked = !(activeFilters.hideChecked && isChecked);
+                return matchCity && matchType && matchChecked;
+            });
 
-                    <div class="note-block">
-                        <h3>Atakan'ın PDF Raporu Notları</h3>
-                        <ul>
-                            <li><strong>Tren Dakikliği:</strong> Japonya'da trenler tam saniyesinde kalkar. İstasyon saatini sakın kaçırmayın, vakti geldiği an kapılar kapanır ve hareket eder[cite: 4].</li>
-                            <li><strong>Büyük Valiz Kuralı:</strong> Büyük bavullarla seyahat ediyorsanız, Shinkansen hızlı tren bileti alırken mutlaka "oversize bagaj" (büyük valiz bölmeli) koltuk seçeneğini tercih edin[cite: 4].</li>
-                            <li><strong>Eşsiz Fuji Dağı Manzarası:</strong> Tokyo'dan Kyoto/Osaka yönüne giderken trenin sağ tarafındaki cam kenarı koltukları (genelde E koltuğu); dönüş yolculuğunda ise sol kısım Fuji Dağı'nı görür[cite: 4].</li>
-                            <li><strong>Tapınak Ziyaret Saati:</strong> Asakusa Senso-ji Tapınağı gün içinde aşırı kalabalık ve insan seli olur. Sıralardan kaçmak için ya sabah çok erken saatte ya da hava karardıktan sonra akşam ışıklarıyla gidin[cite: 4].</li>
-                        </ul>
-                    </div>
-
-                    <div class="note-block">
-                        <h3>Clarissa's PDF İpuçları</h3>
-                        <ul>
-                            <li><strong>Ön Rezervasyon Şartı:</strong> Shibuya Sky, teamLab Planets, Universal Studios veya özel Michelin restoranları gibi popüler noktalar için biletleri haftalar öncesinden Klook veya resmi sitelerinden ayırtın[cite: 5].</li>
-                            <li><strong>Navigasyon ve Konumlandırma:</strong> Şehir içi karmaşık metro hatlarında kaybolmamak için her zaman güncel Google Maps harita bağlantılarını ve platform içi rota yönlendirmelerini takip edin[cite: 5].</li>
-                        </ul>
-                    </div>
-                `;
+            if (filteredList.length === 0) {
+                container.innerHTML = `<div style="text-align:center; color:var(--text-muted); font-size:13px; margin-top:40px; font-weight:bold;">Seçili filtrelere uygun yer bulunamadı boss 🗺️</div>`;
                 return;
             }
 
-            // DİĞER COĞRAFİ SEKMELERİN STANDART ÇIKTISI
-            const filtered = locations.filter(loc => {
-                if (activeSection === 'food') return loc.type === 'food';
-                if (activeSection === 'shopping') return loc.type === 'shop';
-                return loc.city === activeSection;
-            });
-
-            filtered.forEach(loc => {
+            filteredList.forEach(loc => {
                 const isChecked = localStorage.getItem(loc.id) === 'true';
                 const card = document.createElement('div');
                 card.className = `card ${isChecked ? 'checked' : ''}`;
@@ -593,7 +588,7 @@
             });
         }
 
-        // Ana Durum Senkronizasyonu
+        // Checkbox Değişim Dinamiği
         function toggleItemState(id, isChecked) {
             localStorage.setItem(id, isChecked);
             
@@ -604,16 +599,20 @@
             }
 
             if (activeInfoWindow) activeInfoWindow.close();
-            renderLists();
+            
+            // Eğer "Gezilenleri Gizle" aktifse kartı direkt ekrandan uçurmak için ana filtreyi tetikle
+            if (activeFilters.hideChecked) {
+                applyGlobalFilters();
+            } else {
+                renderLists();
+            }
         }
 
-        // Harita Üzerindeki Balondan Tikleme Yapıldığında Tetiklenen Fonksiyon
         function toggleFromMap(id) {
             const currentStatus = localStorage.getItem(id) === 'true';
             toggleItemState(id, !currentStatus);
         }
 
-        // Harita Odaklanma Fonksiyonu
         function focusOnMap(lat, lng, id) {
             if (!map) return;
             const position = { lat: parseFloat(lat), lng: parseFloat(lng) };
