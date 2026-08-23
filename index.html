@@ -23,14 +23,43 @@
     padding:0 16px calc(40px + env(safe-area-inset-bottom));
     max-width:760px; margin:0 auto;
   }
-  header{text-align:center;padding:40px 8px 28px}
-  header h1{
-    font-family:"Cormorant Garamond",Georgia,serif;
-    font-weight:600; font-size:42px; line-height:1.1; margin:0 0 10px;
-    letter-spacing:.5px;
+  body.locked{overflow:hidden}
+
+  /* ---------- Kapak ---------- */
+  .hero{
+    position:relative; border-radius:var(--radius); overflow:hidden;
+    margin:20px 0 18px; background:#e8e0d4;
+    box-shadow:0 8px 28px rgba(46,40,35,.14);
   }
-  header p{margin:0;color:var(--muted);font-size:15px}
-  .rule{width:56px;height:1px;background:var(--accent);margin:18px auto;opacity:.5}
+  .hero img{
+    display:block; width:100%; aspect-ratio:3/4;
+    object-fit:cover; object-position:center 42%;
+  }
+  @media (min-width:600px){ .hero img{aspect-ratio:4/3; object-position:center 38%} }
+  .hero .veil{
+    position:absolute; inset:0; pointer-events:none;
+    background:linear-gradient(to top,
+      rgba(28,22,16,.78) 0%, rgba(28,22,16,.42) 26%,
+      rgba(28,22,16,.10) 50%, transparent 68%);
+  }
+  .hero .cap{
+    position:absolute; left:0; right:0; bottom:0;
+    padding:0 20px calc(24px + env(safe-area-inset-bottom)); text-align:center; color:#fff;
+  }
+  .hero .cap h1{
+    font-family:"Cormorant Garamond",Georgia,serif;
+    font-size:clamp(34px,9vw,54px); font-weight:600; line-height:1.05;
+    margin:0; letter-spacing:1.5px; text-shadow:0 2px 16px rgba(0,0,0,.45);
+  }
+  .hero .cap .rule{
+    width:50px; height:1px; background:rgba(255,255,255,.8);
+    margin:14px auto 11px; opacity:1;
+  }
+  .hero .cap p{
+    margin:0; font-size:14px; color:rgba(255,255,255,.92);
+    text-shadow:0 1px 10px rgba(0,0,0,.55);
+  }
+
   .card{
     background:var(--card); border:1px solid var(--line);
     border-radius:var(--radius); padding:20px; margin-bottom:16px;
@@ -74,7 +103,11 @@
   .tile{
     position:relative;aspect-ratio:1;border-radius:10px;overflow:hidden;
     background:#efe8dd;border:1px solid var(--line);
+    padding:0;display:block;width:100%;cursor:zoom-in;
+    transition:transform .18s ease, box-shadow .18s ease;
   }
+  .tile:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(46,40,35,.16)}
+  .tile:active{transform:scale(.97)}
   .tile img,.tile video{width:100%;height:100%;object-fit:cover;display:block}
   .tile .ph{
     display:flex;align-items:center;justify-content:center;height:100%;
@@ -103,15 +136,102 @@
   .err{color:var(--err);font-size:13px;margin-top:10px;min-height:18px}
   .badge{display:inline-block;background:var(--ok);color:#fff;font-size:11px;padding:3px 9px;border-radius:20px;margin-left:8px;vertical-align:middle}
   .hidden{display:none !important}
+
+  /* ---------- Lightbox ---------- */
+  #lb{
+    position:fixed; inset:0; z-index:9999; display:none;
+    background:rgba(20,15,11,.92);
+    -webkit-backdrop-filter:blur(18px); backdrop-filter:blur(18px);
+    opacity:0; transition:opacity .22s ease;
+  }
+  #lb.open{display:block}
+  #lb.shown{opacity:1}
+  #lb .stage{
+    position:absolute; inset:0;
+    display:flex; align-items:center; justify-content:center;
+    padding:calc(58px + env(safe-area-inset-top)) 14px calc(84px + env(safe-area-inset-bottom));
+  }
+  #lb .stage img, #lb .stage video{
+    max-width:100%; max-height:100%;
+    border-radius:8px; box-shadow:0 16px 50px rgba(0,0,0,.55);
+    display:block; object-fit:contain;
+    animation:lbIn .28s cubic-bezier(.2,.8,.3,1);
+  }
+  @keyframes lbIn{from{opacity:0;transform:scale(.955)}to{opacity:1;transform:scale(1)}}
+  #lb .stage .ph{
+    color:rgba(255,255,255,.82); text-align:center; font-size:14px; max-width:280px;
+  }
+  #lb .stage .ph a{
+    display:inline-block; margin-top:14px; color:#fff; text-decoration:none;
+    border:1px solid rgba(255,255,255,.4); padding:9px 18px; border-radius:9px; font-size:14px;
+  }
+  #lb .topbar{
+    position:absolute; top:0; left:0; right:0; z-index:2;
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    padding:calc(12px + env(safe-area-inset-top)) 14px 12px;
+    background:linear-gradient(rgba(0,0,0,.5),transparent);
+  }
+  #lb .count{
+    color:rgba(255,255,255,.75); font-size:13px;
+    font-variant-numeric:tabular-nums; letter-spacing:.4px;
+  }
+  #lb .botbar{
+    position:absolute; left:0; right:0; bottom:0; z-index:2;
+    padding:26px 18px calc(18px + env(safe-area-inset-bottom));
+    background:linear-gradient(transparent,rgba(0,0,0,.62));
+    display:flex; align-items:flex-end; justify-content:space-between; gap:14px;
+  }
+  #lb .meta{min-width:0}
+  #lb .meta b{
+    display:block; color:#fff; font-size:15px; font-weight:600;
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  }
+  #lb .meta span{
+    display:block; color:rgba(255,255,255,.6); font-size:12px; margin-top:3px;
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  }
+  #lb .dl{
+    flex:none; color:#fff; text-decoration:none; font-size:13px; font-weight:500;
+    border:1px solid rgba(255,255,255,.35); border-radius:9px; padding:8px 14px;
+    background:rgba(255,255,255,.08);
+  }
+  #lb .nav, #lb .close{
+    position:absolute; z-index:3; border:none; cursor:pointer;
+    background:rgba(255,255,255,.13); color:#fff;
+    -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);
+    display:flex; align-items:center; justify-content:center;
+    transition:background .15s ease, transform .15s ease;
+  }
+  #lb .nav:hover, #lb .close:hover{background:rgba(255,255,255,.26)}
+  #lb .nav:active, #lb .close:active{transform:scale(.92)}
+  #lb .nav{
+    top:50%; margin-top:-23px; width:46px; height:46px; border-radius:50%; padding:0;
+    font-size:22px; line-height:1;
+  }
+  #lb .nav.prev{left:12px}
+  #lb .nav.next{right:12px}
+  #lb .nav[disabled]{opacity:0;pointer-events:none}
+  #lb .close{
+    position:static; width:38px; height:38px; border-radius:50%; padding:0;
+    font-size:20px; line-height:1;
+  }
+  @media (max-width:520px){
+    #lb .nav{width:40px;height:40px;margin-top:-20px;font-size:19px}
+    #lb .nav.prev{left:6px} #lb .nav.next{right:6px}
+  }
 </style>
 </head>
 <body>
 
-<header>
-  <h1 id="coupleName">Elif &amp; Berkay</h1>
-  <div class="rule"></div>
-  <p>Bu güzel günde çektiğiniz fotoğraf ve videoları bizimle paylaşın</p>
-</header>
+<div class="hero">
+  <img src="wed.jpeg" alt="Elif ve Berkay">
+  <div class="veil"></div>
+  <div class="cap">
+    <h1 id="coupleName">Elif &amp; Berkay</h1>
+    <div class="rule"></div>
+    <p>Bu güzel günde çektiğiniz anıları bizimle paylaşın</p>
+  </div>
+</div>
 
 <section class="card" id="nameCard">
   <h2>Adınız</h2>
@@ -160,6 +280,23 @@
     <button class="btn-primary" id="admLogin">Giriş</button>
   </div>
 </dialog>
+
+<div id="lb" role="dialog" aria-modal="true" aria-label="Medya görüntüleyici">
+  <div class="topbar">
+    <span class="count" id="lbCount"></span>
+    <button class="close" id="lbClose" aria-label="Kapat">&#10005;</button>
+  </div>
+  <div class="stage" id="lbStage"></div>
+  <button class="nav prev" id="lbPrev" aria-label="Önceki">&#10094;</button>
+  <button class="nav next" id="lbNext" aria-label="Sonraki">&#10095;</button>
+  <div class="botbar">
+    <div class="meta">
+      <b id="lbWho"></b>
+      <span id="lbName"></span>
+    </div>
+    <a class="dl" id="lbDl" target="_blank" rel="noopener">İndir</a>
+  </div>
+</div>
 
 <script type="module">
 /* ============================================================
@@ -384,8 +521,7 @@ window.addEventListener("beforeunload", e => {
   if(pumping){ e.preventDefault(); e.returnValue = ""; }
 });
 
-/* ---------- Galeri ---------- */
-let unsub = null;
+/* ---------- Yardımcılar ---------- */
 function isHeic(ct, name){
   const n = (name || "").toLowerCase();
   return /heic|heif/.test(ct || "") || n.endsWith(".heic") || n.endsWith(".heif");
@@ -393,6 +529,86 @@ function isHeic(ct, name){
 function escapeHtml(s){
   return String(s).replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
 }
+
+/* ---------- Lightbox ---------- */
+let items = [], lbIndex = -1;
+const lb = $("lb"), lbStage = $("lbStage");
+
+function lbOpen(i){
+  if(i < 0 || i >= items.length) return;
+  lbIndex = i;
+  lb.classList.add("open");
+  document.body.classList.add("locked");
+  requestAnimationFrame(() => lb.classList.add("shown"));
+  lbRender();
+}
+function lbClose(){
+  lb.classList.remove("shown");
+  document.body.classList.remove("locked");
+  setTimeout(() => { lb.classList.remove("open"); lbStage.innerHTML = ""; lbIndex = -1; }, 220);
+}
+function lbGo(step){
+  const n = lbIndex + step;
+  if(n < 0 || n >= items.length) return;
+  lbIndex = n;
+  lbRender();
+}
+function lbRender(){
+  const x = items[lbIndex];
+  if(!x) return;
+  const isVideo = (x.contentType || "").startsWith("video/");
+
+  if(isVideo){
+    lbStage.innerHTML = `<video src="${x.url}" controls autoplay playsinline preload="metadata"></video>`;
+  } else if(isHeic(x.contentType, x.name)){
+    lbStage.innerHTML = `<div class="ph">Bu fotoğraf HEIC biçiminde ve tarayıcıda önizlenemiyor.
+      <a href="${x.url}" target="_blank" rel="noopener">Dosyayı aç</a></div>`;
+  } else {
+    lbStage.innerHTML = `<img src="${x.url}" alt="">`;
+  }
+
+  $("lbWho").textContent  = x.uploader || "İsimsiz";
+  $("lbName").textContent = x.name || "";
+  $("lbDl").href = x.url;
+  $("lbCount").textContent = (lbIndex + 1) + " / " + items.length;
+  $("lbPrev").disabled = lbIndex === 0;
+  $("lbNext").disabled = lbIndex === items.length - 1;
+
+  [items[lbIndex+1], items[lbIndex-1]].forEach(n => {
+    if(n && !(n.contentType||"").startsWith("video/") && !isHeic(n.contentType,n.name)){
+      new Image().src = n.url;
+    }
+  });
+}
+
+$("lbClose").addEventListener("click", lbClose);
+$("lbPrev").addEventListener("click", () => lbGo(-1));
+$("lbNext").addEventListener("click", () => lbGo(1));
+lb.addEventListener("click", e => { if(e.target === lb || e.target === lbStage) lbClose(); });
+document.addEventListener("keydown", e => {
+  if(!lb.classList.contains("open")) return;
+  if(e.key === "Escape")     lbClose();
+  if(e.key === "ArrowLeft")  lbGo(-1);
+  if(e.key === "ArrowRight") lbGo(1);
+});
+let tx = 0, ty = 0;
+lb.addEventListener("touchstart", e => {
+  tx = e.changedTouches[0].clientX; ty = e.changedTouches[0].clientY;
+}, {passive:true});
+lb.addEventListener("touchend", e => {
+  const dx = e.changedTouches[0].clientX - tx;
+  const dy = e.changedTouches[0].clientY - ty;
+  if(Math.abs(dx) > 55 && Math.abs(dx) > Math.abs(dy) * 1.5) lbGo(dx < 0 ? 1 : -1);
+  else if(dy > 90 && Math.abs(dy) > Math.abs(dx) * 1.5) lbClose();
+}, {passive:true});
+
+$("gallery").addEventListener("click", e => {
+  const t = e.target.closest(".tile");
+  if(t) lbOpen(Number(t.dataset.i));
+});
+
+/* ---------- Galeri ---------- */
+let unsub = null;
 function watchGallery(user, admin){
   if(unsub){ unsub(); unsub = null; }
   const col = collection(db, "uploads");
@@ -402,15 +618,17 @@ function watchGallery(user, admin){
 
   unsub = onSnapshot(q, snap => {
     const grid = $("gallery"), empty = $("galleryEmpty");
-    if(snap.empty){
+    items = snap.docs.map(d => d.data());
+
+    if(!items.length){
       grid.innerHTML = "";
       empty.textContent = admin ? "Henüz yükleme yok." : "Henüz bir şey yüklemediniz.";
       empty.classList.remove("hidden");
+      if(lb.classList.contains("open")) lbClose();
       return;
     }
     empty.classList.add("hidden");
-    grid.innerHTML = snap.docs.map(d => {
-      const x = d.data();
+    grid.innerHTML = items.map((x, i) => {
       const who = admin && x.uploader ? `<span class="who">${escapeHtml(x.uploader)}</span>` : "";
       let media;
       if((x.contentType || "").startsWith("video/")){
@@ -420,8 +638,10 @@ function watchGallery(user, admin){
       } else {
         media = `<img src="${x.url}" loading="lazy" alt="">`;
       }
-      return `<a class="tile" href="${x.url}" target="_blank" rel="noopener">${media}${who}</a>`;
+      return `<button class="tile" data-i="${i}" aria-label="Aç">${media}${who}</button>`;
     }).join("");
+
+    if(lbIndex >= items.length) lbClose();
   }, err => {
     console.error("Galeri hatası (index gerekebilir):", err);
     $("galleryEmpty").textContent = "Galeri yüklenemedi. Konsolu kontrol edin.";
