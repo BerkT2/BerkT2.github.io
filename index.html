@@ -54,6 +54,9 @@
   .btn-primary:disabled{background:#c9bcae;cursor:default}
   .btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--line);padding:10px 16px;font-size:14px}
   .hint{font-size:13px;color:var(--muted);margin:10px 0 0}
+  .status{font-size:13px;margin:10px 0 0;font-weight:500}
+  .status.ok{color:var(--ok)}
+  .status.bad{color:var(--err)}
   .warn{background:#fdf6ec;border:1px solid #eadcc4;color:#7a5c2e;font-size:13px;padding:12px 14px;border-radius:10px;margin-top:14px}
   #fileInput{display:none}
 
@@ -120,6 +123,7 @@
   <h2>Fotoğraf ve Video Yükle</h2>
   <input type="file" id="fileInput" accept="image/*,video/*" multiple>
   <button class="btn-primary" id="pickBtn" disabled>Dosya Seç</button>
+  <p class="status" id="statusLine">JavaScript yüklenmedi — konsolu kontrol edin.</p>
   <p class="hint">Birden fazla dosya seçebilirsiniz. Dosyalar cihazınıza kaydedilir ve sırayla yüklenir.</p>
   <div class="warn">
     Yükleme bitene kadar lütfen bu sayfayı açık tutun ve ekranınızı kilitlemeyin.
@@ -159,12 +163,6 @@
 
 <script type="module">
 /* ============================================================
-   YAPILANDIRMA — burayı kendi bilgilerinizle doldurun
-   ============================================================ */
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-
-/* ============================================================
    YAPILANDIRMA
    ============================================================ */
 const firebaseConfig = {
@@ -199,6 +197,8 @@ const storage = getStorage(app);
 const $ = id => document.getElementById(id);
 $("coupleName").textContent = COUPLE_NAME;
 document.title = COUPLE_NAME + " — Düğün Anıları";
+
+let authReady = false, authError = "";
 
 /* ---------- IndexedDB kuyruğu ---------- */
 const IDB_NAME = "dugun-kuyruk", IDB_STORE = "dosyalar";
@@ -246,7 +246,7 @@ async function acquireWakeLock(){
       wakeLock = await navigator.wakeLock.request("screen");
       wakeLock.addEventListener("release", () => { wakeLock = null; });
     }
-  }catch(e){ /* desteklenmiyor olabilir */ }
+  }catch(e){}
 }
 async function releaseWakeLock(){
   try{ if(wakeLock){ await wakeLock.release(); wakeLock = null; } }catch(e){}
@@ -265,6 +265,12 @@ function syncName(){
   const ok = nameInput.value.trim().length >= 2;
   $("pickBtn").disabled = !ok || !auth.currentUser;
   localStorage.setItem("uploaderName", nameInput.value.trim());
+  const s = $("statusLine");
+  s.className = "status";
+  if(authError){        s.textContent = "Bağlantı hatası: " + authError; s.classList.add("bad"); }
+  else if(!authReady){  s.textContent = "Bağlanılıyor…"; }
+  else if(!ok){         s.textContent = "Devam etmek için adınızı yazın."; }
+  else {                s.textContent = "Hazır."; s.classList.add("ok"); }
 }
 nameInput.addEventListener("input", syncName);
 
@@ -427,9 +433,15 @@ function watchGallery(user, admin){
 onAuthStateChanged(auth, async user => {
   if(!user){
     try{ await signInAnonymously(auth); }
-    catch(e){ alert("Bağlantı kurulamadı. Lütfen sayfayı yenileyin."); }
+    catch(e){
+      authError = e.code || e.message;
+      console.error("Anonim giriş başarısız:", e);
+      syncName();
+    }
     return;
   }
+  authReady = true;
+  authError = "";
   const admin = !user.isAnonymous && user.email === ADMIN_EMAIL;
   $("adminBadge").classList.toggle("hidden", !admin);
   $("galleryTitle").firstChild.nodeValue = admin ? "Tüm Yüklemeler" : "Yüklediklerim";
