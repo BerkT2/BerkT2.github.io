@@ -1,755 +1,468 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Japonya 2026 | Canlı Gezi ve Harita Rehberi</title>
-    <style>
-        :root {
-            --bg-color: #f6f8fa;
-            --card-bg: #ffffff;
-            --text-color: #1e293b;
-            --text-muted: #64748b;
-            --primary: #bc1e22; /* Torii Kırmızısı */
-            --success: #10b981; /* Gezildi Yeşili */
-            --tourist-color: #ef4444;
-            --food-color: #f97316;
-            --shop-color: #3b82f6;
-            --hotel-color: #a855f7;
-            --shadow: 0 4px 14px rgba(0,0,0,0.06);
-            --radius: 16px;
-        }
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f7f3ec">
+<title>Düğün Anıları</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f7f3ec; --card:#fffdfa; --ink:#2e2823; --muted:#8a7f74;
+    --line:#e6ddd0; --accent:#a8794f; --accent-dark:#8c6340;
+    --ok:#4e7a52; --err:#a8483f; --radius:14px;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--bg); color:var(--ink);
+    font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    font-size:16px; line-height:1.5;
+    padding:0 16px calc(40px + env(safe-area-inset-bottom));
+    max-width:760px; margin:0 auto;
+  }
+  header{text-align:center;padding:40px 8px 28px}
+  header h1{
+    font-family:"Cormorant Garamond",Georgia,serif;
+    font-weight:600; font-size:42px; line-height:1.1; margin:0 0 10px;
+    letter-spacing:.5px;
+  }
+  header p{margin:0;color:var(--muted);font-size:15px}
+  .rule{width:56px;height:1px;background:var(--accent);margin:18px auto;opacity:.5}
+  .card{
+    background:var(--card); border:1px solid var(--line);
+    border-radius:var(--radius); padding:20px; margin-bottom:16px;
+  }
+  .card h2{
+    font-family:"Cormorant Garamond",Georgia,serif;
+    font-size:24px;font-weight:600;margin:0 0 14px;
+  }
+  label{display:block;font-size:13px;font-weight:500;color:var(--muted);margin-bottom:6px}
+  input[type=text],input[type=email],input[type=password]{
+    width:100%;padding:12px 14px;font-size:16px;font-family:inherit;
+    border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);
+  }
+  input:focus{outline:2px solid var(--accent);outline-offset:1px;border-color:transparent}
+  button{
+    font-family:inherit;font-size:16px;font-weight:500;cursor:pointer;
+    border:none;border-radius:10px;padding:14px 20px;
+  }
+  .btn-primary{background:var(--accent);color:#fff;width:100%}
+  .btn-primary:active{background:var(--accent-dark)}
+  .btn-primary:disabled{background:#c9bcae;cursor:default}
+  .btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--line);padding:10px 16px;font-size:14px}
+  .hint{font-size:13px;color:var(--muted);margin:10px 0 0}
+  .warn{background:#fdf6ec;border:1px solid #eadcc4;color:#7a5c2e;font-size:13px;padding:12px 14px;border-radius:10px;margin-top:14px}
+  #fileInput{display:none}
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            -webkit-tap-highlight-color: transparent;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-        }
+  .qitem{border-top:1px solid var(--line);padding:12px 0}
+  .qitem:first-child{border-top:none;padding-top:0}
+  .qrow{display:flex;justify-content:space-between;gap:12px;font-size:14px;align-items:baseline}
+  .qname{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
+  .qpct{color:var(--muted);font-variant-numeric:tabular-nums;font-size:13px}
+  .bar{height:5px;background:var(--line);border-radius:3px;margin-top:8px;overflow:hidden}
+  .bar > i{display:block;height:100%;width:0;background:var(--accent);transition:width .25s ease}
+  .qitem.failed .bar > i{background:var(--err)}
+  .qitem.failed .qpct{color:var(--err)}
 
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            overflow: hidden;
-        }
-
-        /* Harita Alanı */
-        #map-container {
-            height: 40vh;
-            width: 100%;
-            position: relative;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-            z-index: 10;
-        }
-
-        /* TAM EKRAN MODU */
-        #map-container.fullscreen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            height: 100vh;
-            width: 100vw;
-            z-index: 9999;
-        }
-
-        #map {
-            height: 100%;
-            width: 100%;
-        }
-
-        .map-btn {
-            position: absolute;
-            bottom: 16px;
-            right: 16px;
-            background: white;
-            border: none;
-            padding: 12px;
-            border-radius: 50%;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 11;
-            cursor: pointer;
-        }
-
-        /* Tam ekran butonu (sağ üst) */
-        .map-btn.fullscreen-btn {
-            top: 16px;
-            bottom: auto;
-        }
-
-        .map-btn svg { width: 24px; height: 24px; fill: var(--primary); }
-
-        /* İçerik Panel Alanı */
-        #content-container {
-            height: 60vh;
-            display: flex;
-            flex-direction: column;
-            background: var(--bg-color);
-        }
-
-        /* Matris Filtre Paneli (Kompakt Tasarım) */
-        .filter-panel {
-            background: white;
-            padding: 10px 14px;
-            border-bottom: 1px solid #e2e8f0;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
-        }
-
-        .filter-row {
-            display: flex;
-            gap: 6px;
-            overflow-x: auto;
-            scrollbar-width: none;
-            padding-bottom: 2px;
-        }
-        .filter-row::-webkit-scrollbar { display: none; }
-
-        .f-btn {
-            background: #f1f5f9;
-            color: var(--text-muted);
-            border: 1px solid #e2e8f0;
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 700;
-            white-space: nowrap;
-            cursor: pointer;
-            transition: all 0.15s ease;
-        }
-
-        .f-btn.active {
-            background: var(--text-color);
-            color: white;
-            border-color: var(--text-color);
-        }
-
-        /* Kategori Butonları Aktif Renkleri */
-        .f-btn[data-type="tourist"].active { background: var(--tourist-color); border-color: var(--tourist-color); }
-        .f-btn[data-type="food"].active { background: var(--food-color); border-color: var(--food-color); }
-        .f-btn[data-type="shop"].active { background: var(--shop-color); border-color: var(--shop-color); }
-        .f-btn[data-type="hotel"].active { background: var(--hotel-color); border-color: var(--hotel-color); }
-
-        /* Gizleme Seçeneği Özel Tasarımı */
-        .toggle-btn {
-            background: #ecfdf5;
-            color: #065f46;
-            border: 1px solid #a7f3d0;
-            font-weight: 800;
-        }
-        .toggle-btn.active {
-            background: var(--success);
-            color: white;
-            border-color: var(--success);
-        }
-
-        /* Liste Akış Alanı */
-        .list-scroll {
-            flex: 1;
-            overflow-y: auto;
-            padding: 12px;
-            padding-bottom: 30px;
-        }
-
-        /* Kart Tasarımı */
-        .card {
-            background: var(--card-bg);
-            border: 1px solid #e2e8f0;
-            border-radius: var(--radius);
-            padding: 12px 14px;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            box-shadow: var(--shadow);
-            transition: all 0.2s ease;
-        }
-
-        .card.checked {
-            background: #f8fafc;
-            opacity: 0.5;
-        }
-
-        .card-left {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            flex: 1;
-        }
-
-        .card-left input[type="checkbox"] {
-            appearance: none;
-            -webkit-appearance: none;
-            width: 22px;
-            height: 22px;
-            border: 2px solid #cbd5e1;
-            border-radius: 8px;
-            display: grid;
-            place-content: center;
-            transition: all 0.15s ease;
-            cursor: pointer;
-            flex-shrink: 0;
-        }
-
-        .card-left input[type="checkbox"]::before {
-            content: "";
-            width: 10px;
-            height: 10px;
-            transform: scale(0);
-            transition: all 0.15s ease;
-            box-shadow: inset 1em 1em var(--success);
-            clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
-        }
-
-        .card-left input[type="checkbox"]:checked {
-            border-color: var(--success);
-            background-color: #ecfdf5;
-        }
-
-        .card-left input[type="checkbox"]:checked::before { transform: scale(1); }
-
-        .card-info {
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-        }
-
-        .card-title {
-            font-size: 14px;
-            font-weight: 700;
-            color: var(--text-color);
-        }
-
-        .card.checked .card-title { text-decoration: line-through; color: var(--text-muted); }
-
-        .card-desc {
-            font-size: 11px;
-            color: var(--text-muted);
-            line-height: 1.3;
-        }
-
-        .source-tag { font-weight: 700; color: var(--primary); }
-
-        /* Kart Aksiyon Butonları (Harita + Yol Tarifi) */
-        .card-actions {
-            display: flex;
-            gap: 6px;
-            flex-shrink: 0;
-        }
-
-        .card-right-btn {
-            background: #f1f5f9;
-            border: none;
-            padding: 8px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        .card-right-btn.dir-btn {
-            background: #eff6ff;
-        }
-
-        .type-badge {
-            font-size: 9px;
-            padding: 1px 5px;
-            border-radius: 5px;
-            font-weight: 800;
-            color: white;
-            align-self: flex-start;
-            margin-bottom: 2px;
-            text-transform: uppercase;
-        }
-        .badge-tourist { background: var(--tourist-color); }
-        .badge-food { background: var(--food-color); }
-        .badge-shop { background: var(--shop-color); }
-        .badge-hotel { background: var(--hotel-color); }
-        .badge-checked { background: var(--success); }
-    </style>
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(105px,1fr));gap:8px}
+  .tile{
+    position:relative;aspect-ratio:1;border-radius:10px;overflow:hidden;
+    background:#efe8dd;border:1px solid var(--line);
+  }
+  .tile img,.tile video{width:100%;height:100%;object-fit:cover;display:block}
+  .tile .ph{
+    display:flex;align-items:center;justify-content:center;height:100%;
+    font-size:11px;color:var(--muted);text-align:center;padding:8px;
+  }
+  .tile .who{
+    position:absolute;left:0;right:0;bottom:0;padding:14px 6px 4px;
+    font-size:10px;color:#fff;
+    background:linear-gradient(transparent,rgba(0,0,0,.65));
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .tile .vid{
+    position:absolute;top:5px;right:5px;background:rgba(0,0,0,.55);color:#fff;
+    font-size:9px;padding:2px 5px;border-radius:4px;letter-spacing:.5px;
+  }
+  .empty{color:var(--muted);font-size:14px;text-align:center;padding:20px 0}
+  footer{text-align:center;padding:24px 0 0}
+  dialog{
+    border:1px solid var(--line);border-radius:var(--radius);padding:22px;
+    max-width:340px;width:calc(100% - 40px);background:var(--card);color:var(--ink);
+  }
+  dialog::backdrop{background:rgba(46,40,35,.45)}
+  dialog h2{margin-top:0}
+  .dlg-actions{display:flex;gap:8px;margin-top:16px}
+  .dlg-actions button{flex:1;padding:12px}
+  .err{color:var(--err);font-size:13px;margin-top:10px;min-height:18px}
+  .badge{display:inline-block;background:var(--ok);color:#fff;font-size:11px;padding:3px 9px;border-radius:20px;margin-left:8px;vertical-align:middle}
+  .hidden{display:none !important}
+</style>
 </head>
 <body>
 
-    <!-- Canlı Harita Modülü -->
-    <div id="map-container">
-        <div id="map"></div>
-        <!-- Tam Ekran Butonu -->
-        <button class="map-btn fullscreen-btn" onclick="toggleFullscreen()" title="Tam Ekran">
-            <svg id="fs-icon" viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
-        </button>
-        <!-- GPS Butonu -->
-        <button class="map-btn" onclick="trackUserLocation()" title="GPS Konumumu Bul">
-            <svg viewBox="0 0 24 24"><path d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm8.94 3c-.46-4.17-3.77-7.48-7.94-7.94V1h-2v2.06C6.83 3.52 3.52 6.83 3.06 11H1v2h2.06c.46 4.17 3.77 7.48 7.94 7.94V23h-2v-2.06c4.17-.46 7.48-3.77 7.94-7.94H23v-2h-2.06zM12 19c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/></svg>
-        </button>
-    </div>
+<header>
+  <h1 id="coupleName">Elif &amp; Berkay</h1>
+  <div class="rule"></div>
+  <p>Bu güzel günde çektiğiniz fotoğraf ve videoları bizimle paylaşın</p>
+</header>
 
-    <!-- Gelişmiş Matris Filtre Paneli -->
-    <div id="content-container">
-        <div class="filter-panel">
-            <!-- Satır 1: Şehir Filtresi (Çoklu Seçim) -->
-            <div class="filter-row" id="city-row">
-                <button class="f-btn active" data-city="all" onclick="filterCity('all', this)">🗺️ Tüm Şehirler</button>
-                <button class="f-btn" data-city="tokyo" onclick="filterCity('tokyo', this)">🗼 Tokyo</button>
-                <button class="f-btn" data-city="osaka" onclick="filterCity('osaka', this)">🐙 Osaka</button>
-                <button class="f-btn" data-city="kyoto" onclick="filterCity('kyoto', this)">🏯 Kyoto & Nara</button>
-            </div>
-            <!-- Satır 2: Kategori Filtresi (Çoklu Seçim) & Gizleme -->
-            <div class="filter-row" id="type-row">
-                <button class="f-btn active" data-type="all" onclick="filterType('all', this)">📍 Hepsi</button>
-                <button class="f-btn" data-type="tourist" onclick="filterType('tourist', this)">🔴 Turistik</button>
-                <button class="f-btn" data-type="food" onclick="filterType('food', this)">🟠 Gurme</button>
-                <button class="f-btn" data-type="shop" onclick="filterType('shop', this)">🔵 Alışveriş</button>
-                <button class="f-btn" data-type="hotel" onclick="filterType('hotel', this)">🟣 Otel</button>
-                <button class="f-btn toggle-btn" onclick="toggleCheckedFilter(this)">✔️ Gezilenleri Gizle</button>
-            </div>
-        </div>
+<section class="card" id="nameCard">
+  <h2>Adınız</h2>
+  <label for="nameInput">Yüklediğiniz anıların kime ait olduğunu bilelim</label>
+  <input type="text" id="nameInput" placeholder="Örn. Zeynep Kaya" autocomplete="name">
+</section>
 
-        <!-- Dinamik Liste Kart Akış Alanı -->
-        <div class="list-scroll" id="list-container">
-            <!-- JavaScript ile doldurulacak -->
-        </div>
-    </div>
+<section class="card">
+  <h2>Fotoğraf ve Video Yükle</h2>
+  <input type="file" id="fileInput" accept="image/*,video/*" multiple>
+  <button class="btn-primary" id="pickBtn" disabled>Dosya Seç</button>
+  <p class="hint">Birden fazla dosya seçebilirsiniz. Dosyalar cihazınıza kaydedilir ve sırayla yüklenir.</p>
+  <div class="warn">
+    Yükleme bitene kadar lütfen bu sayfayı açık tutun ve ekranınızı kilitlemeyin.
+    Ekran kilitlenirse yükleme duraklar; sayfaya geri döndüğünüzde kaldığı yerden kendiliğinden devam eder.
+    Hiçbir dosyanız kaybolmaz.
+  </div>
+</section>
 
-    <script>
-        // MASTER JAPONYA COĞRAFİ VERİ TABANI
-        const locations = [
-            // OTELLER
-            { id: "h1", title: "Shinjuku Okubo Airbnb", lat: 35.6994722, lng: 139.7063889, type: "hotel", city: "tokyo", desc: "<strong>[Konaklama / Ev]</strong> 1-4 Haziran İlk Bölge Evi | <span class='source-tag'>[Berk & Atakan'ın PDF'i]</span>" },
-            { id: "h2", title: "Granbell Hotel Osaka", lat: 34.679748, lng: 135.503825, type: "hotel", city: "osaka", desc: "<strong>[Otel]</strong> 4-7 Haziran Osaka Merkez Oteli | <span class='source-tag'>[Berk & Atakan'ın PDF'i]</span>" },
-            { id: "h3", title: "Nakano Tokyo Airbnb", lat: 35.7015177, lng: 139.6785455, type: "hotel", city: "tokyo", desc: "<strong>[Konaklama / Ev]</strong> 7-10 Haziran İkinci Bölge Evi | <span class='source-tag'>[Berk & Atakan'ın PDF'i]</span>" },
-            { id: "h4", title: "Narita Airport Kapsül Otel", lat: 35.7725, lng: 140.3881, type: "hotel", city: "tokyo", desc: "<strong>[Kapsül Otel]</strong> Son Gece Havaalanı İçi Deneyimi | <span class='source-tag'>[Berk & Atakan'ın PDF'i]</span>" },
-            
-            // TOKYO TURİSTİK & DENEYİM
-            { id: "tk1", title: "Shibuya Crossing & Hachiko", lat: 35.6595, lng: 139.7005, type: "tourist", city: "tokyo", desc: "<strong>[İkonik Cadde & Meydan]</strong> Ünlü yaya geçidi og Hachiko heykeli | <span class='source-tag'>[Berk, Clarissa & Atakan]</span>" },
-            { id: "tk2", title: "Shibuya Sky", lat: 35.6586, lng: 139.7015, type: "tourist", city: "tokyo", desc: "<span style='color:red; font-weight:bold;'>[⚠️ REZERVASYON ŞART!]</span> <strong>[Seyir Terası / Manzara]</strong> Açık hava gökdelen çatı terası | <span class='source-tag'>[Clarissa's PDF & Atakan'ın PDF'i]</span>" },
-            { id: "tk3", title: "Meiji Jingu Tapınağı", lat: 35.6764, lng: 139.6993, type: "tourist", city: "tokyo", desc: "<strong>[Ünlü Şinto Tapınağı]</strong> Ormanlık alan içerisindeki tarihi tapınak | <span class='source-tag'>[Clarissa's PDF & Atakan'ın PDF'i]</span>" },
-            { id: "tk4", title: "Takeshita Street Harajuku", lat: 35.6716, lng: 139.7032, type: "tourist", city: "tokyo", desc: "<strong>[Kültür & Alışveriş Caddesi]</strong> Çılgın gençlik modası ve renkli krepler | <span class='source-tag'>[Berk, Clarissa & Atakan]</span>" },
-            { id: "tk5", title: "Asakusa Senso-ji Tapınağı", lat: 35.7148, lng: 139.7967, type: "tourist", city: "tokyo", desc: "<strong>[En Eski Tarihi Tapınak]</strong> Tokyo'nun simgesi, Nakamise ve kutudan fal | <span class='source-tag'>[Berk, Clarissa & Atakan]</span>" },
-            { id: "tk6", title: "teamLab Planets Tokyo", lat: 35.6489, lng: 139.7905, type: "tourist", city: "tokyo", desc: "<span style='color:red; font-weight:bold;'>[⚠️ REZERVASYON ŞART!]</span> <strong>[Dijital Sanat Müzesi]</strong> Çıplak ayakla gezilen devasa optik müze | <span class='source-tag'>[Berk & Clarissa's PDF]</span>" },
-            { id: "tk7", title: "Akihabara Electric Town", lat: 35.6997, lng: 139.7715, type: "tourist", city: "tokyo", desc: "<strong>[Anime & Elektronik Merkezi]</strong> Oyun salonları, figür dükkanları ve neonlar | <span class='source-tag'>[Berk, Clarissa & Atakan]</span>" },
-            { id: "tk8", title: "Shinjuku Gyoen National Garden", lat: 35.6852, lng: 139.7101, type: "tourist", city: "tokyo", desc: "<strong>[Dev İmparatorluk Parkı]</strong> Geniş peyzajlı, huzurlu geleneksel Japon yeşilliği | <span class='source-tag'>[Clarissa's PDF]</span>" },
-            { id: "tk9", title: "Chidorigafuchi Moat", lat: 35.6905, lng: 139.7472, type: "tourist", city: "tokyo", desc: "<strong>[Park Hendek / Kayık Keyfi]</strong> İmparatorluk Sarayı sularında kürek çekme | <span class='source-tag'>[Clarissa's PDF]</span>" },
-            { id: "tk10", title: "Daikoku Car Meet", lat: 35.4624, lng: 139.6803, type: "tourist", city: "tokyo", desc: "<strong>[Efsane Araba Buluşması]</strong> Dünyaca ünlü modifiyeli Japon yarış arabaları alanı | <span class='source-tag'>[Clarissa's PDF]</span>" },
-            { id: "tk11", title: "Tokyo Met. Gov. Işık Gösterisi", lat: 35.6895, lng: 139.6917, type: "tourist", city: "tokyo", desc: "<strong>[Gökdelen Projeksiyon Şovu]</strong> Hükümet binası cephesindeki dev görsel gösteri | <span class='source-tag'>[Atakan'ın PDF'i]</span>" },
-            { id: "tk12", title: "Kabukicho Ichiban-gai (Godzilla)", lat: 35.6938, lng: 139.7017, type: "tourist", city: "tokyo", desc: "<strong>[Gece Hayatı & Eğlence Caddesi]</strong> Neon sokaklar ve dev bina üstü Godzilla kafası | <span class='source-tag'>[Atakan'ın PDF'i & Airbnb Rehberi]</span>" },
-            { id: "tk13", title: "Owl Cafe Ginza Mafu Mafu", lat: 35.6710, lng: 139.7650, type: "tourist", city: "tokyo", desc: "<strong>[Hayvan Konsept Kafe]</strong> Ginza'da gerçek baykuşlarla yakın temas alanı | <span class='source-tag'>[Clarissa's PDF]</span>" },
-            { id: "tk14", title: "Pokemon Cafe Nihonbashi", lat: 35.6811, lng: 139.7731, type: "tourist", city: "tokyo", desc: "<span style='color:red; font-weight:bold;'>[⚠️ REZERVASYON ŞART!]</span> <strong>[Tematik Pokemon Restoranı]</strong> Tam 1 ay önceden açılan maskotlu yemek salonu | <span class='source-tag'>[Atakan'ın PDF'i]</span>" },
-            { id: "tk15", title: "Dawn Robot Avatar Cafe", lat: 35.6876, lng: 139.7735, type: "tourist", city: "tokyo", desc: "<strong>[Fütüristik Robot Kafe]</strong> Uzaktan kontrol edilen avatar robot garsonlar | <span class='source-tag'>[Berk & Atakan'ın PDF'i]</span>" },
-            { id: "tk16", title: "Tokyo Tower", lat: 35.6586, lng: 139.7454, type: "tourist", city: "tokyo", desc: "<strong>[İkonik Kırmızı Kule / Manzara]</strong> Tokyo'nun efsanevi kırmızı demir kulesi | <span class='source-tag'>[Clarissa's PDF]</span>" },
-            { id: "tk17", title: "Hanazono-jinja Tapınağı", lat: 35.6931, lng: 139.7052, type: "tourist", city: "tokyo", desc: "<strong>[Gizli Şinto Tapınağı]</strong> Shinjuku gökdelenleri arasına saklanmış kırmızı kapılar | <span class='source-tag'>[Airbnb Rehberi]</span>" },
-            
-            // TOKYO GURME / YENİLECEKLER
-            { id: "tf1", title: "Omoide Yokocho & Golden Gai", lat: 35.6931, lng: 139.6997, type: "food", city: "tokyo", desc: "<strong>[Tarihi Sokak Lezzetleri / Bar]</strong> Dar otantik sokaklarda yakitori ve publar | <span class='source-tag'>[Clarissa, Atakan & Airbnb]</span>" },
-            { id: "tf2", title: "Hikiniku to Come Shibuya", lat: 35.6594, lng: 139.6980, type: "food", city: "tokyo", desc: "<strong>[Özel Wagyu Köftecisi]</strong> Kömür ateşinde taze pişen köfte ve pirinç (Sabah sıra beklenir) | <span class='source-tag'>[Atakan'ın PDF'i]</span>" },
-            { id: "tf3", title: "Benizuru Pancake Asakusa", lat: 35.7132, lng: 139.7935, type: "food", city: "tokyo", desc: "<strong>[Meşhur Pofuduk Pankekçi]</strong> Bulut gibi hafif devasa geleneksel pankekleri | <span class='source-tag'>[Atakan'ın PDF'i]</span>" },
-            { id: "tf4", title: "Gonpachi Nishi-Azabu", lat: 35.6601, lng: 139.7238, type: "food", city: "tokyo", desc: "<strong>[Kill Bill Temalı Restoran]</strong> Filmin dövüş sahnesine ilham olan görkemli han | <span class='source-tag'>[Atakan'ın PDF'i]</span>" },
-            { id: "tf5", title: "Ginza Kagari Ramen", lat: 35.6715, lng: 139.7645, type: "food", city: "tokyo", desc: "<strong>[Gurme Tavuklu Ramen]</strong> Yoğun, kremamsı ve efsanevi lezzette çorbalı erişte | <span class='source-tag'>[Atakan'ın PDF'i]</span>" },
-            { id: "tf6", title: "Godaime Hanayama Udon Ginza", lat: 35.6698, lng: 139.7688, type: "food", city: "tokyo", desc: "<strong>[Efsane Geniş Udon Eriştesi]</strong> Kurdele gibi geniş tabak geleneksel udon | <span class='source-tag'>[Atakan'ın PDF'i]</span>" },
-            { id: "tf7", title: "Tsukiji Outer Market", lat: 35.6655, lng: 139.7698, type: "food", city: "tokyo", desc: "<strong>[Tarihi Balık Pazarı / Sokak Lezzetleri]</strong> Taze deniz ürünleri ve Wagyu şiş dükkanları | <span class='source-tag'>[Clarissa's PDF & Atakan'ın PDF'i]</span>" },
-            { id: "tf8", title: "Ichiran Ramen Shinjuku Kabukicho", lat: 35.6910, lng: 139.7027, type: "food", city: "tokyo", desc: "<strong>[Kabinli Ramen Zinciri]</strong> Tek kişilik özel kabinlerde ikonik acılı ramen | <span class='source-tag'>[Atakan'ın PDF'i & Airbnb Rehberi]</span>" },
-            { id: "tf9", title: "Nihonshu Genka Sakagura Shinjuku", lat: 35.6925, lng: 139.7010, type: "food", city: "tokyo", desc: "<strong>[Gurme Sake Tadım Barı]</strong> Onlarca çeşit Japon yerel sakesini deneme alanı | <span class='source-tag'>[Atakan'ın PDF'i]</span>" },
-            { id: "tf10", title: "Shinjuku Sushi Bar Nigirite", lat: 35.6945, lng: 139.6982, type: "food", city: "tokyo", desc: "<strong>[Tezgah Üstü Lokal Sushi]</strong> Şefin önünüzde taze taze elden sıktığı sushi barı | <span class='source-tag'>[Atakan'ın PDF'i]</span>" },
-            { id: "tf11", title: "Giraffa Asakusa", lat: 35.7120, lng: 139.7950, type: "food", city: "tokyo", desc: "<strong>[Çıtır Peynirli Körili Ekmek]</strong> Sokak atıştırmalığı; dışı çıtır içi sıcak peynir | <span class='source-tag'>[Atakan'ın PDF'i]</span>" },
-            { id: "tf12", title: "Yakiniku Panga Ueno", lat: 35.7072, lng: 139.7788, type: "food", city: "tokyo", desc: "<strong>[Premium Helal Wagyu Barbekü]</strong> A5 kalite Wagyu etleri kendin pişir kendin ye | <span class='source-tag'>[Atakan'ın PDF'i]</span>" },
-            { id: "tf13", title: "Shima Steak Takeaway Ginza", lat: 35.6720, lng: 139.7660, type: "food", city: "tokyo", desc: "<strong>[Efsane Wagyu Sandviç]</strong> Lüks restoranın paket olarak sunduğu harika Wagyu sandviç | <span class='source-tag'>[Atakan'ın PDF'i]</span>" },
-            { id: "tf14", title: "Mogami Wagyu Ginza", lat: 35.6724, lng: 139.7628, type: "food", city: "tokyo", desc: "<strong>[Lüks Wagyu Biftek Restoranı]</strong> LaLa Grande Ginza içinde yüksek kalite et deneyimi | <span class='source-tag'>[Berk]</span>" },
-            { id: "tf15", title: "Canton8 Ginza", lat: 35.6685, lng: 139.7635, type: "food", city: "tokyo", desc: "<strong>[Ekonomik Michelin Dim Sum]</strong> Dünyanın en bütçe dostu yıldızlı Çin mantıcısı | <span class='source-tag'>[Atakan'ın PDF'i]</span>" },
-            { id: "tf16", title: "Chermside Sandwiches Shibuya", lat: 35.6610, lng: 139.7010, type: "food", city: "tokyo", desc: "<strong>[Gurme Marine Etli Sandviç]</strong> Yumuşacık harika ekmek arası özel gurme sandviççi | <span class='source-tag'>[Atakan'ın PDF'i]</span>" },
-            { id: "tf17", title: "Sushizanmai Shinjuku", lat: 35.6942, lng: 139.7028, type: "food", city: "tokyo", desc: "<strong>[Taze & Uygun Sushi Zinciri]</strong> Porsiyonları bol, taze ve her bütçeye uygun zincir | <span class='source-tag'>[Airbnb Rehberi]</span>" },
-            { id: "tf18", title: "CoCo Ichibanya Kabukicho", lat: 35.6937, lng: 139.7025, type: "food", city: "tokyo", desc: "<strong>[Meşhur Japon Köri Zinciri]</strong> Sos kalınlığı ve acı oranını kendin seçtiğin yerel köri | <span class='source-tag'>[Airbnb Rehberi]</span>" },
-            { id: "tf19", title: "Wagyu Yakiniku Black Hole", lat: 35.6946, lng: 139.7018, type: "food", city: "tokyo", desc: "<strong>[Kokusuz Wagyu Barbekü]</strong> Her masada özel çekim havalandırması olan kaliteli et dükkanı | <span class='source-tag'>[Airbnb Rehberi]</span>" },
-            
-            // TOKYO ALIŞVERİŞ NOKTALARI
-            { id: "ts1", title: "Uniqlo Ginza Flagship Store", lat: 35.6703, lng: 139.7640, type: "shop", city: "tokyo", desc: "<strong>[12 Katlı Dev Uniqlo Mağazası]</strong> Dünyanın en büyük amiral gemisi giyim binası | <span class='source-tag'>[Berk & Atakan'ın PDF'i]</span>" },
-            { id: "ts2", title: "Uniqlo TOKYO (Marunouchi)", lat: 35.6732, lng: 139.7645, type: "shop", city: "tokyo", desc: "<strong>[Dev Konsept Uniqlo]</strong> Marunouchi bölgesindeki devasa diğer modern şube | <span class='source-tag'>[Berk & Atakan'ın PDF'i]</span>" },
-            { id: "ts3", title: "Uniqlo Shinjuku Hanten", lat: 35.6912, lng: 139.7030, type: "shop", city: "tokyo", desc: "<strong>[Büyük Uniqlo Şubesi]</strong> Shinjuku evine çok yakın olan büyük alışveriş şubesi | <span class='source-tag'>[Berk & Atakan'ın PDF'i]</span>" },
-            { id: "ts4", title: "Mega Don Quijote Shibuya", lat: 35.6605, lng: 139.6975, type: "shop", city: "tokyo", desc: "<strong>[Popüler 7 Katlı DonKi]</strong> En büyük kozmetik, abur cubur ve matcha cenneti | <span class='source-tag'>[Berk & Atakan'ın PDF'i]</span>" },
-            { id: "ts5", title: "Don Quijote Shinjuku Kabukicho", lat: 35.6951, lng: 139.7021, type: "shop", city: "tokyo", desc: "<strong>[24 Saat Açık DonKi]</strong> Gece yarısı alışverişi için eve en yakın dev mağaza | <span class='source-tag'>[Berk, Atakan & Airbnb]</span>" },
-            { id: "ts6", title: "ABC-Mart Grand Stage Shibuya", lat: 35.6611, lng: 139.6985, type: "shop", city: "tokyo", desc: "<strong>[Nadir Modeller / Dev Spor Ayakkabıcı]</strong> Sınırlı üretim koleksiyon modeller | <span class='source-tag'>[Berk & Atakan'ın PDF'i]</span>" },
-            { id: "ts7", title: "ABC-Mart Grand Stage Shinjuku", lat: 35.6918, lng: 139.7022, type: "shop", city: "tokyo", desc: "<strong>[Büyük Spor Ayakkabı Kompleksi]</strong> Shinjuku bölgesinin ana büyük ayakkabı binası | <span class='source-tag'>[Berk & Atakan'ın PDF'i]</span>" },
-            { id: "ts8", title: "ABC-Mart Grand Stage Ginza", lat: 35.6713, lng: 139.7644, type: "shop", city: "tokyo", desc: "<strong>[Şık Dev Spor Ayakkabıcı]</strong> Ginza ana caddesindeki şık tasarımlı büyük şube | <span class='source-tag'>[Berk & Atakan'ın PDF'i]</span>" },
-            { id: "ts9", title: "Yodobashi Camera Akihabara", lat: 35.6987, lng: 139.7748, type: "shop", city: "tokyo", desc: "<strong>[Dev Teknoloji & Hobi Sarayı]</strong> Çok katlı hobi, saat, tırnak makası ve elektronik kompleksi | <span class='source-tag'>[Berk & Atakan'ın PDF'i]</span>" },
-            { id: "ts10", title: "Yodobashi Camera Shinjuku", lat: 35.6896, lng: 139.6970, type: "shop", city: "tokyo", desc: "<strong>[Çok Katlı Elektronik Merkezi]</strong> Shinjuku istasyon çıkışındaki devasa teknoloji marketi | <span class='source-tag'>[Berk & Atakan'ın PDF'i]</span>" },
-            { id: "ts11", title: "Bic Camera Shinjuku East", lat: 35.6917, lng: 139.7032, type: "shop", city: "tokyo", desc: "<strong>[Teknoloji & Hobi Market]</strong> Elektronik ürünler, mutfak gereçleri ve kaliteli makaslar | <span class='source-tag'>[Berk & Atakan'ın PDF'i]</span>" },
-            { id: "ts12", title: "Ginza Karen Valiz Mağazası", lat: 35.6693, lng: 139.7661, type: "shop", city: "tokyo", desc: "<strong>[Ucuz Bavul & Valiz Mağazası]</strong> Dönüşte eşyaları yüklemek için ucuz ve sağlam bavulcu | <span class='source-tag'>[Atakan'ın PDF'i]</span>" },
-            { id: "ts13", title: "Daiso Harajuku (Takeshita)", lat: 35.6713, lng: 139.7041, type: "shop", city: "tokyo", desc: "<strong>[Sabit 100 Yen Ucuzluk Mağazası]</strong> Harajuku'da ne alırsan sabit fiyatlı dev mağaza | <span class='source-tag'>[Berk]</span>" },
-            { id: "ts14", title: "Can Do Shinjuku PEPE", lat: 35.6953, lng: 139.7003, type: "shop", city: "tokyo", desc: "<strong>[100 Yen Hediyelik / Tırnak Makası]</strong> Eve yakın hediyelik ve lokal aparat dükkanı | <span class='source-tag'>[Berk]</span>" },
-            { id: "ts15", title: "Seria Shibuya (Magnet AVM)", lat: 35.6596, lng: 139.7011, type: "shop", city: "tokyo", desc: "<strong>[Kaliteli Tasarım 100 Yen Dükkanı]</strong> Daha estetik ve tasarım harikası 100 Yen dükkanı | <span class='source-tag'>[Berk]</span>" },
-            { id: "ts16", title: "Nakano Broadway Pasajı", lat: 35.7090, lng: 139.6655, type: "shop", city: "tokyo", desc: "<strong>[Lüks Saat & Retro Pasajı]</strong> İkinci el lüks saatçiler, koleksiyoncular ve eski esnaflar | <span class='source-tag'>[Atakan'ın PDF'i]</span>" },
-            
-            // TOKYO ÖZEL SENTO / ONSEN DENEYİMLERİ
-            { id: "on1", title: "Matsumoto-yu Sento", lat: 35.7099, lng: 139.6828, type: "tourist", city: "tokyo", desc: "<strong>[Geleneksel Japon Hamamı / Sento]</strong> Nakano yakınında otantik banyo ve sauna | <span class='source-tag'>[Berk]</span>" },
-            { id: "on2", title: "Koganeyu Onsen", lat: 35.6925, lng: 139.8142, type: "tourist", city: "tokyo", desc: "<strong>[Bira Musluklu Hipster Hamam]</strong> Modern hipster tasarımlı, havuz sonrası bira musluğu olan yer | <span class='source-tag'>[Berk]</span>" },
-            { id: "on3", title: "Daikoku-yu Sento", lat: 35.7121, lng: 139.8188, type: "tourist", city: "tokyo", desc: "<strong>[Manzaralı Otantik Sento]</strong> Açık hava havuzundan Tokyo Skytree kulesini gören banyo | <span class='source-tag'>[Berk]</span>" },
+<section class="card hidden" id="queueCard">
+  <h2>Yükleniyor</h2>
+  <div id="queueList"></div>
+</section>
 
-            // OSAKA VERİLERİ
-            { id: "ok1", title: "Dotonbori Glico Man", lat: 34.6687, lng: 135.5013, type: "tourist", city: "osaka", desc: "<strong>[Osaka Merkez / Neon Cadde]</strong> Osaka'nın kalbi, dev nehir tabelaları ve köprü | <span class='source-tag'>[Clarissa's PDF & Atakan'ın PDF'i]</span>" },
-            { id: "ok2", title: "Namba Yasaka Tapınağı", lat: 34.6616, lng: 135.4966, type: "tourist", city: "osaka", desc: "<strong>[Dev Aslan Kafalı Tapınak]</strong> Kötü ruhları yutan devasa aslan heykelli tapınak | <span class='source-tag'>[Atakan'ın PDF'i]</span>" },
-            { id: "ok3", title: "Ikoma Sanjo Sky Cycle", lat: 34.6789, lng: 135.6833, type: "tourist", city: "osaka", desc: "<strong>[Raylar Üstü Bisiklet / Manzara]</strong> Havada raylar üzerinde bisiklet sürerek şehir izleme | <span class='source-tag'>[Berk & Atakan'ın PDF'i]</span>" },
-            { id: "ok4", title: "Shinsekai & Tsutentaku Kulesi", lat: 34.6525, lng: 135.5063, type: "tourist", city: "osaka", desc: "<strong>[Nostaljik Sokak Lezzetleri Caddesi]</strong> Retro fütüristik Osaka ışıkları ve lokal mutfaklar | <span class='source-tag'>[Atakan'ın PDF'i]</span>" },
-            { id: "ok5", title: "Osaka Castle", lat: 34.6873, lng: 135.5262, type: "tourist", city: "osaka", desc: "<strong>[Tarihi Şato Parkı]</strong> Geniş su hendekleri ve yeşilliklerle çevrili efsanevi büyük şato | <span class='source-tag'>[Atakan'ın PDF'i]</span>" },
-            { id: "ok6", title: "Universal Studios Japan (USJ)", lat: 34.6654, lng: 135.4323, type: "tourist", city: "osaka", desc: "<span style='color:red; font-weight:bold;'>[⚠️ REZERVASYON ŞART!]</span> <strong>[Dev Tema Parkı / Eğlence]</strong> Nintendo Dünyası ve dev hızlı tren maceraları | <span class='source-tag'>[Clarissa's PDF & Atakan'ın PDF'i]</span>" },
-            { id: "ok7", title: "Kaiyukan Akvaryum", lat: 34.6545, lng: 135.4289, type: "tourist", city: "osaka", desc: "<strong>[Devasa Akvaryum]</strong> Balina köpekbalıklarının yaşadığı dünyanın en büyük akvaryumlarından biri | <span class='source-tag'>[Atakan'ın PDF'i]</span>" },
-            { id: "ok8", title: "Abeno Harukas Gözlem Kulesi", lat: 34.6458, lng: 135.5139, type: "tourist", city: "osaka", desc: "<strong>[Gökdelen Panoramik Cam Teras]</strong> Osaka'nın en yüksek binasından kesintisiz kuş bakışı | <span class='source-tag'>[Atakan'ın PDF'i]</span>" },
-            { id: "ok9", title: "Umeda Sky Building", lat: 34.7053, lng: 135.4902, type: "tourist", city: "osaka", desc: "<strong>[Açık Hava Yürüyen Merdivenli Teras]</strong> İki gökdeleni havada birleştiren yürüyen merdiven | <span class='source-tag'>[Clarissa's PDF & Atakan'ın PDF'i]</span>" },
-            { id: "ok10", title: "Hep Five Ferris Wheel", lat: 34.7038, lng: 135.5002, type: "tourist", city: "osaka", desc: "<strong>[AVM Üstü Dev Dönme Dolap]</strong> Umeda merkezinde kırmızı dev alışveriş merkezi dönme dolabı | <span class='source-tag'>[Clarissa's PDF]</span>" },
-            { id: "ok11", title: "Solaniwa Onsen Osaka", lat: 34.6662, lng: 135.4611, type: "tourist", city: "osaka", desc: "<strong>[Yukatalarla Tema Parkı Onsen]</strong> İçinde geleneksel kıyafetlerle gezilen dev kaplıca köyü | <span class='source-tag'>[Atakan'ın PDF'i]</span>" },
-            
-            // OSAKA GURME & ALIŞVERİŞ
-            { id: "of1", title: "Tempura Makino Namba", lat: 34.6644, lng: 135.5015, type: "food", city: "osaka", desc: "<strong>[Çıtır Pirinç Üstü Tempuracı]</strong> Önünüzde kızartılan taze sıcak Tendon pirinç kasesi | <span class='source-tag'>[Berk & Atakan'ın PDF'i]</span>" },
-            { id: "of2", title: "Kuromon Ichiba Market", lat: 34.6656, lng: 135.5061, type: "food", city: "osaka", desc: "<strong>[Sokak Yemekleri Pazarı]</strong> Deniz canlıları, taze yengeç bacakları ve Wagyu şiş dükkanları | <span class='source-tag'>[Clarissa's PDF & Atakan'ın PDF'i]</span>" },
-            { id: "of3", title: "Sushi Sakaba Teppei", lat: 34.6680, lng: 135.5020, type: "food", city: "osaka", desc: "<strong>[Popüler Lokal Sushi Barı]</strong> Osaka yerel halkının gittiği salaş ve aşırı taze sushici | <span class='source-tag'>[Clarissa's PDF]</span>" },
-            { id: "of4", title: "Taian Restoran", lat: 34.6745, lng: 135.5122, type: "food", city: "osaka", desc: "<span style='color:red; font-weight:bold;'>[⚠️ REZERVASYON ŞART!]</span> <strong>[3 Michelin Yıldızlı Gurme Akşam Yemeği]</strong> Kusursuz lüks geleneksel akşam yemeği | <span class='source-tag'>[Clarissa's PDF & Atakan'ın PDF'i]</span>" },
-            { id: "os1", title: "Object Osaka Store", lat: 34.6695, lng: 135.4940, type: "shop", city: "osaka", desc: "<strong>[Özel Tasarım Patch/Arma Mağazası]</strong> Çanta ve kılıflara kendi armalarınızı bastığınız yer | <span class='source-tag'>[Berk]</span>" },
-            { id: "os2", title: "Amerikamura Street & Kindal", lat: 34.6715, lng: 135.4984, type: "shop", city: "osaka", desc: "<strong>[Vintage & Sokak Modası]</strong> İkinci el harika ceketler, retro dükkanlar ve sokak kültürü | <span class='source-tag'>[Atakan'ın PDF'i]</span>" },
-            { id: "os3", title: "Uniqlo Shinsaibashi Global Store", lat: 34.6738, lng: 135.5013, type: "shop", city: "osaka", desc: "<strong>[Osaka'nın En Büyük Uniqlo'su]</strong> Bölgenin en büyük çok katlı büyük amiral şubesi | <span class='source-tag'>[Berk & Atakan'ın PDF'i]</span>" },
-            { id: "os4", title: "ABC-Mart Grand Stage Shinsaibashi", lat: 34.6725, lng: 135.5015, type: "shop", city: "osaka", desc: "<strong>[Osaka'nın En Büyük ABC-Mart'ı]</strong> Sınırlı üretim spor ayakkbılar için dev merkez | <span class='source-tag'>[Berk & Atakan'ın PDF'i]</span>" },
-            { id: "os5", title: "Don Quijote Dotonbori Ferris Wheel", lat: 34.6691, lng: 135.5024, type: "shop", city: "osaka", desc: "<strong>[Dönme Dolaplı 24 Saat Açık DonKi]</strong> Üzerinde dev sarı dönme dolap olan nehir kenarı DonKi | <span class='source-tag'>[Berk & Atakan'ın PDF'i]</span>" },
-            { id: "os6", title: "Bic Camera Namba Osaka", lat: 34.6668, lng: 135.5021, type: "shop", city: "osaka", desc: "<strong>[Çok Katlı Teknoloji & Hobi Market]</strong> Namba merkezindeki devasa elektronik, saat ve hobi sarayı | <span class='source-tag'>[Berk & Atakan'ın PDF'i]</span>" },
-            { id: "os7", title: "Daiso Shinsaibashi 3F", lat: 34.6740, lng: 135.5016, type: "shop", city: "osaka", desc: "<strong>[Büyük 100 Yen Mağazası]</strong> Tırnak makasları ve hediyelik eşya toplama alanı | <span class='source-tag'>[Berk & Atakan'ın PDF'i]</span>" },
+<section class="card">
+  <h2 id="galleryTitle">Yüklediklerim<span class="badge hidden" id="adminBadge">Yönetici</span></h2>
+  <div class="grid" id="gallery"></div>
+  <div class="empty" id="galleryEmpty">Henüz bir şey yüklemediniz.</div>
+</section>
 
-            // KYOTO & NARA TÜM ROTASI
-            { id: "kn1", title: "Fushimi Inari Taisha", lat: 34.9671, lng: 135.7727, type: "tourist", city: "kyoto", desc: "<strong>[Bin Turnuvalı Torii Kapıları]</strong> Dağ boyu uzanan binlerce turuncu ahşap kapı yolu | <span class='source-tag'>[Clarissa's PDF & Atakan'ın PDF'i]</span>" },
-            { id: "kn2", title: "Kiyomizu-dera & Sannenzaka", lat: 34.9949, lng: 135.7850, type: "tourist", city: "kyoto", desc: "<strong>[Tarihi Ahşap Sokak & Teras Tapınağı]</strong> Korunmuş eski sokaklar ve devasa balkona sahip ahşap tapınak | <span class='source-tag'>[Clarissa's PDF & Atakan'ın PDF'i]</span>" },
-            { id: "kn3", title: "Arashiyama Bamboo Grove", lat: 35.0156, lng: 135.6715, type: "tourist", city: "kyoto", desc: "<strong>[Dev Bambu Koridoru]</strong> Gökyüzüne uzanan devasa yeşil bambu ağaçları patikası | <span class='source-tag'>[Clarissa's PDF & Atakan'ın PDF'i]</span>" },
-            { id: "kn4", title: "Monkey Park Iwatayama", lat: 35.0093, lng: 135.6723, type: "tourist", city: "kyoto", desc: "<strong>[Doğal Maymun Parkı]</strong> Dağın zirvesinde serbest dolaşan Japon kar maymunları | <span class='source-tag'>[Clarissa's PDF]</span>" },
-            { id: "kn5", title: "Ryoan-ji Zen Taş Bahçesi", lat: 35.0345, lng: 135.7182, type: "tourist", city: "kyoto", desc: "<strong>[Dünyaca Ünlü Zen Taş Bahçesi]</strong> Felsefi ve meditatif çakıl-kaya kompozisyonu alanı | <span class='source-tag'>[Atakan'ın PDF'i]</span>" },
-            { id: "kn6", title: "Kinkaku-ji (Altın Köşk)", lat: 35.0394, lng: 135.7292, type: "tourist", city: "kyoto", desc: "<strong>[Altın Kaplama Tarihi Köşk]</strong> Göl ortasında saf altın varaklarla kaplı masalsı yapı | <span class='source-tag'>[Atakan'ın PDF'i]</span>" },
-            { id: "kn7", title: "Nara Park Geyik Besleme", lat: 34.6851, lng: 135.8430, type: "tourist", city: "kyoto", desc: "<strong>[Serbest Geyik Besleme Alanı]</strong> Özel krakerlerle eğilen Japon geyiklerini ellerinizle besleyin | <span class='source-tag'>[Clarissa's PDF & Atakan'ın PDF'i]</span>" },
-            { id: "kn8", title: "Todai-ji Tapınağı", lat: 34.6889, lng: 135.8398, type: "tourist", city: "kyoto", desc: "<strong>[Dünyanın En Büyük Ahşap Dev Buddha Tapınağı]</strong> Nara'daki devasa koruyucu yapı ve heykel | <span class='source-tag'>[Clarissa's PDF & Atakan'ın PDF'i]</span>" },
-            { id: "kn9", title: "Nishiki Market Kyoto", lat: 35.0049, lng: 135.7649, type: "food", city: "kyoto", desc: "<strong>[Tarihi Sokak Gurme Pazarı]</strong> Kyoto usulü yerel şiş atıştırmalıklar ve deniz lokmaları | <span class='source-tag'>[Atakan'ın PDF'i]</span>" },
-            { id: "kn10", title: "Glanta Ring Maker Kyoto", lat: 35.0055, lng: 135.7680, type: "shop", city: "kyoto", desc: "<strong>[El Yapımı Özel Yüzük Atölyesi]</strong> Çekiçle döverek kendinize özel gümüş yüzük tasarlama alanı | <span class='source-tag'>[Atakan'ın PDF'i]</span>" },
-            { id: "kn11", title: "Kichi Kichi Omurice", lat: 35.0088, lng: 135.7708, type: "food", city: "kyoto", desc: "<span style='color:red; font-weight:bold;'>[⚠️ REZERVASYON ŞART!]</span> <strong>[Şovlu Ünlü Yumurtalı Pirinççi]</strong> Bıçakla yarılan akışkan omlet şovuyla ünlü şef restoranı | <span class='source-tag'>[Clarissa's PDF]</span>" },
-            { id: "kn12", title: "Maccha House Kyoto", lat: 35.0038, lng: 135.7691, type: "food", city: "kyoto", desc: "<strong>[Akışkan Matchalı Tiramisucu]</strong> Ahşap geleneksel kutularda sunulan meşhur Matcha tatlısı | <span class='source-tag'>[Atakan'ın PDF'i]</span>" },
-            { id: "kn13", title: "Gokago Cafe Matcha", lat: 35.0025, lng: 135.7710, type: "food", city: "kyoto", desc: "<strong>[Geleneksel Yoğun Matcha Barı]</strong> Gözünüzün önünde fırçalanarak yapılan seremonisel Matcha Latte | <span class='source-tag'>[Atakan'ın PDF'i]</span>" },
-            { id: "kn14", title: "Mamemono to Taiyaki Arashiyama", lat: 35.0150, lng: 135.6765, type: "food", city: "kyoto", desc: "<strong>[Eriyen Tereyağlı Balık Kek Tatlıcısı]</strong> Sıcak balık şeklinde hamur içi taze tereyağı | <span class='source-tag'>[Atakan'ın PDF'i]</span>" },
-            { id: "kn15", title: "Cicon Rooftop Bar (Nohga)", lat: 34.9961, lng: 135.7735, type: "food", city: "kyoto", desc: "<strong>[Panoramik Kyoto Manzarasına Sahip Şık Teras]</strong> Akşam kokteyli için harika manzaralı modern teras | <span class='source-tag'>[Atakan'ın PDF'i]</span>" },
-            { id: "kn16", title: "Men-ya Inoichi Ramen", lat: 35.0005, lng: 135.7668, type: "food", city: "kyoto", desc: "<strong>[Michelin Ödüllü Berrak Ramen]</strong> Berrak, duru ve hafif, ödüllü inanılmaz Kyoto rameni | <span class='source-tag'>[Atakan'ın PDF'i]</span>" },
-            { id: "kn17", title: "Tendan Yakiniku Kyoto", lat: 35.0028, lng: 135.7722, type: "food", city: "kyoto", desc: "<span style='color:red; font-weight:bold;'>[⚠️ REZERVASYON ŞART!]</span> <strong>[Nehir Manzaralı Barbekü Restoranı]</strong> Kamogawa nehir kenarında harika kaliteli Yakiniku | <span class='source-tag'>[Atakan'ın PDF'i]</span>" },
-            { id: "kn18", title: "Totegin Kintetsu Sushi Nara", lat: 34.6835, lng: 135.8280, type: "food", city: "kyoto", desc: "<strong>[Lokal Şef Sushi Barı]</strong> Nara istasyon çıkışında el yapımı harika set sushiler | <span class='source-tag'>[Clarissa's PDF]</span>" }
-        ];
+<footer>
+  <button class="btn-ghost" id="adminBtn">Yönetici Girişi</button>
+</footer>
 
-        let map;
-        let markers = {};
-        let userLocationMarker = null;
-        let activeInfoWindow = null;
+<dialog id="adminDlg">
+  <h2>Yönetici Girişi</h2>
+  <label for="admEmail">E-posta</label>
+  <input type="email" id="admEmail" autocomplete="username">
+  <div style="height:12px"></div>
+  <label for="admPass">Şifre</label>
+  <input type="password" id="admPass" autocomplete="current-password">
+  <div class="err" id="admErr"></div>
+  <div class="dlg-actions">
+    <button class="btn-ghost" id="admCancel">Vazgeç</button>
+    <button class="btn-primary" id="admLogin">Giriş</button>
+  </div>
+</dialog>
 
-        // MATRİS FİLTRE DURUMU (Çoklu Seçim - Set tabanlı)
-        const activeFilters = {
-            cities: new Set(),   // boş = tüm şehirler
-            types: new Set(),    // boş = tüm kategoriler
-            hideChecked: false
-        };
+<script type="module">
+/* ============================================================
+   YAPILANDIRMA — burayı kendi bilgilerinizle doldurun
+   ============================================================ */
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
 
-        const typeColors = {
-            hotel: "#a855f7",
-            tourist: "#ef4444",
-            food: "#f97316",
-            shop: "#3b82f6",
-            checked: "#10b981"
-        };
+/* ============================================================
+   YAPILANDIRMA
+   ============================================================ */
+const firebaseConfig = {
+  apiKey: "AIzaSyB6FoyG2FmyxbRYN9notU2UtbX8FFpSZao",
+  authDomain: "wedding-7a069.firebaseapp.com",
+  projectId: "wedding-7a069",
+  storageBucket: "wedding-7a069.firebasestorage.app",
+  messagingSenderId: "528888844993",
+  appId: "1:528888844993:web:c25d1469461bde593cfa40"
+};
 
-        // Google Harita Başlatma Motoru
-        function initMap() {
-            map = new google.maps.Map(document.getElementById('map'), {
-                center: { lat: 35.6895, lng: 139.6917 },
-                zoom: 12,
-                disableDefaultUI: true,
-                zoomControl: false,
-                styles: [
-                    { featureType: "poi.business", stylers: [{ visibility: "off" }] },
-                    { featureType: "transit", stylers: [{ visibility: "simplified" }] }
-                ]
-            });
+const ADMIN_EMAIL   = "merve@admin.com";
+const COUPLE_NAME   = "Elif & Berkay";
+const MAX_FILE_MB   = 500;
+const MAX_CONCURRENT= 2;
+const MAX_ATTEMPTS  = 6;
+/* ============================================================ */
 
-            // Pinleri Haritaya Ekleme
-            locations.forEach(loc => {
-                const isChecked = localStorage.getItem(loc.id) === 'true';
-                const color = isChecked ? typeColors.checked : typeColors[loc.type];
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, signInAnonymously, signInWithEmailAndPassword, signOut, onAuthStateChanged }
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, collection, addDoc, query, where, orderBy, onSnapshot, serverTimestamp }
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getStorage, ref as sRef, uploadBytesResumable, getDownloadURL }
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
-                const marker = new google.maps.Marker({
-                    position: { lat: loc.lat, lng: loc.lng },
-                    map: map,
-                    title: loc.title,
-                    icon: createMarkerIcon(color)
-                });
+const app     = initializeApp(firebaseConfig);
+const auth    = getAuth(app);
+const db      = getFirestore(app);
+const storage = getStorage(app);
 
-                const infoWindow = new google.maps.InfoWindow({
-                    content: `
-                        <div style="font-family:sans-serif; padding:4px; max-width:210px;">
-                            <h4 style="margin:0 0 4px 0; font-size:14px; color:#1e293b;">${loc.title}</h4>
-                            <p style="margin:0 0 8px 0; font-size:11px; color:#64748b;">${loc.desc}</p>
-                            <button onclick="toggleFromMap('${loc.id}')" style="background:${isChecked ? '#ef4444':'#10b981'}; color:white; border:none; padding:8px 10px; border-radius:6px; font-size:11px; font-weight:bold; width:100%; cursor:pointer; margin-bottom:6px;">
-                                ${isChecked ? 'Yapılmadı İşaretle' : 'Gezildi / Tamamlandı'}
-                            </button>
-                            <button onclick="getDirections(${loc.lat}, ${loc.lng})" style="background:#1d4ed8; color:white; border:none; padding:8px 10px; border-radius:6px; font-size:11px; font-weight:bold; width:100%; cursor:pointer;">
-                                🧭 Yol Tarifi Al
-                            </button>
-                        </div>`
-                });
+const $ = id => document.getElementById(id);
+$("coupleName").textContent = COUPLE_NAME;
+document.title = COUPLE_NAME + " — Düğün Anıları";
 
-                marker.addListener('click', () => {
-                    if (activeInfoWindow) activeInfoWindow.close();
-                    infoWindow.open(map, marker);
-                    activeInfoWindow = infoWindow;
-                });
+/* ---------- IndexedDB kuyruğu ---------- */
+const IDB_NAME = "dugun-kuyruk", IDB_STORE = "dosyalar";
+function idbOpen(){
+  return new Promise((res,rej)=>{
+    const r = indexedDB.open(IDB_NAME,1);
+    r.onupgradeneeded = () => {
+      const d = r.result;
+      if(!d.objectStoreNames.contains(IDB_STORE)) d.createObjectStore(IDB_STORE,{keyPath:"id"});
+    };
+    r.onsuccess = () => res(r.result);
+    r.onerror   = () => rej(r.error);
+  });
+}
+async function idbPut(rec){
+  const d = await idbOpen();
+  return new Promise((res,rej)=>{
+    const t = d.transaction(IDB_STORE,"readwrite");
+    t.objectStore(IDB_STORE).put(rec);
+    t.oncomplete = res; t.onerror = () => rej(t.error);
+  });
+}
+async function idbAll(){
+  const d = await idbOpen();
+  return new Promise((res,rej)=>{
+    const rq = d.transaction(IDB_STORE,"readonly").objectStore(IDB_STORE).getAll();
+    rq.onsuccess = () => res(rq.result || []);
+    rq.onerror   = () => rej(rq.error);
+  });
+}
+async function idbDel(id){
+  const d = await idbOpen();
+  return new Promise((res,rej)=>{
+    const t = d.transaction(IDB_STORE,"readwrite");
+    t.objectStore(IDB_STORE).delete(id);
+    t.oncomplete = res; t.onerror = () => rej(t.error);
+  });
+}
 
-                markers[loc.id] = marker;
-            });
+/* ---------- Wake Lock ---------- */
+let wakeLock = null;
+async function acquireWakeLock(){
+  try{
+    if("wakeLock" in navigator && !wakeLock){
+      wakeLock = await navigator.wakeLock.request("screen");
+      wakeLock.addEventListener("release", () => { wakeLock = null; });
+    }
+  }catch(e){ /* desteklenmiyor olabilir */ }
+}
+async function releaseWakeLock(){
+  try{ if(wakeLock){ await wakeLock.release(); wakeLock = null; } }catch(e){}
+}
+document.addEventListener("visibilitychange", async () => {
+  if(document.visibilityState === "visible"){
+    if(pumping) await acquireWakeLock();
+    pump();
+  }
+});
 
-            renderLists();
-            applyGlobalFilters();
-        }
+/* ---------- İsim ---------- */
+const nameInput = $("nameInput");
+nameInput.value = localStorage.getItem("uploaderName") || "";
+function syncName(){
+  const ok = nameInput.value.trim().length >= 2;
+  $("pickBtn").disabled = !ok || !auth.currentUser;
+  localStorage.setItem("uploaderName", nameInput.value.trim());
+}
+nameInput.addEventListener("input", syncName);
 
-        function createMarkerIcon(color) {
-            return {
-                path: 'M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z',
-                fillColor: color,
-                fillOpacity: 1,
-                strokeWeight: 1.5,
-                strokeColor: '#ffffff',
-                scale: 1.4,
-                anchor: new google.maps.Point(12, 22)
-            };
-        }
+/* ---------- Dosya seçimi ---------- */
+$("pickBtn").addEventListener("click", () => $("fileInput").click());
+$("fileInput").addEventListener("change", async e => {
+  const files = Array.from(e.target.files || []);
+  e.target.value = "";
+  if(!files.length) return;
+  const uploader = nameInput.value.trim();
+  let skipped = 0;
+  for(const f of files){
+    if(f.size > MAX_FILE_MB * 1024 * 1024){ skipped++; continue; }
+    await idbPut({
+      id: crypto.randomUUID(),
+      blob: f, name: f.name, type: f.type || "application/octet-stream",
+      size: f.size, uploader, attempts: 0, failed: false, addedAt: Date.now()
+    });
+  }
+  if(skipped) alert(skipped + " dosya çok büyük olduğu için atlandı (en fazla " + MAX_FILE_MB + " MB).");
+  renderQueue();
+  pump();
+});
 
-        // Filtre Fonksiyonları (Şehir - Çoklu Seçim)
-        function filterCity(cityCode, btnElement) {
-            const allBtn = document.querySelector('#city-row .f-btn[data-city="all"]');
-            if (cityCode === 'all') {
-                activeFilters.cities.clear();
-                document.querySelectorAll('#city-row .f-btn').forEach(btn => btn.classList.remove('active'));
-                allBtn.classList.add('active');
-            } else {
-                if (activeFilters.cities.has(cityCode)) {
-                    activeFilters.cities.delete(cityCode);
-                    btnElement.classList.remove('active');
-                } else {
-                    activeFilters.cities.add(cityCode);
-                    btnElement.classList.add('active');
-                }
-                // Hiç seçim yoksa "Tüm Şehirler"e geri dön
-                if (activeFilters.cities.size === 0) {
-                    allBtn.classList.add('active');
-                } else {
-                    allBtn.classList.remove('active');
-                }
-            }
-            applyGlobalFilters();
-        }
+/* ---------- Yükleme motoru ---------- */
+const active = new Map();
+let pumping = false;
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const sanitize = n => n.replace(/[^\w.\-]+/g, "_").slice(-80);
 
-        // Filtre Fonksiyonları (Kategori - Çoklu Seçim)
-        function filterType(typeCode, btnElement) {
-            const allBtn = document.querySelector('#type-row .f-btn[data-type="all"]');
-            if (typeCode === 'all') {
-                activeFilters.types.clear();
-                document.querySelectorAll('#type-row .f-btn:not(.toggle-btn)').forEach(btn => btn.classList.remove('active'));
-                allBtn.classList.add('active');
-            } else {
-                if (activeFilters.types.has(typeCode)) {
-                    activeFilters.types.delete(typeCode);
-                    btnElement.classList.remove('active');
-                } else {
-                    activeFilters.types.add(typeCode);
-                    btnElement.classList.add('active');
-                }
-                // Hiç seçim yoksa "Hepsi"ye geri dön
-                if (activeFilters.types.size === 0) {
-                    allBtn.classList.add('active');
-                } else {
-                    allBtn.classList.remove('active');
-                }
-            }
-            applyGlobalFilters();
-        }
+async function pump(){
+  if(pumping || !auth.currentUser) return;
+  pumping = true;
+  await acquireWakeLock();
+  try{
+    while(true){
+      const all = await idbAll();
+      const queued = all.filter(r => !active.has(r.id) && !r.failed);
+      if(!queued.length && !active.size) break;
+      while(active.size < MAX_CONCURRENT && queued.length) startUpload(queued.shift());
+      await sleep(500);
+    }
+  } finally {
+    pumping = false;
+    await releaseWakeLock();
+    renderQueue();
+  }
+}
 
-        // Gittiklerimi Gizle Switçhi
-        function toggleCheckedFilter(btnElement) {
-            activeFilters.hideChecked = !activeFilters.hideChecked;
-            btnElement.classList.toggle('active', activeFilters.hideChecked);
-            applyGlobalFilters();
-        }
+function startUpload(rec){
+  const user = auth.currentUser;
+  if(!user) return;
+  const path = `uploads/${user.uid}/${rec.id}_${sanitize(rec.name)}`;
+  const task = uploadBytesResumable(sRef(storage, path), rec.blob, { contentType: rec.type });
+  active.set(rec.id, { name: rec.name, progress: 0, failed: false });
+  renderQueue();
 
-        // Tam Ekran Aç/Kapat
-        function toggleFullscreen() {
-            const container = document.getElementById('map-container');
-            container.classList.toggle('fullscreen');
-            // Harita boyutu değiştiği için yeniden çiz
-            setTimeout(() => {
-                if (map) google.maps.event.trigger(map, 'resize');
-            }, 120);
-        }
+  task.on("state_changed",
+    snap => {
+      const a = active.get(rec.id);
+      if(a){ a.progress = snap.totalBytes ? snap.bytesTransferred / snap.totalBytes : 0; renderQueue(); }
+    },
+    async err => {
+      console.warn("Yükleme hatası:", err.code, rec.name);
+      rec.attempts = (rec.attempts || 0) + 1;
+      if(rec.attempts >= MAX_ATTEMPTS) rec.failed = true;
+      try{ await idbPut(rec); }catch(e){}
+      const a = active.get(rec.id);
+      if(a){ a.failed = true; renderQueue(); }
+      await sleep(3000);
+      active.delete(rec.id);
+      renderQueue();
+    },
+    async () => {
+      try{
+        const url = await getDownloadURL(task.snapshot.ref);
+        await addDoc(collection(db, "uploads"), {
+          uid: user.uid, path, url,
+          name: rec.name, contentType: rec.type, size: rec.size,
+          uploader: rec.uploader || "", createdAt: serverTimestamp()
+        });
+        await idbDel(rec.id);
+      }catch(e){
+        console.error("Firestore kaydı başarısız:", e);
+      }
+      active.delete(rec.id);
+      renderQueue();
+    }
+  );
+}
 
-        // Yol Tarifi Al - Google Maps'e direkt yönlendir
-        function getDirections(lat, lng) {
-            const url = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
-            window.open(url, '_blank');
-        }
+/* ---------- Kuyruk arayüzü ---------- */
+async function renderQueue(){
+  const all = await idbAll();
+  const card = $("queueCard"), list = $("queueList");
+  if(!all.length){ card.classList.add("hidden"); list.innerHTML = ""; return; }
+  card.classList.remove("hidden");
+  list.innerHTML = all.sort((a,b)=>a.addedAt-b.addedAt).map(rec => {
+    const a = active.get(rec.id);
+    const pct = a ? Math.round(a.progress * 100) : 0;
+    const dead = rec.failed;
+    const label = dead ? "Başarısız" : (a ? (a.failed ? "Yeniden denenecek" : pct + "%") : "Sırada");
+    return `<div class="qitem ${dead || (a && a.failed) ? "failed" : ""}">
+      <div class="qrow"><span class="qname">${escapeHtml(rec.name)}</span><span class="qpct">${label}</span></div>
+      <div class="bar"><i style="width:${dead ? 100 : pct}%"></i></div>
+    </div>`;
+  }).join("");
+}
 
-        // ANA MATRİS FİLTRE MOTORU (Hem Haritayı Hem Listeyi Aynı Anda Günceller)
-        function applyGlobalFilters() {
-            if (!map) return;
-            
-            const bounds = new google.maps.LatLngBounds();
-            let visibleCount = 0;
+window.addEventListener("beforeunload", e => {
+  if(pumping){ e.preventDefault(); e.returnValue = ""; }
+});
 
-            locations.forEach(loc => {
-                const isChecked = localStorage.getItem(loc.id) === 'true';
-                
-                // Çoklu Filtre Eşleşme Kontrolleri
-                const matchCity = (activeFilters.cities.size === 0 || activeFilters.cities.has(loc.city));
-                const matchType = (activeFilters.types.size === 0 || activeFilters.types.has(loc.type));
-                const matchChecked = !(activeFilters.hideChecked && isChecked);
+/* ---------- Galeri ---------- */
+let unsub = null;
+function isHeic(ct, name){
+  const n = (name || "").toLowerCase();
+  return /heic|heif/.test(ct || "") || n.endsWith(".heic") || n.endsWith(".heif");
+}
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+}
+function watchGallery(user, admin){
+  if(unsub){ unsub(); unsub = null; }
+  const col = collection(db, "uploads");
+  const q = admin
+    ? query(col, orderBy("createdAt", "desc"))
+    : query(col, where("uid", "==", user.uid), orderBy("createdAt", "desc"));
 
-                const finalVisibility = matchCity && matchType && matchChecked;
+  unsub = onSnapshot(q, snap => {
+    const grid = $("gallery"), empty = $("galleryEmpty");
+    if(snap.empty){
+      grid.innerHTML = "";
+      empty.textContent = admin ? "Henüz yükleme yok." : "Henüz bir şey yüklemediniz.";
+      empty.classList.remove("hidden");
+      return;
+    }
+    empty.classList.add("hidden");
+    grid.innerHTML = snap.docs.map(d => {
+      const x = d.data();
+      const who = admin && x.uploader ? `<span class="who">${escapeHtml(x.uploader)}</span>` : "";
+      let media;
+      if((x.contentType || "").startsWith("video/")){
+        media = `<video src="${x.url}" preload="metadata" muted playsinline></video><span class="vid">VİDEO</span>`;
+      } else if(isHeic(x.contentType, x.name)){
+        media = `<div class="ph">HEIC<br>${escapeHtml((x.name || "").slice(-14))}</div>`;
+      } else {
+        media = `<img src="${x.url}" loading="lazy" alt="">`;
+      }
+      return `<a class="tile" href="${x.url}" target="_blank" rel="noopener">${media}${who}</a>`;
+    }).join("");
+  }, err => {
+    console.error("Galeri hatası (index gerekebilir):", err);
+    $("galleryEmpty").textContent = "Galeri yüklenemedi. Konsolu kontrol edin.";
+    $("galleryEmpty").classList.remove("hidden");
+  });
+}
 
-                // Harita üzerindeki marker görünürlüğünü güncelle
-                if (markers[loc.id]) {
-                    markers[loc.id].setVisible(finalVisibility);
-                    if (finalVisibility) {
-                        bounds.extend(new google.maps.LatLng(loc.lat, loc.lng));
-                        visibleCount++;
-                    }
-                }
-            });
+/* ---------- Kimlik ---------- */
+onAuthStateChanged(auth, async user => {
+  if(!user){
+    try{ await signInAnonymously(auth); }
+    catch(e){ alert("Bağlantı kurulamadı. Lütfen sayfayı yenileyin."); }
+    return;
+  }
+  const admin = !user.isAnonymous && user.email === ADMIN_EMAIL;
+  $("adminBadge").classList.toggle("hidden", !admin);
+  $("galleryTitle").firstChild.nodeValue = admin ? "Tüm Yüklemeler" : "Yüklediklerim";
+  $("adminBtn").textContent = admin ? "Çıkış Yap" : "Yönetici Girişi";
+  $("nameCard").classList.toggle("hidden", admin);
+  syncName();
+  watchGallery(user, admin);
+  renderQueue();
+  pump();
+});
 
-            // Ekran listesini render et
-            renderLists();
+/* ---------- Yönetici diyaloğu ---------- */
+const dlg = $("adminDlg");
+$("adminBtn").addEventListener("click", async () => {
+  const u = auth.currentUser;
+  if(u && !u.isAnonymous){ await signOut(auth); return; }
+  $("admErr").textContent = "";
+  $("admEmail").value = ""; $("admPass").value = "";
+  dlg.showModal();
+});
+$("admCancel").addEventListener("click", () => dlg.close());
+$("admLogin").addEventListener("click", async () => {
+  $("admErr").textContent = "";
+  try{
+    await signInWithEmailAndPassword(auth, $("admEmail").value.trim(), $("admPass").value);
+    dlg.close();
+  }catch(e){
+    $("admErr").textContent = "Giriş başarısız. Bilgileri kontrol edin.";
+  }
+});
 
-            // Haritayı kalan pinlere göre otomatik odakla
-            if (visibleCount > 0) {
-                map.fitBounds(bounds);
-                if (visibleCount === 1) map.setZoom(15);
-            }
-        }
-
-        // Dinamik Liste Kart Oluşturucu
-        function renderLists() {
-            const container = document.getElementById('list-container');
-            container.innerHTML = '';
-
-            const filteredList = locations.filter(loc => {
-                const isChecked = localStorage.getItem(loc.id) === 'true';
-                const matchCity = (activeFilters.cities.size === 0 || activeFilters.cities.has(loc.city));
-                const matchType = (activeFilters.types.size === 0 || activeFilters.types.has(loc.type));
-                const matchChecked = !(activeFilters.hideChecked && isChecked);
-                return matchCity && matchType && matchChecked;
-            });
-
-            if (filteredList.length === 0) {
-                container.innerHTML = `<div style="text-align:center; color:var(--text-muted); font-size:13px; margin-top:40px; font-weight:bold;">Seçili filtrelere uygun yer bulunamadı boss 🗺️</div>`;
-                return;
-            }
-
-            filteredList.forEach(loc => {
-                const isChecked = localStorage.getItem(loc.id) === 'true';
-                const card = document.createElement('div');
-                card.className = `card ${isChecked ? 'checked' : ''}`;
-                
-                card.innerHTML = `
-                    <div class="card-left">
-                        <input type="checkbox" id="check-${loc.id}" ${isChecked ? 'checked' : ''} onchange="toggleItemState('${loc.id}', this.checked)">
-                        <div class="card-info">
-                            <span class="type-badge badge-${isChecked ? 'checked' : loc.type}">${isChecked ? 'Tamamlandı' : loc.type === 'shop' ? 'Alışveriş' : loc.type === 'food' ? 'Gurme' : loc.type === 'hotel' ? 'Otel' : 'Turistik'}</span>
-                            <span class="card-title">${loc.title}</span>
-                            <span class="card-desc">${loc.desc}</span>
-                        </div>
-                    </div>
-                    <div class="card-actions">
-                        <button class="card-right-btn" onclick="focusOnMap(${loc.lat}, ${loc.lng}, '${loc.id}')" title="Haritada Odaklan">🗺️</button>
-                        <button class="card-right-btn dir-btn" onclick="getDirections(${loc.lat}, ${loc.lng})" title="Yol Tarifi Al">🧭</button>
-                    </div>
-                `;
-                container.appendChild(card);
-            });
-        }
-
-        // Checkbox Değişim Dinamiği
-        function toggleItemState(id, isChecked) {
-            localStorage.setItem(id, isChecked);
-            
-            const loc = locations.find(l => l.id === id);
-            const color = isChecked ? typeColors.checked : typeColors[loc.type];
-            if (markers[id]) {
-                markers[id].setIcon(createMarkerIcon(color));
-            }
-
-            if (activeInfoWindow) activeInfoWindow.close();
-            
-            // Eğer "Gezilenleri Gizle" aktifse kartı direkt ekrandan uçurmak için ana filtreyi tetikle
-            if (activeFilters.hideChecked) {
-                applyGlobalFilters();
-            } else {
-                renderLists();
-            }
-        }
-
-        function toggleFromMap(id) {
-            const currentStatus = localStorage.getItem(id) === 'true';
-            toggleItemState(id, !currentStatus);
-        }
-
-        function focusOnMap(lat, lng, id) {
-            if (!map) return;
-            const position = { lat: parseFloat(lat), lng: parseFloat(lng) };
-            map.panTo(position);
-            map.setZoom(16);
-            
-            if (markers[id]) {
-                google.maps.event.trigger(markers[id], 'click');
-            }
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        // Canlı GPS Konum Takibi
-        function trackUserLocation() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(position => {
-                    const userLat = position.coords.latitude;
-                    const userLng = position.coords.longitude;
-                    const userPos = new google.maps.LatLng(userLat, userLng);
-
-                    if (map) {
-                        map.panTo(userPos);
-                        map.setZoom(15);
-
-                        if (userLocationMarker) {
-                            userLocationMarker.setPosition(userPos);
-                        } else {
-                            userLocationMarker = new google.maps.Marker({
-                                position: userPos,
-                                map: map,
-                                title: "Siz Buradasınız",
-                                icon: {
-                                    path: google.maps.SymbolPath.CIRCLE,
-                                    scale: 9,
-                                    fillColor: "#1d4ed8",
-                                    fillOpacity: 1,
-                                    strokeWeight: 3,
-                                    strokeColor: "#ffffff"
-                                }
-                            });
-                        }
-                    }
-                }, () => {
-                    alert("GPS konumunuza erişilemedi boss. Telefonunuzun konum servislerini ve tarayıcı izinlerini kontrol edin.");
-                }, { enableHighAccuracy: true });
-            } else {
-                alert("Cihazınız konum takibini desteklemiyor.");
-            }
-        }
-    </script>
-    
-    <!-- CANLI ÇALIŞAN RESMİ GOOGLE MAPS API SCRIPT ENJEKSİYONU -->
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCv4yKJGp0Aitq1GQv9DLp-WedIPCIzjZA&callback=initMap" async defer></script>
+syncName();
+renderQueue();
+</script>
 </body>
 </html>
