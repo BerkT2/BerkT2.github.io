@@ -104,14 +104,12 @@
     position:relative;aspect-ratio:1;border-radius:10px;overflow:hidden;
     background:#efe8dd;border:1px solid var(--line);
     padding:0;display:block;width:100%;cursor:zoom-in;
-    transition:transform .18s ease, box-shadow .18s ease;
   }
-  .tile:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(46,40,35,.16)}
-  .tile:active{transform:scale(.97)}
-  .tile img,.tile video{width:100%;height:100%;object-fit:cover;display:block}
+  .tile:active{opacity:.75}
+  .tile img{width:100%;height:100%;object-fit:cover;display:block}
   .tile .ph{
     display:flex;align-items:center;justify-content:center;height:100%;
-    font-size:11px;color:var(--muted);text-align:center;padding:8px;
+    font-size:11px;color:var(--muted);text-align:center;padding:8px;line-height:1.35;
   }
   .tile .who{
     position:absolute;left:0;right:0;bottom:0;padding:14px 6px 4px;
@@ -124,6 +122,7 @@
     font-size:9px;padding:2px 5px;border-radius:4px;letter-spacing:.5px;
   }
   .empty{color:var(--muted);font-size:14px;text-align:center;padding:20px 0}
+  .more{text-align:center;margin-top:14px}
   footer{text-align:center;padding:24px 0 0}
   dialog{
     border:1px solid var(--line);border-radius:var(--radius);padding:22px;
@@ -140,12 +139,9 @@
   /* ---------- Lightbox ---------- */
   #lb{
     position:fixed; inset:0; z-index:9999; display:none;
-    background:rgba(20,15,11,.92);
-    -webkit-backdrop-filter:blur(18px); backdrop-filter:blur(18px);
-    opacity:0; transition:opacity .22s ease;
+    background:rgba(20,15,11,.94);
   }
   #lb.open{display:block}
-  #lb.shown{opacity:1}
   #lb .stage{
     position:absolute; inset:0;
     display:flex; align-items:center; justify-content:center;
@@ -153,11 +149,8 @@
   }
   #lb .stage img, #lb .stage video{
     max-width:100%; max-height:100%;
-    border-radius:8px; box-shadow:0 16px 50px rgba(0,0,0,.55);
-    display:block; object-fit:contain;
-    animation:lbIn .28s cubic-bezier(.2,.8,.3,1);
+    border-radius:8px; display:block; object-fit:contain;
   }
-  @keyframes lbIn{from{opacity:0;transform:scale(.955)}to{opacity:1;transform:scale(1)}}
   #lb .stage .ph{
     color:rgba(255,255,255,.82); text-align:center; font-size:14px; max-width:280px;
   }
@@ -197,13 +190,9 @@
   }
   #lb .nav, #lb .close{
     position:absolute; z-index:3; border:none; cursor:pointer;
-    background:rgba(255,255,255,.13); color:#fff;
-    -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);
+    background:rgba(255,255,255,.15); color:#fff;
     display:flex; align-items:center; justify-content:center;
-    transition:background .15s ease, transform .15s ease;
   }
-  #lb .nav:hover, #lb .close:hover{background:rgba(255,255,255,.26)}
-  #lb .nav:active, #lb .close:active{transform:scale(.92)}
   #lb .nav{
     top:50%; margin-top:-23px; width:46px; height:46px; border-radius:50%; padding:0;
     font-size:22px; line-height:1;
@@ -261,6 +250,9 @@
   <h2 id="galleryTitle">Yüklediklerim<span class="badge hidden" id="adminBadge">Yönetici</span></h2>
   <div class="grid" id="gallery"></div>
   <div class="empty" id="galleryEmpty">Henüz bir şey yüklemediniz.</div>
+  <div class="more hidden" id="moreWrap">
+    <button class="btn-ghost" id="moreBtn">Daha fazla göster</button>
+  </div>
 </section>
 
 <footer>
@@ -316,14 +308,18 @@ const COUPLE_NAME   = "Elif & Berkay";
 const MAX_FILE_MB   = 500;
 const MAX_CONCURRENT= 2;
 const MAX_ATTEMPTS  = 6;
+
+const PAGE_SIZE     = 12;    // ilk açılışta gösterilecek kayıt sayısı
+const THUMB_MAX     = 480;   // küçük resim uzun kenarı (px)
+const THUMB_QUALITY = 0.72;
 /* ============================================================ */
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, signInAnonymously, signInWithEmailAndPassword, signOut, onAuthStateChanged }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, collection, addDoc, query, where, orderBy, onSnapshot, serverTimestamp }
+import { getFirestore, collection, addDoc, query, where, orderBy, limit, onSnapshot, serverTimestamp }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { getStorage, ref as sRef, uploadBytesResumable, getDownloadURL }
+import { getStorage, ref as sRef, uploadBytes, uploadBytesResumable, getDownloadURL }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
 const app     = initializeApp(firebaseConfig);
@@ -363,6 +359,14 @@ async function idbAll(){
   return new Promise((res,rej)=>{
     const rq = d.transaction(IDB_STORE,"readonly").objectStore(IDB_STORE).getAll();
     rq.onsuccess = () => res(rq.result || []);
+    rq.onerror   = () => rej(rq.error);
+  });
+}
+async function idbGet(id){
+  const d = await idbOpen();
+  return new Promise((res,rej)=>{
+    const rq = d.transaction(IDB_STORE,"readonly").objectStore(IDB_STORE).get(id);
+    rq.onsuccess = () => res(rq.result || null);
     rq.onerror   = () => rej(rq.error);
   });
 }
@@ -428,15 +432,152 @@ $("fileInput").addEventListener("change", async e => {
     });
   }
   if(skipped) alert(skipped + " dosya çok büyük olduğu için atlandı (en fazla " + MAX_FILE_MB + " MB).");
-  renderQueue();
+  await refreshQueue();
   pump();
 });
 
+/* ---------- Yardımcı ---------- */
+function isHeic(ct, name){
+  const n = (name || "").toLowerCase();
+  return /heic|heif/.test(ct || "") || n.endsWith(".heic") || n.endsWith(".heif");
+}
+
+/* ---------- Küçük resim üretimi ---------- */
+function decodeViaImg(blob){
+  return new Promise((res, rej) => {
+    const url = URL.createObjectURL(blob);
+    const im = new Image();
+    im.onload  = () => { URL.revokeObjectURL(url); res(im); };
+    im.onerror = () => { URL.revokeObjectURL(url); rej(new Error("img çözülemedi")); };
+    im.src = url;
+  });
+}
+
+async function makeImageThumb(blob){
+  let src = null, close = null;
+  if(self.createImageBitmap){
+    try{
+      src = await createImageBitmap(blob, { imageOrientation: "from-image" });
+      close = () => { try{ src.close && src.close(); }catch(e){} };
+    }catch(e){
+      try{
+        src = await createImageBitmap(blob);
+        close = () => { try{ src.close && src.close(); }catch(e){} };
+      }catch(e2){ src = null; }
+    }
+  }
+  if(!src) src = await decodeViaImg(blob);   // HEIC yedeği (Safari)
+
+  try{
+    const w0 = src.width  || src.naturalWidth;
+    const h0 = src.height || src.naturalHeight;
+    if(!w0 || !h0) throw new Error("boyut yok");
+    const s = Math.min(1, THUMB_MAX / Math.max(w0, h0));
+    const c = document.createElement("canvas");
+    c.width  = Math.max(1, Math.round(w0 * s));
+    c.height = Math.max(1, Math.round(h0 * s));
+    c.getContext("2d").drawImage(src, 0, 0, c.width, c.height);
+    return await new Promise((res, rej) =>
+      c.toBlob(b => b ? res(b) : rej(new Error("toBlob")), "image/jpeg", THUMB_QUALITY));
+  } finally {
+    if(close) close();
+  }
+}
+
+function makeVideoThumb(blob){
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(blob);
+    const v = document.createElement("video");
+    let done = false, fallback = null;
+    const timer = setTimeout(() => finish(reject, new Error("zaman aşımı")), 9000);
+
+    function finish(fn, arg){
+      if(done) return;
+      done = true;
+      clearTimeout(timer);
+      if(fallback) clearTimeout(fallback);
+      try{ v.removeAttribute("src"); v.load(); }catch(e){}
+      URL.revokeObjectURL(url);
+      fn(arg);
+    }
+    function draw(){
+      if(done) return;
+      try{
+        const w0 = v.videoWidth, h0 = v.videoHeight;
+        if(!w0 || !h0) return finish(reject, new Error("boyut yok"));
+        const s = Math.min(1, THUMB_MAX / Math.max(w0, h0));
+        const c = document.createElement("canvas");
+        c.width  = Math.max(1, Math.round(w0 * s));
+        c.height = Math.max(1, Math.round(h0 * s));
+        c.getContext("2d").drawImage(v, 0, 0, c.width, c.height);
+        c.toBlob(b => b ? finish(resolve, b) : finish(reject, new Error("toBlob")),
+                 "image/jpeg", THUMB_QUALITY);
+      }catch(e){ finish(reject, e); }
+    }
+
+    v.muted = true; v.defaultMuted = true; v.playsInline = true;
+    v.setAttribute("playsinline",""); v.setAttribute("muted","");
+    v.preload = "auto";
+    v.onerror = () => finish(reject, new Error("video okunamadı"));
+    v.onloadeddata = () => {
+      try{
+        const d = isFinite(v.duration) && v.duration > 0 ? v.duration : 1;
+        v.currentTime = Math.min(0.4, d / 2);
+      }catch(e){}
+      fallback = setTimeout(draw, 1500);
+    };
+    v.onseeked = draw;
+    v.src = url;
+  });
+}
+
+async function buildAndUploadThumb(user, rec){
+  const isVideo = (rec.type || "").startsWith("video/");
+  let thumbBlob = null;
+  try{
+    thumbBlob = isVideo ? await makeVideoThumb(rec.blob) : await makeImageThumb(rec.blob);
+  }catch(e){
+    console.warn("Küçük resim üretilemedi:", rec.name, e && e.message);
+    return "";
+  }
+  if(!thumbBlob) return "";
+  try{
+    const tPath = `uploads/${user.uid}/${rec.id}_thumb.jpg`;
+    const snap = await uploadBytes(sRef(storage, tPath), thumbBlob, { contentType: "image/jpeg" });
+    const u = await getDownloadURL(snap.ref);
+    console.log("Küçük resim hazır:", rec.name);
+    return u;
+  }catch(e){
+    console.warn("Küçük resim yüklenemedi:", rec.name, e && e.code);
+    return "";
+  }
+}
+
 /* ---------- Yükleme motoru ---------- */
 const active = new Map();
+let queue = [];
+const qMeta = new Map();
+const qEls  = new Map();
 let pumping = false;
+
 const sleep = ms => new Promise(r => setTimeout(r, ms));
-const sanitize = n => n.replace(/[^\w.\-]+/g, "_").slice(-80);
+const sanitize = n => String(n).replace(/[^\w.\-]+/g, "_").slice(-80);
+
+async function refreshQueue(){
+  try{
+    const all = await idbAll();
+    queue = all
+      .map(r => ({ id:r.id, name:r.name, size:r.size, failed:!!r.failed,
+                   attempts:r.attempts || 0, addedAt:r.addedAt || 0 }))
+      .sort((a,b) => a.addedAt - b.addedAt);
+  }catch(e){
+    console.error("Kuyruk okunamadı:", e);
+    queue = [];
+  }
+  qMeta.clear();
+  for(const m of queue) qMeta.set(m.id, m);
+  renderQueue();
+}
 
 async function pump(){
   if(pumping || !auth.currentUser) return;
@@ -444,11 +585,21 @@ async function pump(){
   await acquireWakeLock();
   try{
     while(true){
-      const all = await idbAll();
-      const queued = all.filter(r => !active.has(r.id) && !r.failed);
-      if(!queued.length && !active.size) break;
-      while(active.size < MAX_CONCURRENT && queued.length) startUpload(queued.shift());
-      await sleep(500);
+      const pending = queue.filter(r => !active.has(r.id) && !r.failed);
+      if(!pending.length && !active.size) break;
+      while(active.size < MAX_CONCURRENT && pending.length){
+        const meta = pending.shift();
+        let rec = null;
+        try{ rec = await idbGet(meta.id); }catch(e){}
+        if(!rec){
+          queue = queue.filter(q => q.id !== meta.id);
+          qMeta.delete(meta.id);
+          renderQueue();
+          continue;
+        }
+        startUpload(rec);
+      }
+      await sleep(400);
     }
   } finally {
     pumping = false;
@@ -462,13 +613,16 @@ function startUpload(rec){
   if(!user) return;
   const path = `uploads/${user.uid}/${rec.id}_${sanitize(rec.name)}`;
   const task = uploadBytesResumable(sRef(storage, path), rec.blob, { contentType: rec.type });
-  active.set(rec.id, { name: rec.name, progress: 0, failed: false });
-  renderQueue();
+  active.set(rec.id, { progress: 0, failed: false, lastPct: -1 });
+  paint(rec.id);
 
   task.on("state_changed",
     snap => {
       const a = active.get(rec.id);
-      if(a){ a.progress = snap.totalBytes ? snap.bytesTransferred / snap.totalBytes : 0; renderQueue(); }
+      if(!a) return;
+      a.progress = snap.totalBytes ? snap.bytesTransferred / snap.totalBytes : 0;
+      const pct = Math.round(a.progress * 100);
+      if(pct !== a.lastPct){ a.lastPct = pct; paint(rec.id); }
     },
     async err => {
       console.warn("Yükleme hatası:", err.code, rec.name);
@@ -476,59 +630,85 @@ function startUpload(rec){
       if(rec.attempts >= MAX_ATTEMPTS) rec.failed = true;
       try{ await idbPut(rec); }catch(e){}
       const a = active.get(rec.id);
-      if(a){ a.failed = true; renderQueue(); }
+      if(a){ a.failed = true; paint(rec.id); }
       await sleep(3000);
       active.delete(rec.id);
-      renderQueue();
+      await refreshQueue();
     },
     async () => {
       try{
         const url = await getDownloadURL(task.snapshot.ref);
-        await addDoc(collection(db, "uploads"), {
+        const thumbUrl = await buildAndUploadThumb(user, rec);
+        const base = {
           uid: user.uid, path, url,
           name: rec.name, contentType: rec.type, size: rec.size,
           uploader: rec.uploader || "", createdAt: serverTimestamp()
-        });
+        };
+        try{
+          await addDoc(collection(db, "uploads"), thumbUrl ? { ...base, thumbUrl } : base);
+        }catch(e1){
+          console.warn("thumbUrl ile kayıt reddedildi, tekrar deneniyor:", e1 && e1.code);
+          await addDoc(collection(db, "uploads"), base);
+        }
         await idbDel(rec.id);
       }catch(e){
         console.error("Firestore kaydı başarısız:", e);
       }
       active.delete(rec.id);
-      renderQueue();
+      await refreshQueue();
     }
   );
 }
 
 /* ---------- Kuyruk arayüzü ---------- */
-async function renderQueue(){
-  const all = await idbAll();
+function renderQueue(){
   const card = $("queueCard"), list = $("queueList");
-  if(!all.length){ card.classList.add("hidden"); list.innerHTML = ""; return; }
+  qEls.clear();
+  if(!queue.length){
+    card.classList.add("hidden");
+    list.replaceChildren();
+    return;
+  }
   card.classList.remove("hidden");
-  list.innerHTML = all.sort((a,b)=>a.addedAt-b.addedAt).map(rec => {
-    const a = active.get(rec.id);
-    const pct = a ? Math.round(a.progress * 100) : 0;
-    const dead = rec.failed;
-    const label = dead ? "Başarısız" : (a ? (a.failed ? "Yeniden denenecek" : pct + "%") : "Sırada");
-    return `<div class="qitem ${dead || (a && a.failed) ? "failed" : ""}">
-      <div class="qrow"><span class="qname">${escapeHtml(rec.name)}</span><span class="qpct">${label}</span></div>
-      <div class="bar"><i style="width:${dead ? 100 : pct}%"></i></div>
-    </div>`;
-  }).join("");
+  const frag = document.createDocumentFragment();
+  for(const r of queue){
+    const item = document.createElement("div"); item.className = "qitem";
+    const row  = document.createElement("div"); row.className = "qrow";
+    const nm   = document.createElement("span"); nm.className = "qname"; nm.textContent = r.name;
+    const pc   = document.createElement("span"); pc.className = "qpct";
+    row.append(nm, pc);
+    const bar  = document.createElement("div"); bar.className = "bar";
+    const fill = document.createElement("i");
+    bar.appendChild(fill);
+    item.append(row, bar);
+    frag.appendChild(item);
+    qEls.set(r.id, { item, pc, fill });
+  }
+  list.replaceChildren(frag);
+  for(const r of queue) paint(r.id);
+}
+
+function paint(id){
+  const el = qEls.get(id), r = qMeta.get(id);
+  if(!el || !r) return;
+  const a = active.get(id);
+  if(r.failed){
+    el.item.classList.add("failed");
+    el.pc.textContent = "Başarısız";
+    el.fill.style.width = "100%";
+    return;
+  }
+  el.item.classList.toggle("failed", !!(a && a.failed));
+  if(!a){ el.pc.textContent = "Sırada"; el.fill.style.width = "0%"; return; }
+  if(a.failed){ el.pc.textContent = "Yeniden denenecek"; return; }
+  const pct = Math.round(a.progress * 100);
+  el.pc.textContent = pct + "%";
+  el.fill.style.width = pct + "%";
 }
 
 window.addEventListener("beforeunload", e => {
   if(pumping){ e.preventDefault(); e.returnValue = ""; }
 });
-
-/* ---------- Yardımcılar ---------- */
-function isHeic(ct, name){
-  const n = (name || "").toLowerCase();
-  return /heic|heif/.test(ct || "") || n.endsWith(".heic") || n.endsWith(".heif");
-}
-function escapeHtml(s){
-  return String(s).replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
-}
 
 /* ---------- Lightbox ---------- */
 let items = [], lbIndex = -1;
@@ -539,13 +719,13 @@ function lbOpen(i){
   lbIndex = i;
   lb.classList.add("open");
   document.body.classList.add("locked");
-  requestAnimationFrame(() => lb.classList.add("shown"));
   lbRender();
 }
 function lbClose(){
-  lb.classList.remove("shown");
+  lbStage.replaceChildren();
+  lb.classList.remove("open");
   document.body.classList.remove("locked");
-  setTimeout(() => { lb.classList.remove("open"); lbStage.innerHTML = ""; lbIndex = -1; }, 220);
+  lbIndex = -1;
 }
 function lbGo(step){
   const n = lbIndex + step;
@@ -557,14 +737,24 @@ function lbRender(){
   const x = items[lbIndex];
   if(!x) return;
   const isVideo = (x.contentType || "").startsWith("video/");
+  lbStage.replaceChildren();
 
   if(isVideo){
-    lbStage.innerHTML = `<video src="${x.url}" controls autoplay playsinline preload="metadata"></video>`;
+    const v = document.createElement("video");
+    v.src = x.url; v.controls = true; v.autoplay = true;
+    v.playsInline = true; v.setAttribute("playsinline",""); v.preload = "metadata";
+    lbStage.appendChild(v);
   } else if(isHeic(x.contentType, x.name)){
-    lbStage.innerHTML = `<div class="ph">Bu fotoğraf HEIC biçiminde ve tarayıcıda önizlenemiyor.
-      <a href="${x.url}" target="_blank" rel="noopener">Dosyayı aç</a></div>`;
+    const d = document.createElement("div"); d.className = "ph";
+    d.textContent = "Bu fotoğraf HEIC biçiminde, tarayıcıda önizlenemeyebilir. ";
+    const a = document.createElement("a");
+    a.href = x.url; a.target = "_blank"; a.rel = "noopener"; a.textContent = "Dosyayı aç";
+    d.appendChild(a);
+    lbStage.appendChild(d);
   } else {
-    lbStage.innerHTML = `<img src="${x.url}" alt="">`;
+    const img = document.createElement("img");
+    img.alt = ""; img.decoding = "async"; img.src = x.url;
+    lbStage.appendChild(img);
   }
 
   $("lbWho").textContent  = x.uploader || "İsimsiz";
@@ -573,12 +763,6 @@ function lbRender(){
   $("lbCount").textContent = (lbIndex + 1) + " / " + items.length;
   $("lbPrev").disabled = lbIndex === 0;
   $("lbNext").disabled = lbIndex === items.length - 1;
-
-  [items[lbIndex+1], items[lbIndex-1]].forEach(n => {
-    if(n && !(n.contentType||"").startsWith("video/") && !isHeic(n.contentType,n.name)){
-      new Image().src = n.url;
-    }
-  });
 }
 
 $("lbClose").addEventListener("click", lbClose);
@@ -608,39 +792,81 @@ $("gallery").addEventListener("click", e => {
 });
 
 /* ---------- Galeri ---------- */
-let unsub = null;
-function watchGallery(user, admin){
+const tileMap = new Map();
+let isAdmin = false, curUser = null, pageSize = PAGE_SIZE, unsub = null;
+
+function createTile(x){
+  const b = document.createElement("button");
+  b.className = "tile"; b.type = "button";
+  b.setAttribute("aria-label", "Aç");
+  const isVideo = (x.contentType || "").startsWith("video/");
+
+  if(x.thumbUrl){
+    const img = document.createElement("img");
+    img.alt = ""; img.loading = "lazy"; img.decoding = "async";
+    img.src = x.thumbUrl;
+    b.appendChild(img);
+  } else {
+    const ph = document.createElement("div");
+    ph.className = "ph";
+    ph.textContent = isVideo ? "▶ Video" : "Görüntülemek için dokunun";
+    b.appendChild(ph);
+  }
+  if(isVideo){
+    const s = document.createElement("span");
+    s.className = "vid"; s.textContent = "VİDEO";
+    b.appendChild(s);
+  }
+  if(isAdmin && x.uploader){
+    const w = document.createElement("span");
+    w.className = "who"; w.textContent = x.uploader;
+    b.appendChild(w);
+  }
+  return b;
+}
+
+function renderGallery(){
+  const grid = $("gallery");
+  const frag = document.createDocumentFragment();
+  const seen = new Set();
+
+  items.forEach((x, i) => {
+    const key = x.path || x.url;
+    if(!key) return;
+    seen.add(key);
+    let el = tileMap.get(key);
+    if(!el){ el = createTile(x); tileMap.set(key, el); }
+    el.dataset.i = i;
+    frag.appendChild(el);
+  });
+
+  grid.replaceChildren(frag);
+  for(const k of Array.from(tileMap.keys())) if(!seen.has(k)) tileMap.delete(k);
+  $("moreWrap").classList.toggle("hidden", items.length < pageSize);
+}
+
+function watchGallery(){
   if(unsub){ unsub(); unsub = null; }
   const col = collection(db, "uploads");
-  const q = admin
-    ? query(col, orderBy("createdAt", "desc"))
-    : query(col, where("uid", "==", user.uid), orderBy("createdAt", "desc"));
+  const q = isAdmin
+    ? query(col, orderBy("createdAt", "desc"), limit(pageSize))
+    : query(col, where("uid", "==", curUser.uid), orderBy("createdAt", "desc"), limit(pageSize));
 
   unsub = onSnapshot(q, snap => {
-    const grid = $("gallery"), empty = $("galleryEmpty");
+    const empty = $("galleryEmpty");
     items = snap.docs.map(d => d.data());
 
     if(!items.length){
-      grid.innerHTML = "";
-      empty.textContent = admin ? "Henüz yükleme yok." : "Henüz bir şey yüklemediniz.";
+      tileMap.clear();
+      $("gallery").replaceChildren();
+      $("moreWrap").classList.add("hidden");
+      empty.textContent = isAdmin ? "Henüz yükleme yok." : "Henüz bir şey yüklemediniz.";
       empty.classList.remove("hidden");
       if(lb.classList.contains("open")) lbClose();
       return;
     }
     empty.classList.add("hidden");
-    grid.innerHTML = items.map((x, i) => {
-      const who = admin && x.uploader ? `<span class="who">${escapeHtml(x.uploader)}</span>` : "";
-      let media;
-      if((x.contentType || "").startsWith("video/")){
-        media = `<video src="${x.url}" preload="metadata" muted playsinline></video><span class="vid">VİDEO</span>`;
-      } else if(isHeic(x.contentType, x.name)){
-        media = `<div class="ph">HEIC<br>${escapeHtml((x.name || "").slice(-14))}</div>`;
-      } else {
-        media = `<img src="${x.url}" loading="lazy" alt="">`;
-      }
-      return `<button class="tile" data-i="${i}" aria-label="Aç">${media}${who}</button>`;
-    }).join("");
-
+    renderGallery();
     if(lbIndex >= items.length) lbClose();
   }, err => {
     console.error("Galeri hatası (index gerekebilir):", err);
@@ -648,6 +874,11 @@ function watchGallery(user, admin){
     $("galleryEmpty").classList.remove("hidden");
   });
 }
+
+$("moreBtn").addEventListener("click", () => {
+  pageSize += PAGE_SIZE;
+  if(curUser) watchGallery();
+});
 
 /* ---------- Kimlik ---------- */
 onAuthStateChanged(auth, async user => {
@@ -662,14 +893,18 @@ onAuthStateChanged(auth, async user => {
   }
   authReady = true;
   authError = "";
-  const admin = !user.isAnonymous && user.email === ADMIN_EMAIL;
-  $("adminBadge").classList.toggle("hidden", !admin);
-  $("galleryTitle").firstChild.nodeValue = admin ? "Tüm Yüklemeler" : "Yüklediklerim";
-  $("adminBtn").textContent = admin ? "Çıkış Yap" : "Yönetici Girişi";
-  $("nameCard").classList.toggle("hidden", admin);
+  curUser = user;
+  isAdmin = !user.isAnonymous && user.email === ADMIN_EMAIL;
+  pageSize = PAGE_SIZE;
+  tileMap.clear();
+  $("gallery").replaceChildren();
+  $("adminBadge").classList.toggle("hidden", !isAdmin);
+  $("galleryTitle").firstChild.nodeValue = isAdmin ? "Tüm Yüklemeler" : "Yüklediklerim";
+  $("adminBtn").textContent = isAdmin ? "Çıkış Yap" : "Yönetici Girişi";
+  $("nameCard").classList.toggle("hidden", isAdmin);
   syncName();
-  watchGallery(user, admin);
-  renderQueue();
+  watchGallery();
+  await refreshQueue();
   pump();
 });
 
@@ -694,7 +929,5 @@ $("admLogin").addEventListener("click", async () => {
 });
 
 syncName();
-renderQueue();
+refreshQueue();
 </script>
-</body>
-</html>
